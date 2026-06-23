@@ -205,3 +205,5 @@ html body .zoho-demo-layer .zd-ic { width: 15px; height: 15px; display: inline-b
 .zoho-demo-layer .zd-reply { display: flex; align-items: center; gap: 10px; margin: 0 16px 16px; padding: 11px 14px; border: 1px solid #e6e9ef; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
 .zoho-demo-layer .zd-reply input { flex: 1; border: none; outline: none; font-size: 13px; color: #2b2f36; }
 .zoho-demo-layer .zd-reply .zd-ic { color: #6b7280; }
+.zoho-demo-layer .zd-email { font-size: 12px; color: #8a93a3; }
+.zoho-demo-layer .zd-row { transition: background .08s; }

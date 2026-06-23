@@ -2,33 +2,151 @@
   "title": "Hộp thư đến",
   "unread": "5 Email chưa đọc",
   "sort": "Order Received",
+  "replyPlaceholder": "@nhắc đến một người dùng hoặc nhóm để chia sẻ nội dung nói chuyện này",
   "groups": [
     {
       "label": "Hôm nay",
       "emails": [
-        { "id": 1, "sender": "no-reply@mecontract.com.vn", "subject": "Thông tin đăng nhập tài khoản Me...", "time": "9:09 SA", "unread": true }
+        {
+          "id": 1, "sender": "no-reply@mecontract.com.vn", "subject": "Thông tin đăng nhập tài khoản MeContract", "time": "9:09 SA", "unread": true,
+          "detail": {
+            "subject": "Thông tin đăng nhập tài khoản MeContract",
+            "messages": [
+              { "from": "MeContract", "email": "no-reply@mecontract.com.vn", "date": "Hôm nay, 9:09 SA", "status": "HỘP THƯ ĐẾN", "body": [
+                "Kính gửi Quý khách,",
+                "Tài khoản MeContract của bạn đã được khởi tạo thành công.",
+                "Tên đăng nhập: partner@dragons.asia",
+                "Vui lòng đăng nhập và đổi mật khẩu trong lần đầu sử dụng để đảm bảo an toàn.",
+                "Trân trọng,",
+                "Đội ngũ MeContract"
+              ] }
+            ]
+          }
+        }
       ]
     },
     {
       "label": "7 ngày vừa qua",
       "emails": [
-        { "id": 2, "sender": "Me", "subject": "test Thu, 18 Jun 2026 03:42:05 -0...", "time": "TH 5 THG 6" },
-        { "id": 3, "sender": "noreply@zohoaccounts.com", "subject": "Đăng nhập mới vào tài khoản Zoh...", "time": "TH 4 THG 6" },
-        { "id": 4, "sender": "legal@jnt.asia... partner@drag...", "subject": "HÓA ĐƠN JNT | DRAGON ME...", "time": "TH 2 THG 6", "active": true, "attach": true, "countBadge": 2, "unreadBadge": 1 }
+        {
+          "id": 2, "sender": "Me", "subject": "test Thu, 18 Jun 2026 03:42:05", "time": "TH 5 THG 6",
+          "detail": {
+            "subject": "test Thu, 18 Jun 2026 03:42:05",
+            "messages": [
+              { "from": "Me", "email": "partner@dragons.asia", "date": "TH 5, 18 Thg 6 2026, 03:42 SA", "status": "ĐÃ GỬI", "statusColor": "#e07b39", "body": [
+                "Đây là email test gửi đi để kiểm tra cấu hình SMTP.",
+                "Nếu bạn nhận được email này nghĩa là hệ thống gửi/nhận đang hoạt động bình thường.",
+                "— partner@dragons.asia"
+              ] }
+            ]
+          }
+        },
+        {
+          "id": 3, "sender": "noreply@zohoaccounts.com", "subject": "Đăng nhập mới vào tài khoản Zoho", "time": "TH 4 THG 6",
+          "detail": {
+            "subject": "Đăng nhập mới vào tài khoản Zoho",
+            "messages": [
+              { "from": "Zoho Accounts", "email": "noreply@zohoaccounts.com", "date": "TH 4, 04 Thg 6 2026, 14:22", "status": "HỘP THƯ ĐẾN", "body": [
+                "Xin chào,",
+                "Chúng tôi phát hiện một lần đăng nhập mới vào tài khoản Zoho của bạn.",
+                "Thiết bị: Chrome trên macOS · IP: 14.169.xx.xx",
+                "Thời gian: 04 Tháng 6, 2026 lúc 14:22 (GMT+7)",
+                "Nếu đây không phải là bạn, vui lòng đổi mật khẩu ngay lập tức.",
+                "Trân trọng, Zoho Accounts"
+              ] }
+            ]
+          }
+        },
+        {
+          "id": 4, "sender": "legal@jnt.asia, partner@dragons.asia", "subject": "HÓA ĐƠN JNT | DRAGON MEDIA", "time": "TH 2 THG 6", "active": true, "attach": true, "countBadge": 2, "unreadBadge": 1,
+          "detail": {
+            "subject": "Re: Draft Invoice for March 2026 – For Review",
+            "translation": { "label": "Bản dịch email:", "from": "English", "to": "Vietnamese", "action": "Dịch" },
+            "messages": [
+              { "from": "Me", "email": "partner@dragons.asia", "date": "TH 4 THG 4 1 11:15 SA", "status": "ĐÃ GỬI", "statusColor": "#e07b39", "collapsed": true,
+                "preview": "Re: Draft Invoice for March 2026 – For Review - Dear Sir/Madam, I am sending you the officially i..." },
+              { "from": "khanh@pressify.us", "email": "khanh@pressify.us", "date": "TH 4 THG 4 1 10:02 SA", "status": "HỘP THƯ ĐẾN",
+                "recipients": "Henry Le, Kelly Pressify, Duy Tan, Partner, Henry Le",
+                "body": [
+                  "Dear Ms. Diem,",
+                  "Thank you for your email.",
+                  "I have reviewed the draft invoice, and everything is correct. Please proceed with issuing the official invoice as per the attached file.",
+                  "Thank you,",
+                  "Khanh HR Pressify",
+                  "On Tue, Mar 31, 2026 at 9:22 PM Henry Le <henry@pressify.us> wrote:"
+                ], "quoted": true }
+            ]
+          }
+        }
       ]
     },
     {
       "label": "Sớm hơn trong Tháng 6",
       "emails": [
-        { "id": 5, "sender": "noreply@zohoaccounts.com", "subject": "Đăng nhập mới vào tài khoản Zoh...", "time": "TH 3 THG 6" },
-        { "id": 6, "sender": "Tam Tra... Me", "subject": "Service Acceptance Report for ...", "time": "TH 2 THG 6", "attach": true, "countBadge": 2 }
+        {
+          "id": 5, "sender": "noreply@zohoaccounts.com", "subject": "Đăng nhập mới vào tài khoản Zoho", "time": "TH 3 THG 6",
+          "detail": {
+            "subject": "Đăng nhập mới vào tài khoản Zoho",
+            "messages": [
+              { "from": "Zoho Accounts", "email": "noreply@zohoaccounts.com", "date": "TH 3, 03 Thg 6 2026, 08:05", "status": "HỘP THƯ ĐẾN", "body": [
+                "Xin chào,",
+                "Một thiết bị mới vừa đăng nhập vào tài khoản Zoho của bạn.",
+                "Thiết bị: Safari trên iPhone · Vị trí: Hồ Chí Minh, VN",
+                "Nếu không phải bạn, hãy bảo mật tài khoản ngay.",
+                "Trân trọng, Zoho Accounts"
+              ] }
+            ]
+          }
+        },
+        {
+          "id": 6, "sender": "Tam Tran, Me", "subject": "Service Acceptance Report for May 2026", "time": "TH 2 THG 6", "attach": true, "countBadge": 2,
+          "detail": {
+            "subject": "Service Acceptance Report for May 2026",
+            "messages": [
+              { "from": "Tam Tran", "email": "tam.tran@dragons.asia", "date": "TH 2, 02 Thg 6 2026, 16:40", "status": "HỘP THƯ ĐẾN", "recipients": "Partner, Accounting", "body": [
+                "Hi team,",
+                "Đính kèm là Biên bản nghiệm thu dịch vụ tháng 5/2026.",
+                "Nhờ anh/chị review và ký xác nhận giúp em trước thứ Sáu tuần này.",
+                "Cảm ơn,",
+                "Tâm Trần"
+              ] }
+            ]
+          }
+        }
       ]
     },
     {
       "label": "Tháng 5",
       "emails": [
-        { "id": 7, "sender": "hoadondientu@gdt.gov.vn", "subject": "Thông báo về việc chấp nhận th...", "time": "TH 3 THG 5", "attach": true },
-        { "id": 8, "sender": "hoadondientu@gdt.gov.vn", "subject": "Thông báo về việc chấp nhận thuế điện tử...", "time": "TH 3 THG 5", "attach": true }
+        {
+          "id": 7, "sender": "hoadondientu@gdt.gov.vn", "subject": "Thông báo về việc chấp nhận hóa đơn điện tử", "time": "TH 3 THG 5", "attach": true,
+          "detail": {
+            "subject": "Thông báo về việc chấp nhận hóa đơn điện tử",
+            "messages": [
+              { "from": "Tổng cục Thuế", "email": "hoadondientu@gdt.gov.vn", "date": "TH 3, 13 Thg 5 2026, 10:15", "status": "HỘP THƯ ĐẾN", "body": [
+                "Kính gửi: CÔNG TY DRAGON MEDIA,",
+                "Cơ quan Thuế thông báo đã chấp nhận hóa đơn điện tử số 0000128, ký hiệu 1C26TYY.",
+                "Mã CQT cấp: 00ABCD1234567890.",
+                "Quý đơn vị có thể tra cứu hóa đơn trên Cổng thông tin điện tử của Tổng cục Thuế.",
+                "Trân trọng."
+              ] }
+            ]
+          }
+        },
+        {
+          "id": 8, "sender": "hoadondientu@gdt.gov.vn", "subject": "Thông báo về việc chấp nhận hóa đơn điện tử (lần 2)", "time": "TH 3 THG 5", "attach": true,
+          "detail": {
+            "subject": "Thông báo về việc chấp nhận hóa đơn điện tử (lần 2)",
+            "messages": [
+              { "from": "Tổng cục Thuế", "email": "hoadondientu@gdt.gov.vn", "date": "TH 3, 13 Thg 5 2026, 11:48", "status": "HỘP THƯ ĐẾN", "body": [
+                "Kính gửi: CÔNG TY DRAGON MEDIA,",
+                "Cơ quan Thuế thông báo đã chấp nhận hóa đơn điện tử số 0000129, ký hiệu 1C26TYY.",
+                "Mã CQT cấp: 00EFGH0987654321.",
+                "Trân trọng."
+              ] }
+            ]
+          }
+        }
       ]
     }
   ]

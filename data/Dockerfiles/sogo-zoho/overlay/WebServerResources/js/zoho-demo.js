@@ -1,13 +1,14 @@
 /* ===========================================================================
- * Zoho demo layer — paints a Zoho-style populated inbox (list + reading pane)
- * over SOGo's central area, driven by fake JSON in WebServerResources/demo/.
- * Purely visual/preview: it's an isolated overlay (.zoho-demo-*), so if anything
- * here fails, the real SOGo underneath is untouched.
- * Toggle off by removing js/zoho-demo.js from SOGoUIAdditionalJSFiles.
+ * Zoho demo layer — a Zoho-style populated inbox painted over SOGo's central
+ * area, driven by fake JSON (WebServerResources/demo/inbox.json). Each email
+ * carries its own `detail`; clicking a row swaps the reading pane to that email.
+ * Preview-only and isolated (.zd-*) — if it fails, the real SOGo is untouched.
+ * Disable by removing js/zoho-demo.js from SOGoUIAdditionalJSFiles.
  * =========================================================================== */
 (function () {
   'use strict';
   var DATA_BASE = '/SOGo/WebServerResources/demo/';
+  var AV_COLORS = ['#e0a458','#5a6b8c','#4a90e2','#36c172','#9b59b6','#e07b39','#16a085','#c0556b'];
 
   var I = {
     search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
@@ -33,9 +34,13 @@
     smile:'<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>'
   };
   function ic(n){ return '<svg class="zd-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(I[n]||'')+'</svg>'; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function initial(name){ var m = String(name||'?').trim(); if (/^me$/i.test(m)) return 'Me'; var c = m.replace(/[^A-Za-zÀ-ỹ]/,'').charAt(0); return (c||m.charAt(0)||'?').toUpperCase(); }
+  function color(id){ return AV_COLORS[(id||0) % AV_COLORS.length]; }
 
   function getJSON(f){ return fetch(DATA_BASE+f, {cache:'no-cache'}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
 
+  /* ---------------- list ---------------- */
   function listHTML(d){
     var groups = d.groups.map(function(g){
       var rows = g.emails.map(function(m){
@@ -43,17 +48,17 @@
         if (m.unreadBadge) badges += '<span class="zd-badge zd-badge-b">'+m.unreadBadge+'</span>';
         if (m.attach) badges += '<span class="zd-attach">'+ic('attach')+'</span>';
         if (m.countBadge) badges += '<span class="zd-badge">'+m.countBadge+'</span>';
-        return '<div class="zd-row'+(m.active?' zd-active':'')+(m.unread?' zd-unread':'')+'">'+
+        return '<div class="zd-row'+(m.unread?' zd-unread':'')+'" data-id="'+m.id+'">'+
           '<span class="zd-row-ic">'+ic('mail')+'</span>'+
           '<div class="zd-row-main">'+
-            '<div class="zd-row-top"><span class="zd-sender">'+m.sender+'</span><span class="zd-time">'+m.time+'</span></div>'+
-            '<div class="zd-row-sub">'+(badges?'<span class="zd-badges">'+badges+'</span>':'')+m.subject+'</div>'+
+            '<div class="zd-row-top"><span class="zd-sender">'+esc(m.sender)+'</span><span class="zd-time">'+esc(m.time)+'</span></div>'+
+            '<div class="zd-row-sub">'+(badges?'<span class="zd-badges">'+badges+'</span>':'')+esc(m.subject)+'</div>'+
           '</div></div>';
       }).join('');
-      return '<div class="zd-grp">'+g.label+'</div>'+rows;
+      return '<div class="zd-grp">'+esc(g.label)+'</div>'+rows;
     }).join('');
     return '<div class="zd-list">'+
-      '<div class="zd-list-head"><h1>'+d.title+'</h1><span class="zd-unread"> • <a>'+d.unread+'</a></span></div>'+
+      '<div class="zd-list-head"><h1>'+esc(d.title)+'</h1><span class="zd-unread"> • <a>'+esc(d.unread)+'</a></span></div>'+
       '<div class="zd-list-tools">'+
         '<label class="zd-chk"><input type="checkbox"/>'+ic('caret')+'</label>'+
         '<button class="zd-tool">'+ic('move')+' Chuyển đến</button>'+
@@ -61,78 +66,106 @@
         '<button class="zd-tool">'+ic('trash')+' Xóa</button>'+
         '<button class="zd-tool zd-tool-more">'+ic('more')+'</button>'+
       '</div>'+
-      '<div class="zd-list-sort">'+ic('sort')+' <span>'+d.sort+'</span></div>'+
+      '<div class="zd-list-sort">'+ic('sort')+' <span>'+esc(d.sort)+'</span></div>'+
       '<div class="zd-list-body">'+groups+'</div>'+
     '</div>';
   }
 
-  function readHTML(c){
+  /* ---------------- reading pane (from an email.detail) ---------------- */
+  function readHTML(email, replyPlaceholder){
+    var c = email.detail || { subject: email.subject, messages: [] };
     var tb = '<div class="zd-rp-tb"><div class="zd-rp-tbl">'+
-      '<button class="zd-tbb">'+ic('bell')+' '+c.toolbar[0]+'</button>'+
-      '<button class="zd-tbb">'+ic('check')+' '+c.toolbar[1]+'</button>'+
-      '<button class="zd-tbb">'+ic('link')+' '+c.toolbar[2]+'</button>'+
-      '<button class="zd-tbb">'+ic('clock')+' '+c.toolbar[3]+'</button></div>'+
+      '<button class="zd-tbb">'+ic('bell')+' Thông báo nhắc</button>'+
+      '<button class="zd-tbb">'+ic('check')+' Thêm tác vụ</button>'+
+      '<button class="zd-tbb">'+ic('link')+' Liên kết vĩnh viễn</button>'+
+      '<button class="zd-tbb">'+ic('clock')+' Báo lại</button></div>'+
       '<div class="zd-rp-tbr">'+ic('print')+ic('chat')+ic('ext')+ic('close')+'</div></div>';
-    var msgs = c.messages.map(function(m, idx){
-      var av = '<span class="zd-av" style="background:'+m.avatarColor+'">'+m.avatar+'</span>';
+
+    var msgs = (c.messages||[]).map(function(m, idx){
+      var av = '<span class="zd-av" style="background:'+color(email.id+idx)+'">'+esc(initial(m.from))+'</span>';
       var acts = '<span class="zd-acts">'+ic('reply')+ic('replyAll')+ic('forward')+ic('link')+'<span class="zd-sep">|</span>'+ic('caret')+'</span>';
+      var status = m.status ? ' · <span style="color:'+(m.statusColor||'#8a93a3')+'">'+esc(m.status)+'</span>' : '';
       if (m.collapsed) {
         return '<div class="zd-msg zd-collapsed">'+
           '<div class="zd-mh">'+av+'<div class="zd-mm">'+
-          '<div class="zd-l1"><span class="zd-from">'+m.from+'</span>'+
-          '<span class="zd-sub2">'+ic('attach')+' '+m.date+' · <span style="color:'+m.statusColor+'">'+m.status+'</span></span></div>'+
-          '<div class="zd-prev"><em>'+m.preview+'</em></div></div>'+acts+'</div></div>';
+          '<div class="zd-l1"><span class="zd-from">'+esc(m.from)+'</span>'+
+          '<span class="zd-sub2">'+ic('attach')+' '+esc(m.date)+status+'</span></div>'+
+          '<div class="zd-prev"><em>'+esc(m.preview)+'</em></div></div>'+acts+'</div></div>';
       }
-      var tr = (idx===c.messages.length-1) ? '<div class="zd-tr">'+
-          '<span class="zd-tr-l">'+c.translation.label+'</span>'+
-          '<a class="zd-tr-lang">'+c.translation.from+' '+ic('caret')+'</a><span class="zd-tr-ar">→</span>'+
-          '<a class="zd-tr-lang">'+c.translation.to+' '+ic('caret')+'</a>'+
-          '<button class="zd-tr-btn">'+c.translation.action+'</button><span class="zd-tr-sp"></span>'+ic('close')+'</div>' : '';
-      var body = (m.body||[]).map(function(p){return '<p>'+p+'</p>';}).join('');
+      var tr = (c.translation && idx === c.messages.length-1) ? '<div class="zd-tr">'+
+          '<span class="zd-tr-l">'+esc(c.translation.label)+'</span>'+
+          '<a class="zd-tr-lang">'+esc(c.translation.from)+' '+ic('caret')+'</a><span class="zd-tr-ar">→</span>'+
+          '<a class="zd-tr-lang">'+esc(c.translation.to)+' '+ic('caret')+'</a>'+
+          '<button class="zd-tr-btn">'+esc(c.translation.action)+'</button><span class="zd-tr-sp"></span>'+ic('close')+'</div>' : '';
+      var recip = m.recipients ? '<div class="zd-recip">'+ic('caret')+' '+esc(m.recipients)+'</div>' : '';
+      var body = (m.body||[]).map(function(p){ return '<p>'+esc(p)+'</p>'; }).join('');
       var quoted = m.quoted ? '<div class="zd-quoted">'+ic('more')+'</div>' : '';
       return '<div class="zd-msg">'+
         '<div class="zd-mh">'+av+'<div class="zd-mm">'+
-        '<div class="zd-l1"><span class="zd-from">'+m.from+'</span> '+ic('search')+'</div>'+
-        '<div class="zd-l2">'+m.date+' · <span style="color:'+m.statusColor+'">'+m.status+'</span></div>'+
-        '<div class="zd-recip">'+ic('caret')+' '+m.recipients+'</div></div>'+acts+'</div>'+
+        '<div class="zd-l1"><span class="zd-from">'+esc(m.from)+'</span> <span class="zd-email">'+esc(m.email||'')+'</span></div>'+
+        '<div class="zd-l2">'+esc(m.date)+status+'</div>'+recip+'</div>'+acts+'</div>'+
         tr+'<div class="zd-body">'+body+quoted+'</div></div>';
     }).join('');
-    return '<div class="zd-read">'+tb+'<div class="zd-rp-scroll"><h2 class="zd-rp-subj">'+c.subject+'</h2>'+msgs+'</div>'+
-      '<div class="zd-reply"><input type="text" placeholder="'+c.replyPlaceholder+'"/>'+ic('smile')+'</div></div>';
+
+    return tb+'<div class="zd-rp-scroll"><h2 class="zd-rp-subj">'+esc(c.subject||email.subject)+'</h2>'+msgs+'</div>'+
+      '<div class="zd-reply"><input type="text" placeholder="'+esc(replyPlaceholder||'')+'"/>'+ic('smile')+'</div>';
   }
 
-  var built = false, html = '';
+  /* ---------------- state + wiring ---------------- */
+  var DATA = null, selectedId = null, byId = {};
 
+  function indexData(d){
+    byId = {};
+    d.groups.forEach(function(g){ g.emails.forEach(function(e){ byId[e.id] = e; }); });
+  }
+  function defaultId(d){
+    var act = null, first = null;
+    d.groups.forEach(function(g){ g.emails.forEach(function(e){ if(first==null) first=e.id; if(e.active && act==null) act=e.id; }); });
+    return act != null ? act : first;
+  }
+
+  function selectEmail(layer, id){
+    var email = byId[id]; if (!email) return;
+    selectedId = id;
+    var read = layer.querySelector('.zd-read');
+    if (read) read.innerHTML = readHTML(email, DATA.replyPlaceholder);
+    layer.querySelectorAll('.zd-row').forEach(function(r){ r.classList.toggle('zd-active', r.getAttribute('data-id') == String(id)); });
+  }
+
+  function buildLayer(){
+    var layer = document.createElement('div');
+    layer.className = 'zoho-demo-layer';
+    layer.innerHTML = listHTML(DATA) + '<div class="zd-read"></div>';
+    // click delegation on the list
+    layer.addEventListener('click', function(ev){
+      var row = ev.target.closest && ev.target.closest('.zd-row');
+      if (row) selectEmail(layer, row.getAttribute('data-id'));
+    });
+    return layer;
+  }
+
+  /* ---------------- placement over SOGo's mailbox section ---------------- */
   function findSection(){
     var secs = document.querySelectorAll('main.view section');
     for (var i=0;i<secs.length;i++){ if (secs[i].querySelector('.toolbar-main') && secs[i].offsetParent !== null) return secs[i]; }
     return null;
   }
-
   function place(){
-    if (!html) return;
-    var sec = findSection();
-    if (!sec) return;
+    if (!DATA) return;
+    var sec = findSection(); if (!sec) return;
     var tb = sec.querySelector('.toolbar-main');
-    var top = tb ? tb.offsetHeight : 56;
     if (getComputedStyle(sec).position === 'static') sec.style.position = 'relative';
     var layer = sec.querySelector(':scope > .zoho-demo-layer');
-    if (!layer){
-      layer = document.createElement('div');
-      layer.className = 'zoho-demo-layer';
-      layer.innerHTML = html;
-      sec.appendChild(layer);
-    }
-    layer.style.top = top + 'px';
+    if (!layer){ layer = buildLayer(); sec.appendChild(layer); selectEmail(layer, selectedId); }
+    layer.style.top = (tb ? tb.offsetHeight : 56) + 'px';
   }
 
   function boot(){
-    Promise.all([getJSON('inbox.json'), getJSON('conversation.json')]).then(function(res){
-      html = listHTML(res[0]) + readHTML(res[1]);
-      built = true;
+    getJSON('inbox.json').then(function(d){
+      DATA = d; indexData(d); selectedId = defaultId(d);
       place();
-      var pending=false;
-      var obs = new MutationObserver(function(){ if(pending) return; pending=true; setTimeout(function(){pending=false; place();}, 200); });
+      var pending = false;
+      var obs = new MutationObserver(function(){ if(pending) return; pending=true; setTimeout(function(){ pending=false; place(); }, 200); });
       obs.observe(document.body, {childList:true, subtree:true});
       window.addEventListener('resize', place);
     }).catch(function(e){ try{ console.warn('[zoho-demo] disabled:', e.message);}catch(_){} });
