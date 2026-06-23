@@ -31,64 +31,72 @@ CKEDITOR.addCss("body {font-size: 16px !important}");
 // SOGo image. Tune selectors below; SOGo class names may shift across versions.
 // ---------------------------------------------------------------------------
 (function injectZohoTheme() {
-  // Zoho brand blue. We recolor SOGo's compiled green primary to this. Selectors
-  // use SOGo's REAL class names (toolbar-main, sg-account-section, sg-selected,
-  // md-fab) verified against the SOGo source, with !important to beat the
-  // precompiled theme-default.css (whose rules are not !important).
-  var ZOHO = '#2C6FDB';      // primary
-  var ZOHO_DARK = '#215AB8'; // hover/darker
-  var ZOHO_TINT = '#E8F0FD'; // selected-row tint
+  // Zoho-like reskin (STAGE 1 — colors/theme only). Selectors are the REAL SOGo
+  // 5.12.8 class names taken from the upstream source (UI/Templates/MailerUI/*.wox
+  // and scss/views/MailerUI.scss): toolbar-main, md-sidenav-left, sg-account-section,
+  // sg-mailbox-list-item/sg-selected, md-fab.md-accent/sg-fab-bottom-center,
+  // sg-md-subheader. !important beats Angular Material's md-colors inline styles
+  // and the non-!important compiled theme. Structural changes (right app rail,
+  // top tabs/search) are STAGE 2 via the custom SOGo image (see
+  // data/Dockerfiles/sogo-zoho/README.md).
+  var NAVY      = '#2b3547';  // dark sidebars/topbar
+  var NAVY_DARK = '#283041';
+  var BLUE      = '#2c6fde';  // primary accent
+  var BLUE_DARK = '#225bc0';
+  var TINT      = '#e8f0fd';  // selected mail tint
+  var LIGHT     = '#c7cdd9';  // text on navy
 
   var css = `
-    /* ---- Recolor primary green -> Zoho blue (keeps existing white text) ---- */
-    md-toolbar.toolbar-main,
-    .toolbar-main,
-    section.sg-account-section,
-    .sg-account-section,
-    md-toolbar.md-primary,
-    .md-primary.md-toolbar,
-    md-toolbar.md-default-theme:not(.md-menu-toolbar).md-primary {
-      background-color: ${ZOHO} !important;
-      color: #ffffff !important;
+    /* ---- Left sidebar -> Zoho dark navy ---- */
+    md-sidenav.md-sidenav-left,
+    .md-sidenav-left md-content,
+    .md-sidenav-left .sg-account-section {
+      background-color: ${NAVY} !important;
+      color: ${LIGHT} !important;
     }
+    .md-sidenav-left md-toolbar,
+    .md-sidenav-left .md-toolbar { background-color: ${NAVY_DARK} !important; color: #fff !important; }
+    .md-sidenav-left .sg-item-name,
+    .md-sidenav-left md-list-item,
+    .md-sidenav-left .sg-md-subheader { color: ${LIGHT} !important; }
+    .md-sidenav-left md-icon { color: #9aa3b2 !important; }
 
-    /* ---- Compose FAB: blue + slightly rectangular (kept bottom-right) ---- */
-    .md-fab, md-button.md-fab, button.md-fab,
-    .md-fab-bottom-right .md-fab {
-      background-color: ${ZOHO} !important;
-      color: #ffffff !important;
-      border-radius: 10px !important;
+    /* ---- Selected folder -> blue accent ---- */
+    md-list-item.sg-mailbox-list-item.sg-selected {
+      background-color: rgba(255,255,255,.10) !important;
+      color: #fff !important;
+      box-shadow: inset 3px 0 0 ${BLUE} !important;
     }
-    .md-fab:hover, md-button.md-fab:hover, button.md-fab:hover {
-      background-color: ${ZOHO_DARK} !important;
-    }
+    .sg-mailbox-list-item.sg-selected md-icon { color: #5b9bf3 !important; }
 
-    /* ---- Selected folder (sidenav) -> Zoho blue ---- */
-    md-list-item.sg-mailbox-list-item.sg-selected,
-    md-list-item.sg-selected,
-    md-list-item.md-bg,
-    .sg-mailbox-list-item.md-bg {
-      background-color: ${ZOHO} !important;
-      color: #ffffff !important;
-    }
-    md-list-item.sg-mailbox-list-item.sg-selected .md-icon,
-    md-list-item.sg-selected i { color: #ffffff !important; }
+    /* ---- Top toolbar (was teal) -> dark navy ---- */
+    md-toolbar.toolbar-main { background-color: ${NAVY} !important; color: #fff !important; }
+    md-toolbar.toolbar-main md-icon,
+    md-toolbar.toolbar-main .md-button { color: ${LIGHT} !important; }
 
-    /* ---- Selected message row (list) -> light blue tint + blue bar ---- */
-    md-list-item.md-mail.active,
-    md-list-item.md-mail.md-bg,
-    md-virtual-repeat-container md-list-item.active {
-      background-color: ${ZOHO_TINT} !important;
-      box-shadow: inset 3px 0 0 ${ZOHO} !important;
-    }
-    md-list-item.md-mail:hover { background-color: #F4F6F9 !important; }
-
-    /* ---- Search field: prominent Zoho-like bar ---- */
-    .sg-search-form input, md-toolbar .md-button.search input, input[type="search"] {
-      background: #F4F6F9 !important;
+    /* ---- Compose FAB -> Zoho blue, rectangular ---- */
+    md-button.md-fab.md-accent,
+    .sg-fab-bottom-center,
+    md-fab-speed-dial .md-fab {
+      background-color: ${BLUE} !important;
+      color: #fff !important;
       border-radius: 8px !important;
-      padding: 0 12px !important;
     }
+    md-button.md-fab.md-accent:hover,
+    .sg-fab-bottom-center:hover { background-color: ${BLUE_DARK} !important; }
+
+    /* ---- Message list: date-group subheaders + selected tile ---- */
+    [id="messagesList"] .sg-md-subheader, .sg-md-subheader {
+      background: #fafbfc !important; color: #6b7280 !important; font-weight: 600 !important;
+    }
+    [id="messagesList"] md-list-item.sg-selected {
+      background-color: ${TINT} !important;
+      box-shadow: inset 3px 0 0 ${BLUE} !important;
+    }
+
+    /* ---- Accent text / links -> blue ---- */
+    a.md-accent, md-icon.md-accent,
+    .md-button.md-accent:not(.md-fab) { color: ${BLUE} !important; }
   `;
 
   function apply() {
