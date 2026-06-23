@@ -19,6 +19,11 @@ LABEL maintainer="Zoho-themed SOGo overlay"
 # Real stylesheet, linked from the edited UIxPageFrame.wox (<link .../css/zoho.css>).
 COPY overlay/css/zoho.css /usr/local/lib/GNUstep/SOGo/WebServerResources/css/zoho.css
 
+# Zoho demo layer: fake data (folder) + renderer JS, loaded via sogo.conf
+# (SOGoUIAdditionalJSFiles). Served as static resources by nginx.
+COPY overlay/WebServerResources/demo/ /usr/local/lib/GNUstep/SOGo/WebServerResources/demo/
+COPY overlay/WebServerResources/js/zoho-demo.js /usr/local/lib/GNUstep/SOGo/WebServerResources/js/zoho-demo.js
+
 # Edited templates, overlaid onto the originals wherever they live in the image.
 COPY overlay/templates/ /zoho-templates/
 RUN set -eu; \
