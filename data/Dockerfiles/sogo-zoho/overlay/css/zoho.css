@@ -63,8 +63,11 @@ html body .zoho-compose {
 html body .zoho-compose:hover { background: #225bc0; }
 
 /* Left app-switcher rail */
+/* A REAL flex column in the mail view row (main.view, layout=row) — not a fixed
+ * overlay — so it sits flush with the SOGo sidebar and never gets covered when
+ * the responsive sidenav opens on narrow screens. order:-1 keeps it first. */
 html body .zoho-left-rail {
-  position: fixed; top: 0; left: 0; bottom: 0; width: 68px; z-index: 60;
+  order: -1; flex: 0 0 68px; align-self: stretch;
   background: #222c3b; border-right: 1px solid rgba(255,255,255,.05);
   display: flex; flex-direction: column; align-items: stretch; padding-top: 6px;
   overflow-y: auto; overflow-x: hidden;
@@ -85,10 +88,12 @@ html body .zoho-app-active { color: #fff; border-left-color: #2c6fde; background
 html body .zoho-app-active md-icon { color: #5b9bf3 !important; }
 
 /* Right tools rail */
+/* Right tools rail — also a real flex column (last via order:100). */
 html body .zoho-right-rail {
-  position: fixed; top: 56px; right: 0; bottom: 0; width: 46px; z-index: 40;
+  order: 100; flex: 0 0 46px; align-self: stretch;
   background: #f3f4f6; border-left: 1px solid #e2e5ea;
   display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 10px;
+  overflow-y: auto;
 }
 html body .zoho-rail-item {
   width: 32px; height: 32px; border-radius: 6px; cursor: pointer; color: #5b636f;
@@ -114,5 +119,12 @@ html body .zoho-topsearch input::placeholder { color: #8b94a4; }
 html body md-fab-speed-dial.sg-fab-bottom-center,
 html body md-button.md-fab.sg-fab-bottom-center { opacity: 0 !important; pointer-events: none !important; }
 
-/* Shift SOGo content clear of both overlay rails */
-html body main.view { margin-left: 68px !important; margin-right: 46px !important; }
+/* Rails are flex columns now, so no margins are needed. Just stop the
+ * responsive sidenav from sliding over the left rail when it opens as an
+ * overlay (<960px): pin its left edge to the rail width. Harmless when the
+ * sidenav is locked-open (static elements ignore `left`). */
+html body md-sidenav.md-sidenav-left { left: 68px !important; }
+html body main.view { overflow-x: hidden; }
+/* Let the mailbox column shrink to fit, so the two rails don't push it past the
+ * viewport (otherwise the reading pane would overflow ~68px to the right). */
+html body main.view > section { flex: 1 1 0 !important; min-width: 0 !important; }
