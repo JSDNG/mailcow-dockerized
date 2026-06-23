@@ -1,0 +1,30 @@
+{
+  "account": {
+    "name": "Mail",
+    "unreadHeadline": "5 Email chưa đọc"
+  },
+  "quickLinks": [
+    { "name": "Trang chủ", "icon": "home" },
+    { "name": "Tất cả chưa đọc", "icon": "unread" },
+    { "name": "Tạo một nhóm", "icon": "addGroup", "isLink": true }
+  ],
+  "folders": [
+    { "name": "Hộp thư đến", "icon": "inbox", "count": 5, "active": true },
+    { "name": "Bản nháp", "icon": "draft" },
+    { "name": "Mẫu", "icon": "template" },
+    { "name": "Đã nhắc lại", "icon": "snooze" },
+    { "name": "Đã gửi", "icon": "sent" },
+    { "name": "Spam", "icon": "spam" },
+    { "name": "Thùng rác", "icon": "trash" },
+    { "name": "Lưu trữ", "icon": "archive" },
+    { "name": "Hộp thư đi", "icon": "outbox" },
+    { "name": "Newsletter", "icon": "folder" },
+    { "name": "Notification", "icon": "folder" }
+  ],
+  "tags": [],
+  "views": [
+    { "name": "Chưa đọc", "count": 5, "active": true },
+    { "name": "Tất cả tin nhắn" },
+    { "name": "Đã gắn cờ" }
+  ]
+}

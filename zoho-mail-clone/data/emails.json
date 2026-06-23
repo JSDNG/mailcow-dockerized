@@ -1,0 +1,91 @@
+{
+  "title": "Hộp thư đến",
+  "unreadHeadline": "5 Email chưa đọc",
+  "sort": "Order Received",
+  "groups": [
+    {
+      "label": "Hôm nay",
+      "emails": [
+        {
+          "id": 1,
+          "sender": "no-reply@mecontract.com.vn",
+          "subject": "Thông tin đăng nhập tài khoản Me...",
+          "time": "9:09 SA",
+          "unread": true
+        }
+      ]
+    },
+    {
+      "label": "7 ngày vừa qua",
+      "emails": [
+        {
+          "id": 2,
+          "sender": "Me",
+          "subject": "test Thu, 18 Jun 2026 03:42:05 -0...",
+          "time": "TH 5 THG 6...",
+          "unread": false
+        },
+        {
+          "id": 3,
+          "sender": "noreply@zohoaccounts.com",
+          "subject": "Đăng nhập mới vào tài khoản Zoh...",
+          "time": "TH 4 THG 6...",
+          "unread": false
+        },
+        {
+          "id": 4,
+          "sender": "legal@jnt.asia... partner@drag...",
+          "subject": "HÓA ĐƠN JNT | DRAGON ME...",
+          "time": "TH 2 THG 6...",
+          "unread": false,
+          "active": true,
+          "hasAttachment": true,
+          "countBadge": 2,
+          "starBadge": 1
+        }
+      ]
+    },
+    {
+      "label": "Sớm hơn trong Tháng 6",
+      "emails": [
+        {
+          "id": 5,
+          "sender": "noreply@zohoaccounts.com",
+          "subject": "Đăng nhập mới vào tài khoản Zoh...",
+          "time": "TH 3 THG 6...",
+          "unread": false
+        },
+        {
+          "id": 6,
+          "sender": "Tam Tra... Me",
+          "subject": "Service Acceptance Report for ...",
+          "time": "TH 2 THG 6...",
+          "unread": false,
+          "hasAttachment": true,
+          "countBadge": 2
+        }
+      ]
+    },
+    {
+      "label": "Tháng 5",
+      "emails": [
+        {
+          "id": 7,
+          "sender": "hoadondientu@gdt.gov.vn",
+          "subject": "Thông báo về việc chấp nhận th...",
+          "time": "TH 3 THG 5...",
+          "unread": false,
+          "hasAttachment": true
+        },
+        {
+          "id": 8,
+          "sender": "hoadondientu@gdt.gov.vn",
+          "subject": "Thông báo về việc chấp nhận thuế điện tử...",
+          "time": "TH 3 THG 5...",
+          "unread": false,
+          "hasAttachment": true
+        }
+      ]
+    }
+  ]
+}
