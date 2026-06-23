@@ -64,18 +64,22 @@ html body .zoho-compose:hover { background: #225bc0; }
 
 /* Left app-switcher rail */
 html body .zoho-left-rail {
-  position: fixed; top: 0; left: 0; bottom: 0; width: 64px; z-index: 60;
+  position: fixed; top: 0; left: 0; bottom: 0; width: 68px; z-index: 60;
   background: #222c3b; border-right: 1px solid rgba(255,255,255,.05);
   display: flex; flex-direction: column; align-items: stretch; padding-top: 6px;
-  overflow-y: auto;
+  overflow-y: auto; overflow-x: hidden;
 }
 html body .zoho-app-item {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 10px 4px; color: #8b94a4; font-size: 9.5px; line-height: 1.15;
-  text-align: center; cursor: pointer; border-left: 3px solid transparent;
+  padding: 9px 3px; color: #8b94a4; cursor: pointer;
+  border-left: 3px solid transparent; overflow: hidden;
 }
 html body .zoho-app-item:hover { color: #c7cdd9; background: rgba(255,255,255,.06); }
-html body .zoho-app-item em { font-style: normal; }
+html body .zoho-app-item em {
+  font-style: normal; display: block; width: 100%; text-align: center;
+  font-size: 9px; line-height: 1.12;
+  white-space: normal; overflow-wrap: anywhere; word-break: break-word;
+}
 html body .zoho-app-item md-icon { color: inherit !important; font-size: 22px; width: 22px; height: 22px; }
 html body .zoho-app-active { color: #fff; border-left-color: #2c6fde; background: rgba(255,255,255,.08); }
 html body .zoho-app-active md-icon { color: #5b9bf3 !important; }
@@ -111,4 +115,4 @@ html body md-fab-speed-dial.sg-fab-bottom-center,
 html body md-button.md-fab.sg-fab-bottom-center { opacity: 0 !important; pointer-events: none !important; }
 
 /* Shift SOGo content clear of both overlay rails */
-html body main.view { margin-left: 64px !important; margin-right: 46px !important; }
+html body main.view { margin-left: 68px !important; margin-right: 46px !important; }
