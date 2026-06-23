@@ -160,8 +160,38 @@
     layer.style.top = (tb ? tb.offsetHeight : 56) + 'px';
   }
 
+  /* ---------------- toggle (no rebuild needed) ----------------
+   * The demo is a non-destructive OVERLAY: the real SOGo mail UI/logic (IMAP
+   * list + reading pane) is fully intact underneath. Turn the demo OFF to use
+   * the real mailbox — any of:
+   *   - add ?demo=0 to the URL, or
+   *   - run  localStorage.setItem('zohoDemo','off')  in the console (persists), or
+   *   - remove js/zoho-demo.js from SOGoUIAdditionalJSFiles in sogo.conf. */
+  function demoEnabled(){
+    try {
+      if (/[?&#]demo=0\b/.test(location.href)) return false;
+      if (window.localStorage && localStorage.getItem('zohoDemo') === 'off') return false;
+    } catch (e) {}
+    return true;
+  }
+
+  /* ---------------- DATA ADAPTER (map real data here later) ----------------
+   * Returns the inbox model the renderer expects:
+   *   { title, unread, sort, replyPlaceholder,
+   *     groups: [ { label, emails: [ { id, sender, subject, time, unread?,
+   *                 attach?, countBadge?, unreadBadge?, detail:{subject,
+   *                 translation?, messages:[{from,email,date,status,statusColor,
+   *                 recipients?,body[],collapsed?,preview?,quoted?}] } } ] } ] }
+   * TODAY: fake JSON. To map REAL mail later, replace the body of loadInbox()
+   * to read SOGo's mailbox model — e.g.
+   *     var scope = angular.element(document.querySelector('[ng-controller]')).scope();
+   * — and transform scope.mailbox messages into the shape above. The whole
+   * renderer (list, click-to-open, reading pane) stays unchanged. */
+  function loadInbox(){ return getJSON('inbox.json'); }
+
   function boot(){
-    getJSON('inbox.json').then(function(d){
+    if (!demoEnabled()) { try { console.info('[zoho-demo] off — real SOGo mailbox in use'); } catch (e) {} return; }
+    loadInbox().then(function(d){
       DATA = d; indexData(d); selectedId = defaultId(d);
       place();
       var pending = false;
