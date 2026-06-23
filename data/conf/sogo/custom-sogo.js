@@ -76,8 +76,46 @@
     '  display:flex; align-items:center; justify-content:center; }',
     'html body .zoho-rail-item:hover { background:#e7e9ed; }',
     'html body .zoho-rail-item svg { width:18px; height:18px; }',
-    '/* keep SOGo content clear of the overlay rail */',
-    'html body main.view { margin-right:46px !important; }'
+
+    '/* STAGE 2 structure: left app-switcher rail (Zoho signature) */',
+    'html body .zoho-left-rail {',
+    '  position:fixed; top:0; left:0; bottom:0; width:64px; z-index:60;',
+    '  background:#222c3b; border-right:1px solid rgba(255,255,255,.05);',
+    '  display:flex; flex-direction:column; align-items:stretch; padding-top:6px;',
+    '  overflow-y:auto; }',
+    'html body .zoho-app-item {',
+    '  display:flex; flex-direction:column; align-items:center; gap:4px;',
+    '  padding:10px 4px; color:#8b94a4; font-size:9.5px; line-height:1.15; text-align:center;',
+    '  cursor:pointer; border-left:3px solid transparent; }',
+    'html body .zoho-app-item:hover { color:#c7cdd9; background:rgba(255,255,255,.06); }',
+    'html body .zoho-app-item em { font-style:normal; }',
+    'html body .zoho-app-item svg { width:21px; height:21px; }',
+    'html body .zoho-app-active { color:#fff; border-left-color:' + BLUE + '; background:rgba(255,255,255,.08); }',
+    'html body .zoho-app-active svg { color:#5b9bf3; }',
+
+    '/* STAGE 2 structure: top search pill (decorative) */',
+    'html body md-toolbar.toolbar-main { position:relative !important; }',
+    'html body .zoho-topsearch {',
+    '  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);',
+    '  display:flex; align-items:center; gap:8px; width:420px; max-width:38vw; height:34px;',
+    '  background:rgba(255,255,255,.13); border-radius:6px; padding:0 12px; color:#c7cdd9; }',
+    'html body .zoho-ts-scope { font-size:13px; white-space:nowrap; }',
+    'html body .zoho-ts-div { width:1px; height:18px; background:rgba(255,255,255,.2); }',
+    'html body .zoho-topsearch svg { width:16px; height:16px; color:#c7cdd9; }',
+    'html body .zoho-topsearch input {',
+    '  flex:1; background:transparent; border:none; outline:none; color:#fff; font-size:13px; }',
+    'html body .zoho-topsearch input::placeholder { color:#8b94a4; }',
+
+    '/* Hide SOGo big date block (un-Zoho) */',
+    'html body .sg-date-group, html body .sg-date-today { display:none !important; }',
+
+    '/* Hide the green compose FAB — replaced by the top "Mail Mới" button. */',
+    '/* Kept in the DOM (not removed) so triggerCompose can still click it. */',
+    'html body md-fab-speed-dial.sg-fab-bottom-center,',
+    'html body md-button.md-fab.sg-fab-bottom-center { opacity:0 !important; pointer-events:none !important; }',
+
+    '/* Shift SOGo clear of BOTH overlay rails (left app rail + right app rail) */',
+    'html body main.view { margin-left:64px !important; margin-right:46px !important; }'
   ].join('\n');
 
   function apply() {
@@ -117,11 +155,53 @@
       'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
   }
 
-  // Trigger SOGo's real compose action by clicking the existing FAB trigger.
+  // Trigger SOGo's real compose action. The FAB *trigger* only opens the speed
+  // dial, so click the actual compose action button (ng-click=mailbox.newMessage),
+  // which fires even while the FAB is hidden via CSS.
   function triggerCompose() {
-    var trigger = document.querySelector(
-      'md-fab-speed-dial md-fab-trigger button, md-fab-speed-dial button.md-fab, button.md-fab.md-accent');
+    var direct = document.querySelector('md-button.md-fab.md-accent.sg-fab-bottom-center');
+    if (direct) { direct.click(); return; }
+    var action = document.querySelector('md-fab-speed-dial md-fab-actions md-button.md-fab');
+    if (action) { action.click(); return; }
+    var trigger = document.querySelector('md-fab-speed-dial md-fab-trigger md-button, button.md-fab.md-accent');
     if (trigger) trigger.click();
+  }
+
+  // Left app-switcher rail (Zoho signature). Mostly visual; "Mail" is active.
+  function addLeftRail() {
+    if (document.querySelector('.zoho-left-rail')) return;
+    var rail = document.createElement('nav');
+    rail.className = 'zoho-left-rail';
+    var apps = [
+      { t: 'Mail',   active: true, i: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/>' },
+      { t: 'Lịch',   i: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
+      { t: 'Việc cần làm', i: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
+      { t: 'Ghi chú', i: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>' },
+      { t: 'Số liên lạc', i: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
+      { t: 'Dấu trang', i: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>' },
+      { t: 'Web Tab', i: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>' }
+    ];
+    var html = '';
+    apps.forEach(function (a) {
+      html += '<a class="zoho-app-item' + (a.active ? ' zoho-app-active' : '') + '" title="' + a.t + '">' +
+        svgIcon(a.i) + '<em>' + a.t + '</em></a>';
+    });
+    rail.innerHTML = html;
+    document.body.appendChild(rail);
+  }
+
+  // Decorative Zoho-style search pill in the top toolbar.
+  function addTopSearch() {
+    var bar = document.querySelector('md-toolbar.toolbar-main');
+    if (!bar || bar.querySelector('.zoho-topsearch')) return;
+    var s = document.createElement('div');
+    s.className = 'zoho-topsearch';
+    s.innerHTML =
+      '<span class="zoho-ts-scope">Mail ▾</span>' +
+      '<span class="zoho-ts-div"></span>' +
+      svgIcon('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>') +
+      '<input type="text" placeholder="Tìm kiếm ( / )" />';
+    bar.appendChild(s);
   }
 
   function addComposeButton() {
@@ -160,7 +240,12 @@
   var pending = false;
   function run() {
     pending = false;
-    try { addComposeButton(); addRightRail(); } catch (e) {}
+    try {
+      addLeftRail();
+      addComposeButton();
+      addRightRail();
+      addTopSearch();
+    } catch (e) {}
   }
   function schedule() {
     if (pending) return;
