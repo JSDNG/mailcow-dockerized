@@ -1,0 +1,114 @@
+/* ===========================================================================
+ * Zoho-themed SOGo — real stylesheet (shipped in the custom image, linked from
+ * UIxPageFrame.wox). Replaces the runtime CSS injection that custom-sogo.js did.
+ * Structure (left/right rails, top search, "Mail Mới" button) is now in the
+ * real templates; this file styles them plus reskins SOGo to Zoho colors.
+ * =========================================================================== */
+
+/* ---- Palette ---- */
+/* navy #2b3547 · navy-dark #283041 · rail #222c3b · blue #2c6fde
+ * blue-dark #225bc0 · tint #e8f0fd · light text #c7cdd9 */
+
+/* ---- Left sidebar -> Zoho dark navy ---- */
+html body md-sidenav.md-sidenav-left,
+html body .md-sidenav-left md-content,
+html body .md-sidenav-left .sg-account-section {
+  background-color: #2b3547 !important;
+  color: #c7cdd9 !important;
+}
+html body .md-sidenav-left md-toolbar,
+html body .md-sidenav-left .md-toolbar {
+  background-color: #283041 !important;
+  color: #fff !important;
+}
+html body .md-sidenav-left .sg-item-name,
+html body .md-sidenav-left md-list-item { color: #c7cdd9 !important; }
+html body .md-sidenav-left md-icon { color: #9aa3b2 !important; }
+
+/* ---- Selected folder -> blue accent ---- */
+html body md-list-item.sg-mailbox-list-item.sg-selected {
+  background-color: rgba(255,255,255,.10) !important;
+  color: #fff !important;
+  box-shadow: inset 3px 0 0 #2c6fde !important;
+}
+html body .sg-mailbox-list-item.sg-selected md-icon { color: #5b9bf3 !important; }
+
+/* ---- Top toolbar (teal) -> dark navy ---- */
+html body md-toolbar.toolbar-main { background-color: #2b3547 !important; color: #fff !important; position: relative !important; }
+html body md-toolbar.toolbar-main md-icon,
+html body md-toolbar.toolbar-main .md-button { color: #c7cdd9 !important; }
+
+/* ---- Message list: date-group subheaders + selected tile ---- */
+html body [id="messagesList"] .sg-md-subheader,
+html body .sg-md-subheader { background: #fafbfc !important; color: #6b7280 !important; font-weight: 600 !important; }
+html body [id="messagesList"] md-list-item.sg-selected {
+  background-color: #e8f0fd !important;
+  box-shadow: inset 3px 0 0 #2c6fde !important;
+}
+
+/* ---- Accent text / links -> blue ---- */
+html body a.md-accent, html body md-icon.md-accent,
+html body .md-button.md-accent:not(.md-fab) { color: #2c6fde !important; }
+
+/* ===========================================================================
+ * Structure (elements added in the templates)
+ * =========================================================================== */
+
+/* "Mail Mới" compose button at the top of the sidebar */
+html body .zoho-compose {
+  display: block; width: calc(100% - 16px); margin: 10px 8px; height: 38px;
+  background: #2c6fde; color: #fff; border: none; border-radius: 6px;
+  font-size: 14px; font-weight: 600; cursor: pointer; letter-spacing: .2px;
+}
+html body .zoho-compose:hover { background: #225bc0; }
+
+/* Left app-switcher rail */
+html body .zoho-left-rail {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 64px; z-index: 60;
+  background: #222c3b; border-right: 1px solid rgba(255,255,255,.05);
+  display: flex; flex-direction: column; align-items: stretch; padding-top: 6px;
+  overflow-y: auto;
+}
+html body .zoho-app-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 4px; color: #8b94a4; font-size: 9.5px; line-height: 1.15;
+  text-align: center; cursor: pointer; border-left: 3px solid transparent;
+}
+html body .zoho-app-item:hover { color: #c7cdd9; background: rgba(255,255,255,.06); }
+html body .zoho-app-item em { font-style: normal; }
+html body .zoho-app-item md-icon { color: inherit !important; font-size: 22px; width: 22px; height: 22px; }
+html body .zoho-app-active { color: #fff; border-left-color: #2c6fde; background: rgba(255,255,255,.08); }
+html body .zoho-app-active md-icon { color: #5b9bf3 !important; }
+
+/* Right tools rail */
+html body .zoho-right-rail {
+  position: fixed; top: 56px; right: 0; bottom: 0; width: 46px; z-index: 40;
+  background: #f3f4f6; border-left: 1px solid #e2e5ea;
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 10px;
+}
+html body .zoho-rail-item {
+  width: 32px; height: 32px; border-radius: 6px; cursor: pointer; color: #5b636f;
+  display: flex; align-items: center; justify-content: center;
+}
+html body .zoho-rail-item:hover { background: #e7e9ed; }
+html body .zoho-rail-item md-icon { color: inherit !important; font-size: 18px; width: 18px; height: 18px; }
+
+/* Top search pill (replaces the date block) */
+html body .zoho-topsearch {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  display: flex; align-items: center; gap: 8px; width: 420px; max-width: 38vw; height: 34px;
+  background: rgba(255,255,255,.13); border-radius: 6px; padding: 0 12px; color: #c7cdd9;
+}
+html body .zoho-ts-scope { font-size: 13px; white-space: nowrap; }
+html body .zoho-ts-div { width: 1px; height: 18px; background: rgba(255,255,255,.2); }
+html body .zoho-topsearch md-icon { color: #c7cdd9 !important; font-size: 16px; width: 16px; height: 16px; }
+html body .zoho-topsearch input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 13px; }
+html body .zoho-topsearch input::placeholder { color: #8b94a4; }
+
+/* Hide the green compose FAB (replaced by "Mail Mới"); keep it in the DOM so
+ * the onclick can still trigger SOGo's real compose action. */
+html body md-fab-speed-dial.sg-fab-bottom-center,
+html body md-button.md-fab.sg-fab-bottom-center { opacity: 0 !important; pointer-events: none !important; }
+
+/* Shift SOGo content clear of both overlay rails */
+html body main.view { margin-left: 64px !important; margin-right: 46px !important; }

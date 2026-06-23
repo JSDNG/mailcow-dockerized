@@ -1,0 +1,13 @@
+# Zoho-themed SOGo — build a custom SOGo image that overlays the edited frontend
+# (templates + CSS) from data/Dockerfiles/sogo-zoho/.
+#
+# Enable:   docker compose build sogo-mailcow && docker compose up -d sogo-mailcow nginx-mailcow
+# Rollback: delete this file, then  docker compose up -d sogo-mailcow nginx-mailcow
+#           (falls back to the stock ghcr.io/mailcow/sogo image).
+services:
+  sogo-mailcow:
+    image: mailcow/sogo-zoho:5.12.8-1
+    build:
+      context: ./data/Dockerfiles/sogo-zoho
+      args:
+        SOGO_IMAGE: ghcr.io/mailcow/sogo:5.12.8-1

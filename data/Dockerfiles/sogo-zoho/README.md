@@ -1,61 +1,53 @@
 # Zoho-themed SOGo (fork of the SOGo webmail UI)
 
-Mục tiêu: biến UI webmail thật (SOGo) thành giao diện kiểu **Zoho Mail**, bằng
-cách **sửa chính frontend của SOGo** (template `.wox` + CSS) rồi đóng gói thành
-image Docker tùy biến cho mailcow — **không recompile backend Objective-C**.
+Biến webmail SOGo thành giao diện kiểu **Zoho Mail** bằng cách **sửa thẳng
+frontend gốc của SOGo** (template `.wox` + CSS), đóng gói thành image Docker tùy
+biến — KHÔNG recompile backend Objective-C nên build vài giây.
 
-## Vì sao chia 2 tầng
+## Cách hoạt động
 
-| Tầng | Phạm vi | Cơ chế | Cần build image? |
-|---|---|---|---|
-| **1** | Màu/theme (navy sidebar, accent xanh, FAB xanh, group ngày) | CSS inject qua `data/conf/sogo/custom-sogo.js` | ❌ chỉ restart |
-| **2** | Cấu trúc (rail app phải, tabs trên, thanh search, đổi vị trí nút compose, bar dịch) | Sửa template `.wox` → COPY đè qua image này | ✅ build image |
+`Dockerfile` lấy `FROM ghcr.io/mailcow/sogo` rồi:
+1. COPY `overlay/css/zoho.css` vào `WebServerResources/css/` (style thật).
+2. COPY đè các template đã sửa trong `overlay/templates/` lên bản gốc trong image
+   (tìm bằng `find` nên không cần biết đường dẫn cài đặt).
 
-CSS không đổi được *cấu trúc DOM* → phần cấu trúc bắt buộc sửa template ⇒ Tầng 2.
+File tới được nginx vì `bootstrap-sogo.sh` chạy
+`rsync /usr/local/lib/GNUstep/SOGo/. /sogo_web/` lúc khởi động.
 
-## Selector/file thật đã xác định (SOGo 5.12.8 upstream)
+## Đã sửa gì (so với SOGo gốc)
 
-- Shell + sidebar + top toolbar: `UI/Templates/MailerUI/UIxMailMainFrame.wox`
-  (top bar = `md-toolbar.toolbar-main`, sidebar = `md-sidenav.md-sidenav-left`)
-- Danh sách mail + nút compose: `UI/Templates/MailerUI/UIxMailFolderTemplate.wox`
-  (FAB = `md-button.md-fab.md-accent.sg-fab-bottom-center` trong `md-fab-speed-dial`;
-   group ngày = `.sg-md-subheader`)
-- Khung đọc: `UI/Templates/MailerUI/UIxMailViewTemplate.wox` (date = `time.msg-date`)
-- Style: `UI/WebServerResources/scss/views/MailerUI.scss`
+| File | Thay đổi |
+|---|---|
+| `UIxPageFrame.wox` | thêm `<link ... css/zoho.css>` |
+| `UIxTopnavToolbar.wox` | bỏ block ngày → ô **search** Zoho (đã pre-apply `navMailcowBtns.diff` nên bootstrap không patch lại) |
+| `UIxMailMainFrame.wox` | thêm **rail app trái**, **rail công cụ phải**, nút **"Mail Mới"** (gọi compose thật) |
+| `css/zoho.css` | toàn bộ theme navy/xanh + style cho các phần mới + ẩn FAB/ngày |
 
-## Vòng lặp Tầng 2 (làm trên server có Docker)
+Khi đổi giao diện: sửa file trong `overlay/`, rồi build lại image (xem dưới).
 
-### B1 — Xác nhận đường dẫn template trong image (chạy 1 lần, gửi output)
+## Bật (trên server có Docker)
+
+`docker-compose.override.yml` ở gốc repo đã khai báo build. Chỉ cần:
+
 ```bash
-docker exec sogo-mailcow find /usr/local/lib/GNUstep -name 'UIxMailMainFrame.wox'
-docker exec sogo-mailcow find /usr/local/lib/GNUstep -maxdepth 2 -name 'WebServerResources' -type d
-```
-→ cho biết `SOGO_ROOT`/`Templates` thật để chỉnh `Dockerfile` (biến `SOGO_ROOT`)
-và bỏ comment dòng `COPY overlay/Templates/...`.
-
-### B2 — Bật build image tùy biến
-Tạo `docker-compose.override.yml` ở gốc repo:
-```yaml
-services:
-  sogo-mailcow:
-    image: mailcow/sogo-zoho:5.12.8-1
-    build:
-      context: ./data/Dockerfiles/sogo-zoho
-      args:
-        SOGO_IMAGE: ghcr.io/mailcow/sogo:5.12.8-1
-```
-
-### B3 — Build + chạy + xem
-```bash
+cd /opt/app-cty/mailcow-dockerized
+git pull origin feature/fix-ui
 docker compose build sogo-mailcow
 docker compose up -d sogo-mailcow nginx-mailcow
 ```
-Mở `https://<host>/SOGo/`, hard-refresh, chụp màn hình → gửi lại để tinh chỉnh.
+Hard-refresh trình duyệt.
 
-## Lưu ý
+> Lần đầu build kéo base image ~1 phút; các lần sau vài giây (chỉ COPY lại overlay).
 
-- Mỗi lần SOGo nâng version: cập nhật `SOGO_IMAGE` và đối chiếu lại template
-  (đây là chi phí cố hữu của việc fork UI bên thứ ba).
-- Asset gốc để chỉnh sửa lấy từ `Alinto/sogo` tag `SOGo-5.12.8` (đã khảo sát).
-- KHÔNG cần `docker-compose.override.yml` cho tới khi bắt đầu B2 — vì vậy file
-  override CHƯA được tạo sẵn để tránh đổi hành vi deploy hiện tại của bạn.
+## Rollback (nếu có gì sai)
+
+Xóa `docker-compose.override.yml` rồi:
+```bash
+docker compose up -d sogo-mailcow nginx-mailcow
+```
+→ quay lại image SOGo gốc, không mất gì.
+
+## Khi SOGo nâng version
+
+Đổi tag `SOGO_IMAGE` trong `docker-compose.override.yml`, lấy lại 3 template từ
+`Alinto/sogo` đúng tag, áp lại các sửa đổi trên, build lại.
