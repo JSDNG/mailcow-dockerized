@@ -6,21 +6,20 @@
  * =========================================================================== */
 
 /* ---- Palette ---- */
-/* Sampled from Zoho Mail's real UI: a flat charcoal-navy #252934 across the
- * top bar, left rail and folder panel (less blue than the old #2b3547).
- * navy #252934 · navy-dark #20242d · rail #252934 · blue #2c6fde
+/* Deep charcoal-navy chrome (a touch darker than Zoho's exact #252934 for a more
+ * defined look). navy #1b2330 · navy-dark #141b26 · rail #1b2330 · blue #2c6fde
  * blue-dark #225bc0 · tint #e8f0fd · light text #c7cdd9 */
 
 /* ---- Left sidebar -> Zoho dark navy ---- */
 html body md-sidenav.md-sidenav-left,
 html body .md-sidenav-left md-content,
 html body .md-sidenav-left .sg-account-section {
-  background-color: #252934 !important;
+  background-color: #1b2330 !important;
   color: #c7cdd9 !important;
 }
 html body .md-sidenav-left md-toolbar,
 html body .md-sidenav-left .md-toolbar {
-  background-color: #20242d !important;
+  background-color: #141b26 !important;
   color: #fff !important;
 }
 html body .md-sidenav-left .sg-item-name,
@@ -36,7 +35,7 @@ html body md-list-item.sg-mailbox-list-item.sg-selected {
 html body .sg-mailbox-list-item.sg-selected md-icon { color: #5b9bf3 !important; }
 
 /* ---- Top toolbar (teal) -> dark navy ---- */
-html body md-toolbar.toolbar-main { background-color: #252934 !important; color: #fff !important; position: relative !important; }
+html body md-toolbar.toolbar-main { background-color: #1b2330 !important; color: #fff !important; position: relative !important; }
 html body md-toolbar.toolbar-main md-icon,
 html body md-toolbar.toolbar-main .md-button { color: #c7cdd9 !important; }
 
@@ -51,6 +50,35 @@ html body [id="messagesList"] md-list-item.sg-selected {
 /* ---- Accent text / links -> blue ---- */
 html body a.md-accent, html body md-icon.md-accent,
 html body .md-button.md-accent:not(.md-fab) { color: #2c6fde !important; }
+
+/* ---- Zoho fidelity: denser, lighter folder list (keep the 40px row height that
+ *      md-virtual-repeat depends on — only tweak text/icon size & color). ---- */
+html body .md-sidenav-left .sg-mailbox-list-item,
+html body .md-sidenav-left .sg-mailbox-list-item .sg-item-name { font-size: 13px !important; }
+html body .md-sidenav-left .sg-mailbox-list-item { color: #aab2c0 !important; }
+html body .md-sidenav-left .sg-mailbox-list-item md-icon {
+  font-size: 18px !important; width: 18px !important; height: 18px !important; color: #8b94a4 !important;
+}
+/* account row (e.g. partner@dragons.asia) -> small muted section-header feel */
+html body .md-sidenav-left .sg-account-section md-list-item .sg-no-wrap {
+  font-size: 12px !important; color: #7e879a !important; letter-spacing: .2px;
+}
+
+/* ---- Mail Mới: Zoho-style split button look (decorative caret) ---- */
+html body .zoho-compose { position: relative; text-align: left; padding-left: 16px; }
+html body .zoho-compose::after {
+  content: '\25BE'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 11px; opacity: .9;
+}
+
+/* ---- Right tools rail: colourful app icons (like Zoho) ---- */
+html body .zoho-right-rail .zoho-rail-item md-icon { opacity: .95; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(1) md-icon { color: #6b7280 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(2) md-icon { color: #e0a458 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(3) md-icon { color: #4a90e2 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(4) md-icon { color: #e07b39 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(5) md-icon { color: #36c172 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(6) md-icon { color: #9b59b6 !important; }
 
 /* ===========================================================================
  * Structure (elements added in the templates)
@@ -70,7 +98,7 @@ html body .zoho-compose:hover { background: #225bc0; }
  * the responsive sidenav opens on narrow screens. order:-1 keeps it first. */
 html body .zoho-left-rail {
   order: -1; flex: 0 0 68px; align-self: stretch;
-  background: #252934; border-right: 1px solid rgba(255,255,255,.05);
+  background: #1b2330; border-right: 1px solid rgba(255,255,255,.05);
   display: flex; flex-direction: column; align-items: stretch; padding-top: 6px;
   overflow-y: auto; overflow-x: hidden;
 }
