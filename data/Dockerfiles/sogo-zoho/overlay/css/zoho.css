@@ -51,17 +51,21 @@ html body [id="messagesList"] md-list-item.sg-selected {
 html body a.md-accent, html body md-icon.md-accent,
 html body .md-button.md-accent:not(.md-fab) { color: #2c6fde !important; }
 
-/* ---- Zoho fidelity: denser, lighter folder list (keep the 40px row height that
- *      md-virtual-repeat depends on — only tweak text/icon size & color). ---- */
+/* ---- Zoho fidelity: text-only, compact folder list. Keep the 40px row height
+ *      md-virtual-repeat depends on — only restyle text/icons. ---- */
 html body .md-sidenav-left .sg-mailbox-list-item,
 html body .md-sidenav-left .sg-mailbox-list-item .sg-item-name { font-size: 13px !important; }
-html body .md-sidenav-left .sg-mailbox-list-item { color: #aab2c0 !important; }
-html body .md-sidenav-left .sg-mailbox-list-item md-icon {
-  font-size: 18px !important; width: 18px !important; height: 18px !important; color: #8b94a4 !important;
-}
-/* account row (e.g. partner@dragons.asia) -> small muted section-header feel */
-html body .md-sidenav-left .sg-account-section md-list-item .sg-no-wrap {
-  font-size: 12px !important; color: #7e879a !important; letter-spacing: .2px;
+html body .md-sidenav-left .sg-mailbox-list-item { color: #b6bcc8 !important; }
+/* Zoho folders show no leading icon — hide it, but keep the more_vert menu icon. */
+html body .md-sidenav-left .sg-mailbox-list-item md-icon { display: none !important; }
+html body .md-sidenav-left .sg-mailbox-list-item md-menu md-icon,
+html body .md-sidenav-left .sg-mailbox-list-item .md-secondary md-icon { display: inline-flex !important; color: #8b94a4 !important; }
+html body .md-sidenav-left .sg-mailbox-list-item .sg-item-name { padding-left: 8px !important; }
+
+/* Account toggle row -> Zoho "THƯ MỤC" section header (keep its menu icon). */
+html body .md-sidenav-left .sg-account-section md-list-item:not(.sg-mailbox-list-item) .sg-no-wrap { font-size: 0 !important; }
+html body .md-sidenav-left .sg-account-section md-list-item:not(.sg-mailbox-list-item) .sg-no-wrap::before {
+  content: 'THƯ MỤC'; font-size: 11px; font-weight: 700; letter-spacing: .6px; color: #6b7785;
 }
 
 /* ---- Mail Mới: Zoho-style split button look (decorative caret) ---- */
