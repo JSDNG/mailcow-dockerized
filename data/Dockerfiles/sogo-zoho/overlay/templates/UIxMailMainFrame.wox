@@ -58,6 +58,15 @@
               onclick="var b=document.querySelector('md-button.md-fab.md-accent.sg-fab-bottom-center')||document.querySelector('md-fab-speed-dial md-fab-actions md-button.md-fab'); if(b){b.click();}">Mail Mới</button>
       <md-content class="md-flex" layout="column" md-scroll-y="md-scroll-y"
                   md-colors="::{ backgroundColor: 'default-background-300' }">
+        <!-- Zoho STREAMS (static UI, behaviour TBD) -->
+        <div class="zoho-nav">
+          <div class="zoho-nav-head"><span>STREAMS</span>
+            <span class="zoho-nav-act"><md-icon>tune</md-icon><md-icon>add</md-icon></span>
+          </div>
+          <a class="zoho-nav-item"><span class="zoho-nav-label">Trang chủ</span></a>
+          <a class="zoho-nav-item"><span class="zoho-nav-label">Tất cả chưa đọc</span></a>
+          <a class="zoho-nav-item zoho-nav-blue"><span class="zoho-nav-label">Tạo một nhóm</span></a>
+        </div>
         <section class="sg-account-section"
                  layout="column"
                  ng-repeat="account in ::app.accounts track by account.id"
@@ -134,6 +143,18 @@
           </md-virtual-repeat-container>
           <md-divider><!-- divider --></md-divider>
         </section>
+        <!-- Zoho TAG + GIAO DIỆN (static UI, behaviour TBD) -->
+        <div class="zoho-nav">
+          <div class="zoho-nav-head"><span>TAG</span>
+            <span class="zoho-nav-act"><md-icon>add</md-icon></span>
+          </div>
+        </div>
+        <div class="zoho-nav">
+          <div class="zoho-nav-head"><span>GIAO DIỆN</span></div>
+          <a class="zoho-nav-item"><span class="zoho-nav-label">Chưa đọc</span><span class="zoho-nav-count">5</span></a>
+          <a class="zoho-nav-item"><span class="zoho-nav-label">Tất cả tin nhắn</span></a>
+          <a class="zoho-nav-item"><span class="zoho-nav-label">Đã gắn cờ</span></a>
+        </div>
       </md-content>
     </md-sidenav>
 
