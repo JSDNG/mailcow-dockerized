@@ -134,9 +134,32 @@ html body main.view > section { flex: 1 1 0 !important; min-width: 0 !important;
  * =========================================================================== */
 html body .zoho-demo-layer {
   position: absolute; left: 0; right: 0; bottom: 0; top: 56px;
-  display: flex; background: #fff; z-index: 100;
+  display: flex; background: transparent; z-index: 100;
   font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #2b2f36;
 }
+/* list + fake reading pane are opaque; when a REAL email is open the fake pane
+ * is hidden (display:none) so SOGo's real reading pane shows through. */
+html body .zoho-demo-layer .zd-list,
+html body .zoho-demo-layer .zd-read { background: #fff; }
+/* compose FAB (Zoho-blue, bottom-right) */
+html body .zoho-demo-layer .zd-compose-fab {
+  position: absolute; right: 22px; bottom: 22px; width: 52px; height: 52px;
+  border-radius: 50%; border: none; background: #2c6fde; color: #fff; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(44,111,222,.4); z-index: 3;
+  display: flex; align-items: center; justify-content: center;
+}
+html body .zoho-demo-layer .zd-compose-fab:hover { background: #225bc0; }
+html body .zoho-demo-layer .zd-compose-fab .zd-ic { width: 22px; height: 22px; }
+/* per-row delete (revealed on hover) */
+html body .zoho-demo-layer .zd-row { position: relative; }
+html body .zoho-demo-layer .zd-row-del {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  color: #b0b6c0; opacity: 0; cursor: pointer; padding: 4px; border-radius: 4px;
+}
+html body .zoho-demo-layer .zd-row:hover .zd-row-del { opacity: 1; }
+html body .zoho-demo-layer .zd-row-del:hover { color: #d7443e; background: #f4f6f9; }
+html body .zoho-demo-layer .zd-rp-close { cursor: pointer; }
+html body .zoho-demo-layer .zd-tool-del:hover { color: #d7443e; }
 html body .zoho-demo-layer .zd-ic { width: 15px; height: 15px; display: inline-block; vertical-align: middle; }
 
 /* --- list column --- */

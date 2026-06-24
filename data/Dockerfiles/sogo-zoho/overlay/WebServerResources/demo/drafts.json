@@ -1,0 +1,65 @@
+{
+  "title": "Bản nháp",
+  "unread": "2 bản nháp",
+  "sort": "Order Received",
+  "replyPlaceholder": "@nhắc đến một người dùng hoặc nhóm để chia sẻ nội dung nói chuyện này",
+  "groups": [
+    {
+      "label": "Hôm nay",
+      "emails": [
+        {
+          "id": 1,
+          "sender": "(Nháp) Tới: ketoan@dragons.asia",
+          "subject": "Đề xuất ngân sách Quý 3/2026",
+          "time": "10:24 SA",
+          "detail": {
+            "subject": "Đề xuất ngân sách Quý 3/2026",
+            "messages": [
+              {
+                "from": "Me",
+                "email": "partner@dragons.asia",
+                "date": "Hôm nay, 10:24 SA",
+                "status": "BẢN NHÁP",
+                "body": [
+                  "Chào team,",
+                  "Gửi mọi người bản đề xuất ngân sách Quý 3, nhờ review giúp.",
+                  "(đang soạn...)"
+                ],
+                "statusColor": "#8a93a3"
+              }
+            ]
+          },
+          "unread": true
+        }
+      ]
+    },
+    {
+      "label": "7 ngày vừa qua",
+      "emails": [
+        {
+          "id": 2,
+          "sender": "(Nháp) Tới: henry@pressify.us",
+          "subject": "Re: Hợp đồng dịch vụ 2026",
+          "time": "TH 4 THG 6",
+          "detail": {
+            "subject": "Re: Hợp đồng dịch vụ 2026",
+            "messages": [
+              {
+                "from": "Me",
+                "email": "partner@dragons.asia",
+                "date": "TH 4, 04 Thg 6 2026, 15:10",
+                "status": "BẢN NHÁP",
+                "body": [
+                  "Dear Henry,",
+                  "Tôi đã xem qua hợp đồng, có vài điểm cần trao đổi thêm...",
+                  "(chưa gửi)"
+                ],
+                "statusColor": "#8a93a3"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "title": "Thùng rác",
+  "unread": "",
+  "sort": "Order Received",
+  "replyPlaceholder": "@nhắc đến một người dùng hoặc nhóm để chia sẻ nội dung nói chuyện này",
+  "groups": [
+    {
+      "label": "7 ngày vừa qua",
+      "emails": [
+        {
+          "id": 1,
+          "sender": "newsletter@shopee.vn",
+          "subject": "Flash Sale 6.6 - Giảm đến 50%",
+          "time": "TH 5 THG 6",
+          "detail": {
+            "subject": "Flash Sale 6.6 - Giảm đến 50%",
+            "messages": [
+              {
+                "from": "Shopee",
+                "email": "newsletter@shopee.vn",
+                "date": "TH 5, 05 Thg 6 2026, 09:00",
+                "status": "THÙNG RÁC",
+                "body": [
+                  "Ưu đãi cực sốc ngày 6.6!",
+                  "Săn deal ngay kẻo lỡ.",
+                  "(Email quảng cáo)"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": 2,
+          "sender": "no-reply@notion.so",
+          "subject": "Your weekly digest",
+          "time": "TH 2 THG 6",
+          "detail": {
+            "subject": "Your weekly digest",
+            "messages": [
+              {
+                "from": "Notion",
+                "email": "no-reply@notion.so",
+                "date": "TH 2, 02 Thg 6 2026, 07:12",
+                "status": "THÙNG RÁC",
+                "body": [
+                  "Here's what happened in your workspace this week.",
+                  "3 pages updated, 1 comment."
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

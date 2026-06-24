@@ -1,0 +1,58 @@
+{
+  "title": "Mẫu",
+  "unread": "",
+  "sort": "Order Received",
+  "replyPlaceholder": "@nhắc đến một người dùng hoặc nhóm để chia sẻ nội dung nói chuyện này",
+  "groups": [
+    {
+      "label": "Mẫu của tôi",
+      "emails": [
+        {
+          "id": 1,
+          "sender": "Mẫu: Báo giá dịch vụ",
+          "subject": "Báo giá dịch vụ [Tên khách hàng]",
+          "time": "",
+          "detail": {
+            "subject": "Báo giá dịch vụ [Tên khách hàng]",
+            "messages": [
+              {
+                "from": "Mẫu",
+                "email": "template",
+                "date": "Mẫu email",
+                "status": "MẪU",
+                "body": [
+                  "Kính gửi [Tên khách hàng],",
+                  "Cảm ơn Quý khách đã quan tâm đến dịch vụ của chúng tôi.",
+                  "Báo giá chi tiết như đính kèm.",
+                  "Trân trọng, Dragon Media"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": 2,
+          "sender": "Mẫu: Xác nhận cuộc họp",
+          "subject": "Xác nhận lịch họp ngày [Ngày]",
+          "time": "",
+          "detail": {
+            "subject": "Xác nhận lịch họp ngày [Ngày]",
+            "messages": [
+              {
+                "from": "Mẫu",
+                "email": "template",
+                "date": "Mẫu email",
+                "status": "MẪU",
+                "body": [
+                  "Chào [Tên],",
+                  "Xác nhận cuộc họp lúc [Giờ] ngày [Ngày] tại [Địa điểm].",
+                  "Hẹn gặp lại."
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

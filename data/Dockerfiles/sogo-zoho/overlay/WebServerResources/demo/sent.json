@@ -1,0 +1,66 @@
+{
+  "title": "Đã gửi",
+  "unread": "",
+  "sort": "Order Received",
+  "replyPlaceholder": "@nhắc đến một người dùng hoặc nhóm để chia sẻ nội dung nói chuyện này",
+  "groups": [
+    {
+      "label": "Hôm nay",
+      "emails": [
+        {
+          "id": 1,
+          "sender": "Tới: khanh@pressify.us",
+          "subject": "Re: Draft Invoice for March 2026",
+          "time": "08:55 SA",
+          "detail": {
+            "subject": "Re: Draft Invoice for March 2026",
+            "messages": [
+              {
+                "from": "Me",
+                "email": "partner@dragons.asia",
+                "date": "Hôm nay, 08:55 SA",
+                "status": "ĐÃ GỬI",
+                "body": [
+                  "Dear Khanh,",
+                  "Confirmed. Please proceed with the official invoice.",
+                  "Best regards, Partner"
+                ],
+                "statusColor": "#e07b39"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "label": "7 ngày vừa qua",
+      "emails": [
+        {
+          "id": 2,
+          "sender": "Tới: ketoan@dragons.asia, Me",
+          "subject": "Báo cáo doanh thu tháng 5",
+          "time": "TH 3 THG 6",
+          "detail": {
+            "subject": "Báo cáo doanh thu tháng 5",
+            "messages": [
+              {
+                "from": "Me",
+                "email": "partner@dragons.asia",
+                "date": "TH 3, 03 Thg 6 2026, 17:30",
+                "status": "ĐÃ GỬI",
+                "body": [
+                  "Gửi team,",
+                  "Đính kèm báo cáo doanh thu tháng 5/2026.",
+                  "Trân trọng."
+                ],
+                "statusColor": "#e07b39",
+                "recipients": "Kế toán, Me"
+              }
+            ]
+          },
+          "attach": true
+        }
+      ]
+    }
+  ]
+}
