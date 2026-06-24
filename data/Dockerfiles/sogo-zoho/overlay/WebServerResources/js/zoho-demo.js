@@ -55,6 +55,13 @@
     var els = document.querySelectorAll('[id="messagesList"] md-list-item.sg-message-list-item, [id="messagesList"] md-list-item');
     return Array.prototype.filter.call(els, function(el){ return !el.closest('.zoho-demo-layer'); });
   }
+  function openRealRow(realIndex){
+    // SOGo's md-list-item click handler lives on an inner <button class="md-button">,
+    // not the md-list-item itself — calling .click() on the item is a no-op.
+    var el = realRows()[realIndex];
+    if (!el) return;
+    try { (el.querySelector('button') || el).click(); } catch(e){}
+  }
   function scrapeReal(){
     return realRows().map(function(el, i){
       function tx(sel){ var e=el.querySelector(sel); return e ? (e.textContent||'').trim().replace(/\s+/g,' ') : ''; }
@@ -157,7 +164,7 @@
     // hide our fake pane so SOGo's real (themed) reading pane shows through,
     // then delegate to SOGo to actually open the message natively.
     var read = layer.querySelector('.zd-read'); if (read) read.style.display='none';
-    try { var rows = realRows(); var el = rows[email.realIndex]; if (el) el.click(); } catch(e){}
+    openRealRow(email.realIndex);
   }
   function selectEmail(layer, id){
     var email = byId[id]; if (!email) return;
@@ -195,7 +202,7 @@
       if (t.closest && t.closest('.zd-rp-close')) { var rd=layer.querySelector('.zd-read'); if(rd){rd.style.display=''; rd.innerHTML='';} selectedId=null; layer.querySelectorAll('.zd-row.zd-active').forEach(function(r){r.classList.remove('zd-active');}); return; }
       var del = t.closest && t.closest('.zd-row-del');
       if (del) { ev.stopPropagation(); var row=del.closest('.zd-row'); var id=row.getAttribute('data-id');
-        if (row.getAttribute('data-real')) { try{ var el=realRows()[+row.getAttribute('data-ri')]; if(el) el.click(); }catch(e){} /* real: open so user deletes via native pane */ }
+        if (row.getAttribute('data-real')) { openRealRow(+row.getAttribute('data-ri')); /* real: open so user deletes via native pane */ }
         else { removeFake(id); row.parentNode.removeChild(row); if(selectedId===id){var rd=layer.querySelector('.zd-read'); if(rd){rd.style.display=''; rd.innerHTML='';}} }
         return; }
       if (t.closest && t.closest('.zd-tool-del')) { var a=layer.querySelector('.zd-row.zd-active'); if(a){ var del2=a.querySelector('.zd-row-del'); if(del2) del2.click(); } return; }

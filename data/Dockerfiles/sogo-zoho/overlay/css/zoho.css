@@ -141,6 +141,14 @@ html body .zoho-demo-layer {
  * is hidden (display:none) so SOGo's real reading pane shows through. */
 html body .zoho-demo-layer .zd-list,
 html body .zoho-demo-layer .zd-read { background: #fff; }
+/* The layer spans the whole content area but must only capture clicks on its own
+ * UI. Its transparent region has to let pointer events fall through to SOGo's real
+ * reading pane underneath — otherwise opening a REAL email (fake pane hidden) leaves
+ * the native pane covered and unusable ("ko mở to ra"). */
+html body .zoho-demo-layer { pointer-events: none; }
+html body .zoho-demo-layer .zd-list,
+html body .zoho-demo-layer .zd-read,
+html body .zoho-demo-layer .zd-compose-fab { pointer-events: auto; }
 /* compose FAB (Zoho-blue, bottom-right) */
 html body .zoho-demo-layer .zd-compose-fab {
   position: absolute; right: 22px; bottom: 22px; width: 52px; height: 52px;
