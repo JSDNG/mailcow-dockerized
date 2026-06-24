@@ -63,13 +63,23 @@
     if (!el) return;
     try { (el.querySelector('button') || el).click(); } catch(e){}
   }
+  // Read an element's visible text WITHOUT icon ligatures, hidden nodes, or the
+  // date column. SOGo rows carry hidden <md-icon>error</md-icon> status icons whose
+  // ligature text ("error", "star"...) would otherwise leak into the sender/subject.
+  function cleanText(node){
+    if (!node) return '';
+    var c = node.cloneNode(true);
+    var junk = c.querySelectorAll('md-icon, .material-icons, .ng-hide, .sg-tile-date');
+    Array.prototype.forEach.call(junk, function(n){ if (n.parentNode) n.parentNode.removeChild(n); });
+    return (c.textContent || '').trim().replace(/\s+/g, ' ');
+  }
   function scrapeReal(){
     return realRows().map(function(el, i){
-      function tx(sel){ var e=el.querySelector(sel); return e ? (e.textContent||'').trim().replace(/\s+/g,' ') : ''; }
+      function tx(sel){ return cleanText(el.querySelector(sel)); }
       var subj = tx('.sg-tile-subject') || tx('.sg-subject') || tx('.sg-md-body');
       var date = tx('.sg-tile-date') || tx('.sg-date');
       var from = tx('.sg-md-subhead') || tx('.sg-tile-from') || tx('.sg-from');
-      if (!subj && !from) { var t=(el.textContent||'').trim().replace(/\s+/g,' '); subj = t.slice(0,70); }
+      if (!subj && !from) { var t=cleanText(el); subj = t.slice(0,70); }
       return { id:'r'+i, real:true, realIndex:i,
         sender:(from||'(người gửi)').slice(0,80), subject:(subj||'(không tiêu đề)').slice(0,90), time:(date||'').slice(0,20) };
     });
