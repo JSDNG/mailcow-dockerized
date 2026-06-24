@@ -93,7 +93,7 @@
   function listHTML(d){
     var groups='';
     if (d.realEmails && d.realEmails.length){
-      groups += '<div class="zd-grp">Hộp thư (thật)</div>' + d.realEmails.map(rowHTML).join('');
+      groups += '<div class="zd-grp">Hộp thư</div>' + d.realEmails.map(rowHTML).join('');
     }
     groups += (d.groups||[]).map(function(g){
       return '<div class="zd-grp">'+esc(g.label)+'</div>' + g.emails.map(rowHTML).join('');
