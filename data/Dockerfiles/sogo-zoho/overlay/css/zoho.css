@@ -238,3 +238,27 @@ html body .zoho-demo-layer .zd-ic { width: 15px; height: 15px; display: inline-b
 .zoho-demo-layer .zd-reply .zd-ic { color: #6b7280; }
 .zoho-demo-layer .zd-email { font-size: 12px; color: #8a93a3; }
 .zoho-demo-layer .zd-row { transition: background .08s; }
+
+/* reading-pane toolbar icons (real email actions) */
+.zoho-demo-layer .zd-rp-ic { display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 5px; border-radius: 5px; color: #6b7280; }
+.zoho-demo-layer .zd-rp-ic:hover { background: #f4f6f9; }
+.zoho-demo-layer .zd-rp-ic.zd-tool-del:hover { color: #d7443e; }
+
+/* Real email embedded into the Zoho reading pane: SOGo's live message view is moved
+ * into .zd-real-body so the body/images/attachments/links keep full functionality.
+ * Hide SOGo's own toolbar + header (we render the Zoho chrome above) and strip the
+ * card framing so it blends into the Zoho pane. */
+html body .zoho-demo-layer .zd-real-body { margin-top: 16px; }
+html body .zoho-demo-layer .zd-real-body.zd-loading { min-height: 80px; }
+html body .zoho-demo-layer .zd-real-body md-card-actions,
+html body .zoho-demo-layer .zd-real-body md-card-header { display: none !important; }
+html body .zoho-demo-layer .zd-real-body .sg-reversible,
+html body .zoho-demo-layer .zd-real-body .sg-face,
+html body .zoho-demo-layer .zd-real-body md-card,
+html body .zoho-demo-layer .zd-real-body md-card-content {
+  box-shadow: none !important; margin: 0 !important; border: 0 !important;
+  background: transparent !important; transform: none !important;
+}
+html body .zoho-demo-layer .zd-real-body md-card-content { padding: 0 !important; }
+html body .zoho-demo-layer .zd-real-body .sg-face,
+html body .zoho-demo-layer .zd-real-body .sg-reversible { height: auto !important; min-height: 0 !important; }

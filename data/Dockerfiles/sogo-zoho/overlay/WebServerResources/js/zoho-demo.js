@@ -37,7 +37,8 @@
     replyAll:'<polyline points="7 17 2 12 7 7"/><polyline points="12 17 7 12 12 7"/><path d="M22 18v-2a4 4 0 0 0-4-4H7"/>',
     forward:'<polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/>',
     caret:'<polyline points="6 9 12 15 18 9"/>',
-    smile:'<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>'
+    smile:'<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+    star:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'
   };
   function ic(n){ return '<svg class="zd-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(I[n]||'')+'</svg>'; }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -147,6 +148,63 @@
       '<div class="zd-reply"><input type="text" placeholder="'+esc(replyPlaceholder||'')+'"/>'+ic('smile')+'</div>';
   }
 
+  /* ---- real reading pane: Zoho chrome (toolbar + header) wrapping SOGo's own
+   * live message view. The real .sg-face node is moved into .zd-real-body so the
+   * body, images, attachments and links keep working; SOGo's native toolbar/header
+   * are hidden via CSS. Toolbar buttons delegate to SOGo's real handlers. ---- */
+  var REAL_ACT = {
+    reply:'viewer.reply(', replyAll:'viewer.replyAll(', forward:'viewer.forward(',
+    delete:'viewer.deleteMessage(', flag:'viewer.message.toggleFlag(',
+    print:'viewer.print(', popup:'viewer.openInPopup('
+  };
+  function findSogoBtn(ngPrefix){
+    var scope = document.querySelector('.zoho-demo-layer .zd-real-body') || document.querySelector('#detailView');
+    if (!scope) return null;
+    var btns = scope.querySelectorAll('button[ng-click]');
+    for (var i=0;i<btns.length;i++){ if ((btns[i].getAttribute('ng-click')||'').indexOf(ngPrefix)===0) return btns[i]; }
+    return null;
+  }
+  function triggerRealAction(act){
+    var ng = REAL_ACT[act]; if (!ng) return;
+    var b = findSogoBtn(ng); if (b) { try { b.click(); } catch(e){} }
+  }
+  function realReadHTML(email){
+    var tb = '<div class="zd-rp-tb"><div class="zd-rp-tbl">'+
+      '<button class="zd-tbb" data-act="reply">'+ic('reply')+' Trả lời</button>'+
+      '<button class="zd-tbb" data-act="replyAll">'+ic('replyAll')+' Trả lời tất cả</button>'+
+      '<button class="zd-tbb" data-act="forward">'+ic('forward')+' Chuyển tiếp</button></div>'+
+      '<div class="zd-rp-tbr">'+
+        '<span class="zd-rp-ic" data-act="flag" title="Gắn cờ">'+ic('star')+'</span>'+
+        '<span class="zd-rp-ic" data-act="print" title="In">'+ic('print')+'</span>'+
+        '<span class="zd-rp-ic" data-act="popup" title="Mở cửa sổ mới">'+ic('ext')+'</span>'+
+        '<span class="zd-rp-ic zd-tool-del" data-act="delete" title="Xóa">'+ic('trash')+'</span>'+
+        '<span class="zd-rp-close" title="Đóng">'+ic('close')+'</span></div></div>';
+    return tb + '<div class="zd-rp-scroll">'+
+      '<h2 class="zd-rp-subj">'+esc(email.subject)+'</h2>'+
+      '<div class="zd-msg"><div class="zd-mh">'+
+        '<span class="zd-av" style="background:'+color(email.realIndex||0)+'">'+esc(initial(email.sender))+'</span>'+
+        '<div class="zd-mm"><div class="zd-l1"><span class="zd-from">'+esc(email.sender)+'</span></div>'+
+        '<div class="zd-l2">'+esc(email.time)+'</div></div></div>'+
+      '<div class="zd-real-body zd-loading"></div></div>';
+  }
+  function restoreRealFace(){
+    // move any embedded real view back to SOGo's #detailView so SOGo stays consistent.
+    try {
+      var face = document.querySelector('.zoho-demo-layer .zd-real-body .sg-face');
+      if (face){ var home = document.querySelector('#detailView .sg-reversible') || document.querySelector('#detailView'); if (home) home.appendChild(face); }
+    } catch(e){}
+  }
+  function mountRealBody(layer, tries){
+    if (selectedId == null) return;                 // navigated away
+    var email = byId[selectedId];
+    if (!email || !email.real) return;              // switched to a fake email
+    var mount = layer.querySelector('.zd-real-body'); if (!mount) return;
+    var face = document.querySelector('#detailView .sg-face');
+    if (face && face.parentNode !== mount){ mount.appendChild(face); mount.classList.remove('zd-loading'); return; }
+    if (face && face.parentNode === mount){ mount.classList.remove('zd-loading'); return; }
+    if ((tries||0) < 50) setTimeout(function(){ mountRealBody(layer, (tries||0)+1); }, 100); // up to ~5s
+  }
+
   /* ---- state ---- */
   var DATA = null, selectedId = null, byId = {}, loadedFolder = null;
 
@@ -157,14 +215,18 @@
   }
 
   function showFakePane(layer, email){
+    restoreRealFace();   // return any embedded real view to SOGo before showing fake
     var read = layer.querySelector('.zd-read');
     if (read){ read.style.display=''; read.innerHTML = readHTML(email, DATA.replyPlaceholder); }
   }
   function showRealPane(layer, email){
-    // hide our fake pane so SOGo's real (themed) reading pane shows through,
-    // then delegate to SOGo to actually open the message natively.
-    var read = layer.querySelector('.zd-read'); if (read) read.style.display='none';
+    // Render Zoho chrome, ask SOGo to open the message, then relocate SOGo's live
+    // message view into our pane so the real body/attachments work inside the Zoho UI.
+    restoreRealFace();   // put any prior embedded view back so SOGo can reuse #detailView
+    var read = layer.querySelector('.zd-read');
+    if (read){ read.style.display=''; read.innerHTML = realReadHTML(email); }
     openRealRow(email.realIndex);
+    mountRealBody(layer, 0);
   }
   function selectEmail(layer, id){
     var email = byId[id]; if (!email) return;
@@ -199,10 +261,12 @@
     layer.addEventListener('click', function(ev){
       var t = ev.target;
       if (t.closest && t.closest('.zd-compose-fab')) { compose(); return; }
-      if (t.closest && t.closest('.zd-rp-close')) { var rd=layer.querySelector('.zd-read'); if(rd){rd.style.display=''; rd.innerHTML='';} selectedId=null; layer.querySelectorAll('.zd-row.zd-active').forEach(function(r){r.classList.remove('zd-active');}); return; }
+      if (t.closest && t.closest('.zd-rp-close')) { restoreRealFace(); var rd=layer.querySelector('.zd-read'); if(rd){rd.style.display=''; rd.innerHTML='';} selectedId=null; layer.querySelectorAll('.zd-row.zd-active').forEach(function(r){r.classList.remove('zd-active');}); return; }
+      var actEl = t.closest && t.closest('.zd-read [data-act]');
+      if (actEl) { triggerRealAction(actEl.getAttribute('data-act')); return; }
       var del = t.closest && t.closest('.zd-row-del');
       if (del) { ev.stopPropagation(); var row=del.closest('.zd-row'); var id=row.getAttribute('data-id');
-        if (row.getAttribute('data-real')) { openRealRow(+row.getAttribute('data-ri')); /* real: open so user deletes via native pane */ }
+        if (row.getAttribute('data-real')) { selectEmail(layer, id); /* real: open in the Zoho pane (delete via its toolbar) */ }
         else { removeFake(id); row.parentNode.removeChild(row); if(selectedId===id){var rd=layer.querySelector('.zd-read'); if(rd){rd.style.display=''; rd.innerHTML='';}} }
         return; }
       if (t.closest && t.closest('.zd-tool-del')) { var a=layer.querySelector('.zd-row.zd-active'); if(a){ var del2=a.querySelector('.zd-row-del'); if(del2) del2.click(); } return; }
@@ -232,15 +296,23 @@
     var nativeCol = sec.querySelector('.view-list') || sec.querySelector('#messagesList');
     var zl = layer.querySelector('.zd-list');
     if (nativeCol && zl){ var w = nativeCol.getBoundingClientRect().width; if (w > 0) zl.style.width = w + 'px'; }
+    // Self-heal: if a real email is open but SOGo (re)rendered its view in #detailView,
+    // re-embed it into our Zoho pane.
+    if (selectedId != null){ var em = byId[selectedId];
+      if (em && em.real){ var m = layer.querySelector('.zd-real-body');
+        if (m && !m.querySelector('.sg-face')){ var f = document.querySelector('#detailView .sg-face'); if (f){ m.appendChild(f); m.classList.remove('zd-loading'); } } } }
   }
 
   /* ---- load a folder's data (fake + real merge) ---- */
-  function loadFolder(folder){
+  function loadFolder(folder, keepSelection){
     return getJSON(folder + '.json').catch(function(){ return { title: folder, sort:'Order Received', groups:[] }; })
       .then(function(d){
         d.realEmails = scrapeReal();
         DATA = d; loadedFolder = folder; indexData(d);
-        selectedId = null;
+        // Keep the open email across in-folder list refreshes (e.g. new mail arriving);
+        // only drop the selection when switching folders. Drop ids no longer present.
+        if (!keepSelection || (selectedId != null && !byId[selectedId])) selectedId = null;
+        restoreRealFace();   // return any embedded real view to SOGo before tearing down the layer
         var sec = findSection(); var old = sec && sec.querySelector(':scope > .zoho-demo-layer');
         if (old) old.parentNode.removeChild(old);
         place();
@@ -264,7 +336,7 @@
         var f = currentFolder();
         if (f !== loadedFolder) { loadFolder(f); return; }
         var rc = realRows().length;
-        if (rc !== lastReal) { lastReal = rc; loadFolder(f); return; } // real list arrived/changed
+        if (rc !== lastReal) { lastReal = rc; loadFolder(f, true); return; } // real list arrived/changed — keep open email
         place();
       }, 250); });
       obs.observe(document.body, {childList:true, subtree:true});
