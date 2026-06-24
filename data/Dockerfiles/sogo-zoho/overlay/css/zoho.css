@@ -134,9 +134,17 @@ html body main.view > section { flex: 1 1 0 !important; min-width: 0 !important;
  * =========================================================================== */
 html body .zoho-demo-layer {
   position: absolute; left: 0; right: 0; bottom: 0; top: 56px;
-  display: flex; background: transparent; z-index: 100;
+  display: flex; background: transparent;
+  /* Above SOGo's content (list/detail z<=9) but BELOW its popups/dialogs/menus
+   * (Angular Material overlays start at z 60+) so reply/forward/compose windows
+   * are never covered by the overlay. */
+  z-index: 59;
   font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #2b2f36;
 }
+/* Belt & suspenders: while any Material dialog is open (compose/reply/forward),
+ * Angular Material flags the body — fully hide the overlay so the dialog is usable,
+ * then it reappears automatically when the dialog closes. */
+html body.md-dialog-is-showing .zoho-demo-layer { display: none !important; }
 /* list + fake reading pane are opaque; when a REAL email is open the fake pane
  * is hidden (display:none) so SOGo's real reading pane shows through. */
 html body .zoho-demo-layer .zd-list,
