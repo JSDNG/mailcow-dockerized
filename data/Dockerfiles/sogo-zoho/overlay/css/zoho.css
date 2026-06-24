@@ -68,6 +68,23 @@ html body .md-sidenav-left .sg-account-section md-list-item:not(.sg-mailbox-list
   content: 'THƯ MỤC'; font-size: 11px; font-weight: 700; letter-spacing: .6px; color: #6b7785;
 }
 
+/* Text weight/contrast: selected folder bright & semibold, others light-regular. */
+html body .md-sidenav-left .sg-mailbox-list-item .sg-item-name { font-weight: 400 !important; }
+html body .md-sidenav-left .sg-mailbox-list-item.sg-selected,
+html body .md-sidenav-left .sg-mailbox-list-item.sg-selected .sg-item-name { color: #ffffff !important; font-weight: 600 !important; }
+/* unread folder count badge -> bold blue (Zoho) */
+html body .md-sidenav-left .sg-mailbox-list-item .sg-density-counter,
+html body .md-sidenav-left .sg-mailbox-list-item .badge { color: #5b9bf3 !important; font-weight: 700 !important; }
+
+/* ---- Left rail: colourful per-app icons (sampled from Zoho) ---- */
+html body .zoho-left-rail .zoho-app-item:nth-of-type(1) md-icon { color: #2b7de0 !important; } /* Mail */
+html body .zoho-left-rail .zoho-app-item:nth-of-type(2) md-icon { color: #7b4fc0 !important; } /* Lịch */
+html body .zoho-left-rail .zoho-app-item:nth-of-type(3) md-icon { color: #1a9e63 !important; } /* Việc cần làm */
+html body .zoho-left-rail .zoho-app-item:nth-of-type(4) md-icon { color: #e0a32e !important; } /* Ghi chú */
+html body .zoho-left-rail .zoho-app-item:nth-of-type(5) md-icon { color: #d2664a !important; } /* Số liên lạc */
+html body .zoho-left-rail .zoho-app-item:nth-of-type(6) md-icon { color: #d23a5b !important; } /* Dấu trang */
+html body .zoho-left-rail .zoho-app-item:nth-of-type(7) md-icon { color: #6a7888 !important; } /* Web Tab */
+
 /* ---- Mail Mới: Zoho-style split button look (decorative caret) ---- */
 html body .zoho-compose { position: relative; text-align: left; padding-left: 16px; }
 html body .zoho-compose::after {
