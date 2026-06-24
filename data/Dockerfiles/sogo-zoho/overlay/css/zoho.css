@@ -6,19 +6,21 @@
  * =========================================================================== */
 
 /* ---- Palette ---- */
-/* navy #2b3547 · navy-dark #283041 · rail #222c3b · blue #2c6fde
+/* Sampled from Zoho Mail's real UI: a flat charcoal-navy #252934 across the
+ * top bar, left rail and folder panel (less blue than the old #2b3547).
+ * navy #252934 · navy-dark #20242d · rail #252934 · blue #2c6fde
  * blue-dark #225bc0 · tint #e8f0fd · light text #c7cdd9 */
 
 /* ---- Left sidebar -> Zoho dark navy ---- */
 html body md-sidenav.md-sidenav-left,
 html body .md-sidenav-left md-content,
 html body .md-sidenav-left .sg-account-section {
-  background-color: #2b3547 !important;
+  background-color: #252934 !important;
   color: #c7cdd9 !important;
 }
 html body .md-sidenav-left md-toolbar,
 html body .md-sidenav-left .md-toolbar {
-  background-color: #283041 !important;
+  background-color: #20242d !important;
   color: #fff !important;
 }
 html body .md-sidenav-left .sg-item-name,
@@ -34,7 +36,7 @@ html body md-list-item.sg-mailbox-list-item.sg-selected {
 html body .sg-mailbox-list-item.sg-selected md-icon { color: #5b9bf3 !important; }
 
 /* ---- Top toolbar (teal) -> dark navy ---- */
-html body md-toolbar.toolbar-main { background-color: #2b3547 !important; color: #fff !important; position: relative !important; }
+html body md-toolbar.toolbar-main { background-color: #252934 !important; color: #fff !important; position: relative !important; }
 html body md-toolbar.toolbar-main md-icon,
 html body md-toolbar.toolbar-main .md-button { color: #c7cdd9 !important; }
 
@@ -68,7 +70,7 @@ html body .zoho-compose:hover { background: #225bc0; }
  * the responsive sidenav opens on narrow screens. order:-1 keeps it first. */
 html body .zoho-left-rail {
   order: -1; flex: 0 0 68px; align-self: stretch;
-  background: #222c3b; border-right: 1px solid rgba(255,255,255,.05);
+  background: #252934; border-right: 1px solid rgba(255,255,255,.05);
   display: flex; flex-direction: column; align-items: stretch; padding-top: 6px;
   overflow-y: auto; overflow-x: hidden;
 }
