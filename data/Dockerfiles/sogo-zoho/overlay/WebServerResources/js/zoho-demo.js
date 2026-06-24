@@ -226,6 +226,12 @@
     if (!layer){ layer = buildLayer(); sec.appendChild(layer); if (selectedId) selectEmail(layer, selectedId); }
     var tb = sec.querySelector('.toolbar-main');
     layer.style.top = (tb ? tb.offsetHeight : 56) + 'px';
+    // Match the fake list to SOGo's native message-list column width so the native
+    // list (md-virtual-repeat, kept alive underneath for scraping) never peeks out
+    // between our list and the real reading pane when a real email is open.
+    var nativeCol = sec.querySelector('.view-list') || sec.querySelector('#messagesList');
+    var zl = layer.querySelector('.zd-list');
+    if (nativeCol && zl){ var w = nativeCol.getBoundingClientRect().width; if (w > 0) zl.style.width = w + 'px'; }
   }
 
   /* ---- load a folder's data (fake + real merge) ---- */
