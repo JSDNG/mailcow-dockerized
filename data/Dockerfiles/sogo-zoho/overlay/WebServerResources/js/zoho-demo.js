@@ -14,6 +14,19 @@
   var DATA_BASE = '/SOGo/WebServerResources/demo/';
   var AV_COLORS = ['#e0a458','#5a6b8c','#4a90e2','#36c172','#9b59b6','#e07b39','#16a085','#c0556b'];
   var FOLDERS = { inbox:1, drafts:1, sent:1, trash:1, junk:1, templates:1, archive:1 };
+  // Vietnamese labels for SOGo's standard folders (UI language sync). Keyed by the
+  // English name SOGo renders; relabel is idempotent (VN value isn't a key).
+  var FOLDER_VN = { 'inbox':'Hộp thư đến', 'drafts':'Bản nháp', 'sent':'Đã gửi', 'trash':'Thùng rác', 'junk':'Thư rác', 'templates':'Mẫu', 'archive':'Lưu trữ' };
+  function relabelFolders(){
+    try {
+      var els = document.querySelectorAll('.md-sidenav-left .sg-mailbox-list-item .sg-item-name');
+      Array.prototype.forEach.call(els, function(el){
+        var cur = (el.textContent || '').trim();
+        var vn = FOLDER_VN[cur.toLowerCase()];
+        if (vn && cur !== vn) el.textContent = vn;   // only when changed → no mutation loop
+      });
+    } catch(e){}
+  }
 
   var I = {
     search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
@@ -491,8 +504,10 @@
     wireChrome();
     loadFolder(currentFolder()).then(function(){
       var pending=false, lastReal=-1;
+      relabelFolders();
       var obs = new MutationObserver(function(){ if(pending) return; pending=true; setTimeout(function(){
         pending=false;
+        relabelFolders();   // keep SOGo folder names localised across virtual-repeat re-renders
         var f = currentFolder();
         if (f !== loadedFolder) { loadFolder(f); return; }
         var rc = realRows().length;

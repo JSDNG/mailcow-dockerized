@@ -276,7 +276,12 @@ html body .zoho-acct-pop .zoho-acct-btn { flex: 1; text-align: center; padding: 
 html body .zoho-acct-pop .zoho-acct-btn:hover { background: #e3edff; }
 html body .zoho-acct-pop .zoho-acct-logout { flex: 1; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: #fff; background: #d7443e; border: none; cursor: pointer; }
 html body .zoho-acct-pop .zoho-acct-logout:hover { background: #c23a35; }
-html body .zoho-top-avatar md-icon { color: #6b7280 !important; font-size: 18px !important; width: 18px !important; height: 18px !important; }
+html body .zoho-top-avatar md-icon {
+  color: #6b7280 !important; font-size: 18px !important; line-height: 18px !important;
+  width: 18px !important; height: 18px !important; min-width: 18px !important; min-height: 18px !important;
+  margin: 0 !important; text-align: center;
+  display: flex !important; align-items: center; justify-content: center;
+}
 html body .zoho-top-dot { position: absolute; right: -1px; bottom: -1px; width: 9px; height: 9px; border-radius: 50%; background: #36c172; border: 2px solid #fff; }
 
 /* Hide the green compose FAB (replaced by "Mail Mới"); keep it in the DOM so
