@@ -3,8 +3,9 @@
 {% block navbar %}{% endblock %}
 
 {% block content %}
-<div class="row mb-4" style="margin-top: 60px">
-  <div class="col-12 col-md-7 col-lg-6 col-xl-5 ms-auto me-auto">
+<div class="zoho-login">
+  <div class="zl-shell">
+   <div class="zl-formcol">
 
     <div class="card">
       <div class="card-header d-flex align-items-center text-break">
@@ -75,6 +76,19 @@
           <a class="btn btn-xs-lg btn-secondary w-100 mt-2" style="max-width: 400px;" href="#" id="fido2-login"><i class="bi bi-shield-fill-check"></i> {{ lang.login.fido2_webauthn }}</a>
           {% endif %}
         </div>
+        {% if not oauth2_request %}
+        <div class="zl-social">
+          <div class="zl-social-title">Đăng nhập bằng</div>
+          <div class="zl-social-icons">
+            <span class="zl-soc" title="Apple"><i class="bi bi-apple"></i></span>
+            <span class="zl-soc" title="Google"><i class="bi bi-google"></i></span>
+            <span class="zl-soc" title="Facebook"><i class="bi bi-facebook"></i></span>
+            <span class="zl-soc" title="LinkedIn"><i class="bi bi-linkedin"></i></span>
+            <span class="zl-soc" title="X"><i class="bi bi-twitter-x"></i></span>
+            <span class="zl-soc" title="Microsoft"><i class="bi bi-microsoft"></i></span>
+          </div>
+        </div>
+        {% endif %}
         {% if login_delay %}
         <p><div class="my-4 alert alert-info">{{ lang.login.delayed|format(login_delay) }}</b></div></p>
         {% endif %}
@@ -115,11 +129,31 @@
       {% if custom_login.hide_domainadmin_quicklink != 1 %}<a href="/domainadmin">{{ lang.login.login_domainadmintext }}</a>{% endif %}
     </p>
     {% endif %}
-  </div>
-</div>
-{% if not oauth2_request and ui_texts.help_text %}
-<div class="row">
-  <div class="col-12 col-md-7 col-lg-6 col-xl-5 ms-auto me-auto">
+   </div><!-- /.zl-formcol -->
+
+   <div class="zl-right">
+     <div class="zl-illus" aria-hidden="true">
+       <svg viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+         <rect x="28" y="20" width="144" height="88" rx="9" fill="#e7edfb" stroke="#c7d4f2" stroke-width="2"/>
+         <rect x="44" y="34" width="112" height="60" rx="4" fill="#ffffff"/>
+         <rect x="16" y="112" width="168" height="10" rx="5" fill="#cfd8ee"/>
+         <circle cx="100" cy="62" r="22" fill="#2c6fde"/>
+         <path d="M92 60 v-4 a8 8 0 0 1 16 0 v4" fill="none" stroke="#ffffff" stroke-width="3"/>
+         <rect x="90" y="60" width="20" height="15" rx="3" fill="#ffffff"/>
+         <circle cx="100" cy="67" r="2.4" fill="#2c6fde"/>
+         <circle cx="150" cy="44" r="12" fill="#36c172"/>
+         <path d="M145 44 l3.5 3.5 L156 40" stroke="#ffffff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+       </svg>
+     </div>
+     <h3 class="zl-right-title">Đăng nhập không cần mật khẩu</h3>
+     <p class="zl-right-text">Trải nghiệm đăng nhập nhanh và an toàn hơn với khoá bảo mật và xác thực sinh trắc học.</p>
+     <button type="button" class="zl-right-btn">Tìm hiểu thêm</button>
+     <div class="zl-dots"><i class="active"></i><i></i></div>
+   </div>
+  </div><!-- /.zl-shell -->
+
+  {% if not oauth2_request and ui_texts.help_text %}
+  <div class="zl-help">
     <div class="card">
       <div class="card-header">
         <a class="btn btn-link" data-bs-toggle="collapse" href="#collapse1"><i class="bi bi-patch-question-fill"></i> {{ lang.start.help }}</a>
@@ -131,6 +165,6 @@
       </div>
     </div>
   </div>
-</div>
-{% endif %}
+  {% endif %}
+</div><!-- /.zoho-login -->
 {% endblock %}

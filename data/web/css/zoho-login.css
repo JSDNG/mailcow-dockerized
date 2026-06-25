@@ -1,0 +1,95 @@
+/* ===========================================================================
+ * Zoho-style login skin for mailcow's user login (scoped under .zoho-login so it
+ * never affects the rest of the UI). Original styling/illustration — not Zoho's
+ * trademarked assets. Keeps mailcow's real form (login_user/pass_user/FIDO2).
+ * =========================================================================== */
+.zoho-login {
+  position: fixed; inset: 0; z-index: 10; overflow: auto;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 28px;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: #eef0f4;
+  background-image:
+    linear-gradient(135deg, rgba(44,111,222,.05) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(44,111,222,.05) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(0,0,0,.015) 25%, transparent 25%);
+  background-size: 90px 90px;
+}
+/* two-column card */
+.zoho-login .zl-shell {
+  display: flex; width: 1000px; max-width: 96vw; min-height: 540px;
+  background: #fff; border-radius: 14px; box-shadow: 0 16px 60px rgba(20,27,38,.18); overflow: hidden;
+}
+.zoho-login .zl-formcol { flex: 1 1 50%; max-width: 52%; display: flex; flex-direction: column; padding: 30px 40px; }
+.zoho-login .zl-right {
+  flex: 1 1 48%; background: #f6f8fc; border-left: 1px solid #eef0f4;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px;
+}
+
+/* strip Bootstrap card chrome — the card becomes the plain left column */
+.zoho-login .card, .zoho-login .card-header, .zoho-login .card-body { background: transparent !important; border: 0 !important; box-shadow: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+.zoho-login .card-header { padding-top: 0 !important; }
+
+/* header row: title + dark toggle + language */
+.zoho-login .card-header { font-size: 14px; font-weight: 600; color: #6b7280; }
+
+/* logo */
+.zoho-login .mailcow-logo { margin-bottom: 14px !important; }
+.zoho-login .mailcow-logo .main-logo, .zoho-login .mailcow-logo .main-logo-dark { max-height: 70px; }
+.zoho-login legend { font-size: 22px; font-weight: 700; color: #1f2937; border: 0; }
+.zoho-login legend + hr { display: none; }
+
+/* inputs — Zoho-ish */
+.zoho-login .input-group { border: 1px solid #d7dbe2; border-radius: 8px; overflow: hidden; background: #fff; }
+.zoho-login .input-group:focus-within { border-color: #2c6fde; box-shadow: 0 0 0 3px rgba(44,111,222,.12); }
+.zoho-login .input-group-text { background: #f3f5f8 !important; border: 0 !important; color: #8b94a4 !important; }
+.zoho-login .form-control { border: 0 !important; box-shadow: none !important; font-size: 15px; padding: 11px 12px; }
+.zoho-login .form-control:focus { box-shadow: none !important; }
+
+/* login button -> blue */
+.zoho-login .btn-success { background: #2c6fde !important; border-color: #2c6fde !important; border-radius: 8px !important; font-weight: 600; padding: 11px 16px; max-width: none !important; }
+.zoho-login .btn-success:hover { background: #225bc0 !important; border-color: #225bc0 !important; }
+.zoho-login a[href="/reset-password"] { color: #2c6fde; text-decoration: none; }
+.zoho-login a[href="/reset-password"]:hover { text-decoration: underline; }
+
+/* FIDO2 / other logins */
+.zoho-login .hr-title { margin: 22px 0 12px; text-align: center; color: #9aa1ad; font-size: 13px; position: relative; }
+.zoho-login .btn-secondary { border-radius: 8px !important; max-width: none !important; }
+
+/* static social row (decorative — Zoho look) */
+.zoho-login .zl-social { margin-top: 20px; }
+.zoho-login .zl-social-title { font-size: 14px; font-weight: 700; color: #2b2f36; margin-bottom: 10px; }
+.zoho-login .zl-social-icons { display: flex; gap: 12px; flex-wrap: wrap; }
+.zoho-login .zl-soc { width: 42px; height: 42px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 19px; color: #fff; cursor: pointer; }
+.zoho-login .zl-soc:hover { filter: brightness(1.08); }
+.zoho-login .zl-soc .bi-apple { } /* per-brand colors below */
+.zoho-login .zl-soc[title="Apple"] { background: #111; }
+.zoho-login .zl-soc[title="Google"] { background: #fff; color: #444; border: 1px solid #e2e5ea; }
+.zoho-login .zl-soc[title="Facebook"] { background: #1877f2; }
+.zoho-login .zl-soc[title="LinkedIn"] { background: #0a66c2; }
+.zoho-login .zl-soc[title="X"] { background: #000; }
+.zoho-login .zl-soc[title="Microsoft"] { background: #2f2f2f; }
+
+/* admin quicklinks */
+.zoho-login .zl-formcol > p { margin-top: 18px !important; }
+
+/* right decorative panel */
+.zoho-login .zl-illus { width: 230px; max-width: 80%; margin-bottom: 22px; }
+.zoho-login .zl-illus svg { width: 100%; height: auto; }
+.zoho-login .zl-right-title { font-size: 19px; font-weight: 700; color: #1f2937; margin: 0 0 10px; }
+.zoho-login .zl-right-text { font-size: 14px; color: #6b7280; line-height: 1.6; max-width: 300px; margin: 0 0 20px; }
+.zoho-login .zl-right-btn { background: #eaf1ff; color: #2c6fde; border: 0; border-radius: 20px; padding: 9px 22px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.zoho-login .zl-right-btn:hover { background: #dbe7ff; }
+.zoho-login .zl-dots { display: flex; gap: 7px; margin-top: 22px; }
+.zoho-login .zl-dots i { width: 8px; height: 8px; border-radius: 50%; background: #cfd6e2; display: inline-block; }
+.zoho-login .zl-dots i.active { width: 22px; border-radius: 4px; background: #2c6fde; }
+
+/* help card (if present) below the shell */
+.zoho-login .zl-help { width: 1000px; max-width: 96vw; }
+.zoho-login .zl-help .card { background: #fff !important; border-radius: 10px !important; box-shadow: 0 6px 24px rgba(20,27,38,.10) !important; padding: 0 16px !important; }
+
+/* stack to one column on small screens */
+@media (max-width: 820px) {
+  .zoho-login .zl-shell { flex-direction: column; width: 460px; }
+  .zoho-login .zl-formcol, .zoho-login .zl-right { max-width: 100%; }
+  .zoho-login .zl-right { border-left: 0; border-top: 1px solid #eef0f4; }
+}
