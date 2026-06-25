@@ -155,6 +155,12 @@
           </md-virtual-repeat-container>
           <md-divider><!-- divider --></md-divider>
         </section>
+        <!-- Zoho folders this SOGo account doesn't have — static buttons (no backend) -->
+        <div class="zoho-extra-folders">
+          <a class="zoho-xfolder"><span>Đã nhắc lại</span></a>
+          <a class="zoho-xfolder"><span>Newsletter</span></a>
+          <a class="zoho-xfolder"><span>Notification</span></a>
+        </div>
         <!-- Zoho TAG + GIAO DIỆN (static UI, behaviour TBD) -->
         <div class="zoho-nav">
           <div class="zoho-nav-head"><span>TAG</span>

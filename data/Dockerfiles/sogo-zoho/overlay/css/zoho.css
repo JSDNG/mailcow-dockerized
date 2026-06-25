@@ -107,7 +107,17 @@ html body .md-sidenav-left .zoho-nav-item.zoho-nav-active .zoho-nav-label { colo
  * of the folder area filling the whole sidebar. Keep a viewport so md-virtual-repeat
  * still renders its rows. */
 html body .md-sidenav-left .sg-account-section { flex: 0 0 auto !important; }
-html body .md-sidenav-left .sg-account-section .md-virtual-repeat-container { flex: 0 0 auto !important; min-height: 330px !important; }
+/* Tightened so the static extra folders sit flush under the real ones (this account
+ * has 7 folders ≈ 280px); the container still scrolls if an account has more. */
+html body .md-sidenav-left .sg-account-section .md-virtual-repeat-container { flex: 0 0 auto !important; min-height: 280px !important; }
+
+/* Extra Zoho folders not present in this SOGo account — match the real folder rows */
+html body .md-sidenav-left .zoho-extra-folders { flex: 0 0 auto; }
+html body .md-sidenav-left .zoho-xfolder {
+  display: flex; align-items: center; height: 40px; padding: 0 16px 0 24px;
+  font-size: 13px; color: #b6bcc8; cursor: pointer; text-decoration: none;
+}
+html body .md-sidenav-left .zoho-xfolder:hover { background: rgba(255,255,255,.06); }
 
 /* ---- Left rail: colourful per-app icons (sampled from Zoho) ---- */
 html body .zoho-left-rail .zoho-app-item:nth-of-type(1) md-icon { color: #2b7de0 !important; } /* Mail */
