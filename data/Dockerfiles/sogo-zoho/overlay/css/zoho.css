@@ -360,8 +360,11 @@ html body md-button.md-fab.sg-fab-bottom-center { opacity: 0 !important; pointer
  * responsive sidenav from sliding over the left rail when it opens as an
  * overlay (<960px): pin its left edge to the rail width. Harmless when the
  * sidenav is locked-open (static elements ignore `left`). */
-/* Narrower folder sidebar — 2/3 of SOGo's default 320px. */
-html body md-sidenav.md-sidenav-left { left: 68px !important; width: 214px !important; min-width: 214px !important; max-width: 214px !important; }
+/* Narrower folder sidebar — 2/3 of SOGo's default 320px. Only override the width when
+ * the sidenav is LOCKED-OPEN (desktop). In overlay mode (narrow screens) leave Material's
+ * own width/translate mechanics untouched so the slide-in/out never breaks. */
+html body md-sidenav.md-sidenav-left { left: 68px !important; }
+html body md-sidenav.md-sidenav-left.md-locked-open { width: 214px !important; min-width: 214px !important; max-width: 214px !important; }
 html body main.view { overflow-x: hidden; }
 /* Let the mailbox column shrink to fit, so the two rails don't push it past the
  * viewport (otherwise the reading pane would overflow ~68px to the right). */
