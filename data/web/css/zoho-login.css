@@ -35,8 +35,13 @@
 /* logo */
 .zoho-login .mailcow-logo { margin-bottom: 14px !important; }
 .zoho-login .mailcow-logo .main-logo, .zoho-login .mailcow-logo .main-logo-dark { max-height: 70px; }
-.zoho-login legend { font-size: 22px; font-weight: 700; color: #1f2937; border: 0; }
+/* Bootstrap floats <legend> (float:left); we hide the <hr> that normally clears it,
+ * which collapsed the email row beside the float. Un-float it so the form flows normally. */
+.zoho-login legend { font-size: 22px; font-weight: 700; color: #1f2937; border: 0; float: none; width: 100%; }
 .zoho-login legend + hr { display: none; }
+/* belt-and-braces: keep the form rows full width */
+.zoho-login form .d-flex { width: 100%; }
+.zoho-login .input-group { width: 100%; }
 
 /* inputs — Zoho-ish */
 .zoho-login .input-group { border: 1px solid #d7dbe2; border-radius: 8px; overflow: hidden; background: #fff; }
