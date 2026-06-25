@@ -97,6 +97,10 @@
       try { fwin().addEventListener('hashchange', frameToShell); } catch (e) {}
       if (initial) { initial = false; shellToFrame(); }           // apply requested deep-link once
       frameToShell();                                            // reflect current state
+      // SOGo's Angular often sets its hash slightly AFTER the load event, so mirror
+      // a couple more times to ensure the address bar shows #mail/folder/… right away.
+      setTimeout(frameToShell, 400);
+      setTimeout(frameToShell, 1200);
     }
   }
 
