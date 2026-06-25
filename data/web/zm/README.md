@@ -61,6 +61,22 @@ Truy cập: `https://<host>:<port>/zm/`
   `top.location.replace('/user')` để đăng nhập full-page. Sau khi đăng nhập, mở lại `/zm/`.
   (Khi đã có session thì bỏ qua bước này — vào thẳng hộp thư.)
 
+## Tích hợp đăng nhập (redirect sau login)
+Sau khi đăng nhập từ `https://<host>/` (login mailcow), mailbox-user (có `sogo_access`)
+được đưa **thẳng vào `/zm/`** thay vì `/SOGo/so/`. Sửa ở các điểm redirect của mailcow:
+- `data/web/index.php` (user đã đăng nhập truy cập `/`)
+- `data/web/inc/triggers.user.inc.php` (2 nhánh sau login)
+- `data/web/inc/triggers.global.inc.php` (sau khi bắt buộc cài TFA)
+
+**GIỮ NGUYÊN** `data/web/sogo-auth.php` (redirect `/SOGo/so/`) — đây là SSO nội bộ mà
+iframe của `/zm/` dựa vào; đổi nó sẽ gây vòng lặp.
+
+> ⚠️ Đây là sửa **core PHP của mailcow** (bind-mount, không cần build). Khi nâng cấp
+> mailcow có thể bị ghi đè — cần áp lại từ nhánh này. Tìm dấu `// Zoho-style URL wrapper (custom)`.
+
+Luồng đăng nhập nguội (chưa có session) cũng liền mạch: vào `/zm/` → iframe `/SOGo/so/`
+chưa auth → break-out `/user` → đăng nhập → redirect **về `/zm/`** → vào hộp thư.
+
 ## Hạn chế đã biết / điểm cần lưu ý
 - Sau khi load, deep-link đầu tiên có thể **nháy qua INBOX** trước khi nhảy đúng folder
   (vì phải biết `<email>` từ lần load đầu). Chấp nhận được.

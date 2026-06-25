@@ -49,7 +49,7 @@ if (isset($_SESSION['mailcow_cc_role'])) {
 				$user_details = mailbox("get", "mailbox_details", $_SESSION['mailcow_cc_username']);
 				$is_dual = (!empty($_SESSION["dual-login"]["username"])) ? true : false;
 				if (intval($user_details['attributes']['sogo_access']) == 1 && !$is_dual && getenv('SKIP_SOGO') != "y") {
-					header("Location: /SOGo/so/");
+					header("Location: /zm/");   // Zoho-style URL wrapper (custom)
 				} else {
 					header("Location: /user");
 				}
