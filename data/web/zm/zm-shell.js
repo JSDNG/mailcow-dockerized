@@ -19,7 +19,9 @@
 (function () {
   'use strict';
   var FRAME = document.getElementById('zm-frame');
-  var SOGO_ROOT = '/SOGo/';   // SOGo resolves the logged-in user and redirects here
+  // mailcow's webmail SSO entry. /SOGo/ (bare) bounces to /user; /SOGo/so/ runs the
+  // SSO handshake and redirects to /SOGo/so/<email>/Mail/view for the logged-in user.
+  var SOGO_ROOT = '/SOGo/so/';
 
   // folder name maps (shell <-> SOGo). SOGo uses real IMAP folder names.
   var Z2S = { inbox:'INBOX', sent:'Sent', drafts:'Drafts', spam:'Junk', junk:'Junk',
@@ -88,7 +90,7 @@
       try { top.location.replace('/user'); } catch (e) { location.replace('/user'); }
       return;
     }
-    if (l && /\/SOGo\/so\//.test(l.pathname || '')) {            // a real mailbox page
+    if (l && /\/SOGo\/so\/[^\/]+\/Mail/.test(l.pathname || '')) { // a real mailbox page (has the user segment)
       account = l.pathname;
       document.body.classList.add('zm-ready');
       try { fwin().removeEventListener('hashchange', frameToShell); } catch (e) {}
