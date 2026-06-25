@@ -282,27 +282,67 @@ html body .zoho-top-avatar {
 html body .zoho-top-avatar:hover { box-shadow: 0 0 0 2px rgba(44,111,222,.35); }
 
 /* Account popup (opened from the top-bar avatar) */
+/* Account panel — Zoho-style right-side drawer (full height) */
 html body .zoho-acct-pop {
-  position: fixed; z-index: 100; width: 290px; background: #fff; color: #2b2f36;
-  border: 1px solid #e2e5ea; border-radius: 10px; box-shadow: 0 8px 28px rgba(20,27,38,.18);
-  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; overflow: hidden;
+  position: fixed; top: 0; right: 0; height: 100vh; width: 380px; max-width: 92vw; z-index: 1000;
+  background: #ffffff; color: #2b2f36; box-shadow: -10px 0 40px rgba(20,27,38,.28);
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; display: flex; flex-direction: column;
 }
-html body .zoho-acct-pop .zoho-acct-head { display: flex; align-items: center; gap: 12px; padding: 16px; background: #f7f8fa; border-bottom: 1px solid #eef0f4; }
-html body .zoho-acct-pop .zoho-acct-av { width: 44px; height: 44px; border-radius: 50%; background: #2c6fde; color: #fff; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; flex: none; }
-html body .zoho-acct-pop .zoho-acct-id { min-width: 0; }
-html body .zoho-acct-pop .zoho-acct-name { font-size: 14px; font-weight: 600; color: #1f2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-html body .zoho-acct-pop .zoho-acct-email { font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-html body .zoho-acct-pop .zoho-acct-status { font-size: 12px; color: #1a9e63; display: inline-flex; align-items: center; gap: 5px; margin-top: 3px; }
-html body .zoho-acct-pop .zoho-acct-status i { width: 8px; height: 8px; border-radius: 50%; background: #36c172; display: inline-block; }
-html body .zoho-acct-pop .zoho-acct-rows { padding: 8px 16px; }
-html body .zoho-acct-pop .zoho-acct-row { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: 13px; }
-html body .zoho-acct-pop .zoho-acct-row span { color: #8b94a4; flex: none; }
-html body .zoho-acct-pop .zoho-acct-row b { color: #374151; font-weight: 500; text-align: right; word-break: break-all; }
-html body .zoho-acct-pop .zoho-acct-acts { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #eef0f4; }
-html body .zoho-acct-pop .zoho-acct-btn { flex: 1; text-align: center; padding: 8px 10px; border-radius: 6px; font-size: 13px; text-decoration: none; color: #2c6fde; border: 1px solid #cdd9f3; background: #f1f6ff; cursor: pointer; }
-html body .zoho-acct-pop .zoho-acct-btn:hover { background: #e3edff; }
-html body .zoho-acct-pop .zoho-acct-logout { flex: 1; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: #fff; background: #d7443e; border: none; cursor: pointer; }
-html body .zoho-acct-pop .zoho-acct-logout:hover { background: #c23a35; }
+html body .zoho-acct-pop .zoho-acct-x { position: absolute; top: 14px; right: 14px; z-index: 2; background: none; border: none; cursor: pointer; color: #6b7280; padding: 4px; border-radius: 6px; display: inline-flex; }
+html body .zoho-acct-pop .zoho-acct-x:hover { background: #f1f2f5; }
+html body .zoho-acct-pop .zoho-acct-x .zd-ic { width: 18px; height: 18px; }
+html body .zoho-acct-pop .zoho-acct-scroll { flex: 1; overflow-y: auto; }
+/* top identity block */
+html body .zoho-acct-pop .zoho-acct-top { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 36px 24px 18px; background: #f4f5f7; }
+html body .zoho-acct-pop .zoho-acct-bigav { position: relative; width: 84px; height: 84px; border-radius: 50%; background: #d3d7df; color: #fff; font-size: 30px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
+html body .zoho-acct-pop .zoho-acct-dot { position: absolute; right: 5px; bottom: 5px; width: 15px; height: 15px; border-radius: 50%; background: #36c172; border: 3px solid #f4f5f7; }
+html body .zoho-acct-pop .zoho-acct-name2 { font-size: 19px; font-weight: 700; color: #2b2f36; margin-top: 12px; }
+html body .zoho-acct-pop .zoho-acct-line { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: #3a3f47; margin-top: 6px; }
+html body .zoho-acct-pop .zoho-acct-muted { color: #5a626f; font-size: 13px; }
+html body .zoho-acct-pop .zoho-acct-copy, html body .zoho-acct-pop .zoho-acct-help { display: inline-flex; cursor: pointer; color: #9aa1ad; padding: 2px; border-radius: 4px; }
+html body .zoho-acct-pop .zoho-acct-copy:hover, html body .zoho-acct-pop .zoho-acct-help:hover { color: #4b5563; background: #e9ebef; }
+html body .zoho-acct-pop .zoho-acct-copied { color: #1a9e63 !important; }
+html body .zoho-acct-pop .zoho-acct-copy .zd-ic, html body .zoho-acct-pop .zoho-acct-help .zd-ic { width: 14px; height: 14px; }
+html body .zoho-acct-pop .zoho-acct-myacct { display: block; margin-top: 12px; color: #2c6fde; font-size: 15px; cursor: pointer; }
+html body .zoho-acct-pop .zoho-acct-myacct:hover { text-decoration: underline; }
+html body .zoho-acct-pop .zoho-acct-sep { height: 1px; background: #eceef1; }
+/* status row */
+html body .zoho-acct-pop .zoho-acct-statusrow { display: flex; align-items: center; gap: 10px; padding: 14px 22px; }
+html body .zoho-acct-pop .zoho-acct-statdot { display: inline-flex; align-items: center; gap: 4px; padding: 8px 10px; border: 1px solid #e2e5ea; border-radius: 6px; background: #f7f8fa; }
+html body .zoho-acct-pop .zoho-acct-statdot i { width: 10px; height: 10px; border-radius: 50%; background: #36c172; }
+html body .zoho-acct-pop .zoho-acct-statsel { flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border: 1px solid #e2e5ea; border-radius: 6px; background: #f7f8fa; font-size: 14px; color: #3a3f47; }
+html body .zoho-acct-pop .zoho-acct-statdot .zd-ic, html body .zoho-acct-pop .zoho-acct-statsel .zd-ic { width: 16px; height: 16px; color: #8b94a4; }
+/* generic section */
+html body .zoho-acct-pop .zoho-acct-sec { padding: 16px 22px; }
+html body .zoho-acct-pop .zoho-acct-sechead { display: flex; align-items: center; justify-content: space-between; }
+html body .zoho-acct-pop .zoho-acct-sechead b, html body .zoho-acct-pop .zoho-acct-secttl { font-size: 15px; font-weight: 700; color: #2b2f36; }
+html body .zoho-acct-pop .zoho-acct-gear { color: #8b94a4; cursor: pointer; display: inline-flex; }
+html body .zoho-acct-pop .zoho-acct-gear .zd-ic { width: 16px; height: 16px; }
+html body .zoho-acct-pop .zoho-acct-dndbox { margin-top: 12px; padding: 10px 14px; border: 1px solid #e2e5ea; border-radius: 6px; background: #f7f8fa; }
+html body .zoho-acct-pop .zoho-acct-dndlabel { font-size: 12px; color: #8b94a4; }
+html body .zoho-acct-pop .zoho-acct-dndval { display: flex; align-items: center; justify-content: space-between; font-size: 15px; color: #3a3f47; margin-top: 2px; }
+html body .zoho-acct-pop .zoho-acct-dndval .zd-ic { width: 16px; height: 16px; color: #8b94a4; }
+html body .zoho-acct-pop .zoho-acct-hint { font-size: 12px; color: #9aa1ad; font-style: italic; margin-top: 8px; }
+/* mail storage */
+html body .zoho-acct-pop .zoho-acct-pct { font-size: 14px; color: #3a3f47; margin-top: 10px; }
+html body .zoho-acct-pop .zoho-acct-bar { height: 6px; border-radius: 3px; background: #e7e9ed; margin-top: 6px; overflow: hidden; }
+html body .zoho-acct-pop .zoho-acct-bar i { display: block; height: 100%; background: #2c6fde; }
+html body .zoho-acct-pop .zoho-acct-usage { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; font-size: 13px; color: #5a626f; }
+html body .zoho-acct-pop .zoho-acct-usage a { color: #2c6fde; cursor: pointer; }
+html body .zoho-acct-pop .zoho-acct-usage a:hover { text-decoration: underline; }
+/* resources grid */
+html body .zoho-acct-pop .zoho-acct-res { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; margin-top: 14px; }
+html body .zoho-acct-pop .zoho-acct-resitem { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; color: #3a3f47; cursor: pointer; }
+html body .zoho-acct-pop .zoho-acct-resitem:hover { color: #2c6fde; }
+html body .zoho-acct-pop .zoho-acct-resitem .zd-ic { width: 18px; height: 18px; color: #6b7280; }
+/* mobile apps */
+html body .zoho-acct-pop .zoho-acct-apps { display: flex; gap: 28px; margin-top: 14px; }
+html body .zoho-acct-pop .zoho-acct-app { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: #6b7280; text-align: center; }
+html body .zoho-acct-pop .zoho-acct-app .zd-ic { width: 30px; height: 30px; color: #2c6fde; }
+/* logout (fixed bottom) */
+html body .zoho-acct-pop .zoho-acct-logout { flex: none; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; border: none; border-top: 1px solid #eceef1; background: #fff; color: #d7443e; font-size: 15px; font-weight: 600; cursor: pointer; }
+html body .zoho-acct-pop .zoho-acct-logout:hover { background: #fdf2f2; }
+html body .zoho-acct-pop .zoho-acct-logout .zd-ic { width: 18px; height: 18px; }
 html body .zoho-top-avatar md-icon {
   color: #e2e6ec !important; font-size: 18px !important; line-height: 18px !important;
   width: 18px !important; height: 18px !important; min-width: 18px !important; min-height: 18px !important;

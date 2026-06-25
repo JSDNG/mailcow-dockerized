@@ -53,7 +53,13 @@
     forward:'<polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/>',
     caret:'<polyline points="6 9 12 15 18 9"/>',
     smile:'<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
-    star:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'
+    star:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+    power:'<path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/>',
+    send:'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+    globe:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+    help:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
   };
   function ic(n){ return '<svg class="zd-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(I[n]||'')+'</svg>'; }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -332,40 +338,78 @@
     closeAcctPopup();
   }
   function acctEsc(e){ if (e.key === 'Escape' || e.keyCode === 27) closeAcctPopup(); }
-  function openAcctPopup(avatarEl){
+  function copyText(t){ try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(String(t)); } catch(e){} }
+  function displayName(d){ var lp = String(d.email||'').split('@')[0] || (d.name||''); return lp ? (lp.charAt(0).toUpperCase()+lp.slice(1)) : (d.name||'Tài khoản'); }
+  // Stable pseudo user-id from the email (Zoho shows a numeric user id; we don't have a
+  // real one, so derive a deterministic 9-digit number for display).
+  function pseudoId(s){ var h=0; s=String(s||''); for (var i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))>>>0; } return 100000000 + (h % 900000000); }
+  // Real mailbox quota if SOGo exposes it on the account scope, else null.
+  function acctQuota(){
+    try { var sec=document.querySelector('.md-sidenav-left .sg-account-section');
+      var sc=sec&&window.angular&&angular.element(sec).scope(); var q=sc&&sc.account&&sc.account.$quota;
+      if (q && typeof q.percent!=='undefined') return { percent: Math.max(0,Math.round(q.percent)), desc:(q.description||'').trim() };
+    } catch(e){} return null;
+  }
+  function openAcctPopup(){
     if (document.querySelector('.zoho-acct-pop')) { closeAcctPopup(); return; }   // toggle off
-    var d = acctData();
-    function row(k,v){ return v ? '<div class="zoho-acct-row"><span>'+esc(k)+'</span><b>'+esc(v)+'</b></div>' : ''; }
+    var d = acctData(), name = displayName(d), id = pseudoId(d.email);
+    var q = acctQuota(), pct = q ? q.percent : 0, usage = (q && q.desc) ? q.desc : '0,01 GB / 5 GB';
+    function res(icon,label){ return '<span class="zoho-acct-resitem">'+ic(icon)+'<span>'+label+'</span></span>'; }
+    function app(icon,label){ return '<span class="zoho-acct-app">'+ic(icon)+'<em>'+label+'</em></span>'; }
     var pop = document.createElement('div');
     pop.className = 'zoho-acct-pop';
     pop.innerHTML =
-      '<div class="zoho-acct-head">'+
-        '<span class="zoho-acct-av">'+esc(acctInitial(d))+'</span>'+
-        '<div class="zoho-acct-id">'+
-          '<div class="zoho-acct-name">'+esc(d.name)+'</div>'+
-          '<div class="zoho-acct-email">'+esc(d.email)+'</div>'+
-          '<div class="zoho-acct-status"><i></i> Đang hoạt động</div>'+
+      '<button class="zoho-acct-x" title="Đóng">'+ic('close')+'</button>'+
+      '<div class="zoho-acct-scroll">'+
+        '<div class="zoho-acct-top">'+
+          '<span class="zoho-acct-bigav">'+esc(acctInitial(d))+'<i class="zoho-acct-dot"></i></span>'+
+          '<div class="zoho-acct-name2">'+esc(name)+'</div>'+
+          '<div class="zoho-acct-line"><span>'+esc(d.email)+'</span><span class="zoho-acct-copy" data-copy="'+esc(d.email)+'" title="Sao chép">'+ic('copy')+'</span></div>'+
+          '<div class="zoho-acct-line zoho-acct-muted">ID Người Dùng: '+id+' <span class="zoho-acct-help" title="Trợ giúp">'+ic('help')+'</span><span class="zoho-acct-copy" data-copy="'+id+'" title="Sao chép">'+ic('copy')+'</span></div>'+
+          '<a class="zoho-acct-myacct" data-act="account">Tài Khoản Của Tôi</a>'+
+        '</div>'+
+        '<div class="zoho-acct-sep"></div>'+
+        '<div class="zoho-acct-statusrow">'+
+          '<span class="zoho-acct-statdot"><i></i>'+ic('caret')+'</span>'+
+          '<span class="zoho-acct-statsel">Available '+ic('caret')+'</span>'+
+        '</div>'+
+        '<div class="zoho-acct-sep"></div>'+
+        '<div class="zoho-acct-sec">'+
+          '<div class="zoho-acct-sechead"><b>Chế Độ Không Ồn</b><span class="zoho-acct-gear">'+ic('gear')+'</span></div>'+
+          '<div class="zoho-acct-dndbox"><div class="zoho-acct-dndlabel">Pause notifications</div><div class="zoho-acct-dndval">Không bao giờ '+ic('caret')+'</div></div>'+
+          '<div class="zoho-acct-hint">Chế độ im lặng sẽ tự động tắt sau thời gian đã cho biết.</div>'+
+        '</div>'+
+        '<div class="zoho-acct-sep"></div>'+
+        '<div class="zoho-acct-sec">'+
+          '<div class="zoho-acct-secttl">Mail</div>'+
+          '<div class="zoho-acct-pct">'+pct+'%</div>'+
+          '<div class="zoho-acct-bar"><i style="width:'+pct+'%"></i></div>'+
+          '<div class="zoho-acct-usage"><span>'+esc(usage)+' used</span><a data-act="account">Quản Lý Dung Lượng Lưu Trữ</a></div>'+
+        '</div>'+
+        '<div class="zoho-acct-sep"></div>'+
+        '<div class="zoho-acct-sec">'+
+          '<div class="zoho-acct-secttl">Tài nguyên</div>'+
+          '<div class="zoho-acct-res">'+res('send','Tham Quan')+res('edit','Blogs')+res('chat','Community')+res('globe','Trợ giúp')+'</div>'+
+        '</div>'+
+        '<div class="zoho-acct-sep"></div>'+
+        '<div class="zoho-acct-sec">'+
+          '<div class="zoho-acct-secttl">Ứng dụng của chúng tôi trên điện thoại di động của bạn</div>'+
+          '<div class="zoho-acct-apps">'+app('mail','Mail')+app('gear','Quản Trị Mail')+app('chat','Streams')+'</div>'+
         '</div>'+
       '</div>'+
-      '<div class="zoho-acct-rows">'+ row('Tên đăng nhập', d.user) + row('Máy chủ IMAP', d.imap) + row('SMTP', d.smtp) +'</div>'+
-      '<div class="zoho-acct-acts">'+
-        '<a class="zoho-acct-btn" href="/user">Cài đặt tài khoản</a>'+
-        '<button class="zoho-acct-logout" type="button">Đăng xuất</button>'+
-      '</div>';
+      '<button class="zoho-acct-logout" type="button">'+ic('power')+' ĐĂNG XUẤT</button>';
     document.body.appendChild(pop);
-    var r = avatarEl.getBoundingClientRect();
-    pop.style.top = (r.bottom + 8) + 'px';
-    pop.style.right = Math.max(8, (window.innerWidth - r.right)) + 'px';
-    var lo = pop.querySelector('.zoho-acct-logout');
-    if (lo) lo.addEventListener('click', function(){
-      // Log out (POST logout=1) then send the WHOLE tab to the domain root — not just
-      // the iframe — so the user lands on https://<host>/ (mailcow login). Using
-      // top.location covers both the /zm wrapper (top = shell) and direct SOGo (top = self).
-      function go(){ try { top.location.href = '/'; } catch(e){ location.href = '/'; } }
-      try {
-        fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'logout=1' }).then(go, go);
-      } catch(e){ go(); }
-      closeAcctPopup();
+    pop.addEventListener('click', function(ev){
+      var t = ev.target; if (!t.closest) return;
+      if (t.closest('.zoho-acct-x')) { closeAcctPopup(); return; }
+      var cp = t.closest('[data-copy]'); if (cp) { copyText(cp.getAttribute('data-copy')); cp.classList.add('zoho-acct-copied'); return; }
+      if (t.closest('[data-act="account"]')) { try { top.location.href='/user'; } catch(e){ location.href='/user'; } return; }
+      if (t.closest('.zoho-acct-logout')) {
+        // Log out then send the WHOLE tab to the domain root (works under /zm and direct SOGo).
+        function go(){ try { top.location.href='/'; } catch(e){ location.href='/'; } }
+        try { fetch('/', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'logout=1' }).then(go, go); } catch(e){ go(); }
+        closeAcctPopup(); return;
+      }
     });
     setTimeout(function(){ document.addEventListener('click', acctOutside, true); document.addEventListener('keydown', acctEsc, true); }, 0);
   }
