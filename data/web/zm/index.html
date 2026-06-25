@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="referrer" content="strict-origin"/>
+  <title>Mail</title>
+  <link rel="stylesheet" href="/zm/zm.css"/>
+</head>
+<body>
+  <!-- Zoho-style URL wrapper: this shell owns the visible URL (/zm/#mail/folder/…)
+       while SOGo runs full-featured inside the same-origin iframe below. -->
+  <div id="zm-loading">Đang tải…</div>
+  <iframe id="zm-frame" title="Mail" src="about:blank"></iframe>
+  <noscript>Cần bật JavaScript để dùng webmail.</noscript>
+  <script src="/zm/zm-shell.js"></script>
+</body>
+</html>
