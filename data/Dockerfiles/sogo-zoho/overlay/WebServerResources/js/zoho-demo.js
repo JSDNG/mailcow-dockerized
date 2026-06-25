@@ -73,6 +73,21 @@
     Array.prototype.forEach.call(junk, function(n){ if (n.parentNode) n.parentNode.removeChild(n); });
     return (c.textContent || '').trim().replace(/\s+/g, ' ');
   }
+  // Read unread/flagged straight from SOGo's Angular model (reliable) so the Zoho
+  // filters (Chưa đọc / Đã gắn cờ) act on real state, not guessed CSS classes.
+  function realFlags(el){
+    var unread = false, flagged = el.classList.contains('sg-star-bg');
+    try {
+      var sc = window.angular && angular.element(el).scope();
+      var msg = sc && sc.currentMessage;
+      if (msg){
+        if (typeof msg.isflagged !== 'undefined') flagged = !!msg.isflagged;
+        if (typeof msg.isread !== 'undefined') unread = (msg.isread === false);
+        else if (msg.flags && msg.flags.indexOf) unread = (msg.flags.indexOf('seen') === -1);
+      }
+    } catch(e){}
+    return { unread: unread, flagged: flagged };
+  }
   function scrapeReal(){
     return realRows().map(function(el, i){
       function tx(sel){ return cleanText(el.querySelector(sel)); }
@@ -80,7 +95,8 @@
       var date = tx('.sg-tile-date') || tx('.sg-date');
       var from = tx('.sg-md-subhead') || tx('.sg-tile-from') || tx('.sg-from');
       if (!subj && !from) { var t=cleanText(el); subj = t.slice(0,70); }
-      return { id:'r'+i, real:true, realIndex:i,
+      var fl = realFlags(el);
+      return { id:'r'+i, real:true, realIndex:i, unread:fl.unread, flagged:fl.flagged,
         sender:(from||'(người gửi)').slice(0,80), subject:(subj||'(không tiêu đề)').slice(0,90), time:(date||'').slice(0,20) };
     });
   }
@@ -88,10 +104,12 @@
   /* ---- list rendering ---- */
   function rowHTML(m){
     var badges='';
+    if (m.flagged) badges+='<span class="zd-flag">'+ic('star')+'</span>';
     if (m.unreadBadge) badges+='<span class="zd-badge zd-badge-b">'+m.unreadBadge+'</span>';
     if (m.attach) badges+='<span class="zd-attach">'+ic('attach')+'</span>';
     if (m.countBadge) badges+='<span class="zd-badge">'+m.countBadge+'</span>';
-    return '<div class="zd-row'+(m.unread?' zd-unread':'')+(m.real?' zd-real':'')+'" data-id="'+esc(m.id)+'"'+(m.real?' data-real="1" data-ri="'+m.realIndex+'"':'')+'>'+
+    return '<div class="zd-row'+(m.unread?' zd-unread':'')+(m.real?' zd-real':'')+'" data-id="'+esc(m.id)+'"'+
+      ' data-unread="'+(m.unread?1:0)+'" data-flagged="'+(m.flagged?1:0)+'"'+(m.real?' data-real="1" data-ri="'+m.realIndex+'"':'')+'>'+
       '<span class="zd-row-ic">'+ic('mail')+'</span>'+
       '<div class="zd-row-main">'+
         '<div class="zd-row-top"><span class="zd-sender">'+esc(m.sender)+'</span><span class="zd-time">'+esc(m.time)+'</span></div>'+
@@ -231,6 +249,44 @@
 
   /* ---- state ---- */
   var DATA = null, selectedId = null, byId = {}, loadedFolder = null;
+  var filterMode = 'all', searchQuery = '';   // Zoho view filters + top search
+
+  /* ---- search + view filters (client-side, on the Zoho list we render) ---- */
+  // Diacritic-insensitive normalise so "hoa don" matches "HÓA ĐƠN".
+  function norm(s){ return String(s==null?'':s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\u0111/g,'d'); }
+  function applyFilter(layer){
+    layer = layer || document.querySelector('.zoho-demo-layer'); if (!layer) return;
+    var q = norm(searchQuery);
+    Array.prototype.forEach.call(layer.querySelectorAll('.zd-row'), function(r){
+      var show = true;
+      if (filterMode === 'unread'  && r.getAttribute('data-unread')  !== '1') show = false;
+      if (filterMode === 'flagged' && r.getAttribute('data-flagged') !== '1') show = false;
+      if (show && q && norm(r.textContent).indexOf(q) < 0) show = false;
+      r.style.display = show ? '' : 'none';
+    });
+    // hide date-group headers that have no visible rows left
+    var grp = null, has = false;
+    Array.prototype.forEach.call(layer.querySelectorAll('.zd-list-body > *'), function(el){
+      if (el.classList.contains('zd-grp')) { if (grp) grp.style.display = has ? '' : 'none'; grp = el; has = false; }
+      else if (el.classList.contains('zd-row') && el.style.display !== 'none') has = true;
+    });
+    if (grp) grp.style.display = has ? '' : 'none';
+  }
+  function setNavActive(nav){
+    Array.prototype.forEach.call(document.querySelectorAll('.zoho-nav-item.zoho-nav-active'), function(n){ n.classList.remove('zoho-nav-active'); });
+    if (nav) nav.classList.add('zoho-nav-active');
+  }
+  function navMode(label){
+    var l = norm(label);
+    if (l.indexOf('chua doc') >= 0) return 'unread';          // "Chưa đọc" / "Tất cả chưa đọc"
+    if (l.indexOf('da gan co') >= 0) return 'flagged';        // "Đã gắn cờ"
+    if (l.indexOf('tat ca tin nhan') >= 0) return 'all';      // "Tất cả tin nhắn"
+    if (l.indexOf('trang chu') >= 0) return 'all';            // "Trang chủ"
+    return null;
+  }
+  function toggleSidebar(){
+    try { var b = document.querySelector('.toolbar-main button[ng-click*="toggleLeft"]'); if (b) b.click(); } catch(e){}
+  }
 
   function indexData(d){
     byId = {};
@@ -325,6 +381,7 @@
     if (selectedId != null){ var em = byId[selectedId];
       if (em && em.real){ var m = layer.querySelector('.zd-real-body');
         if (m && !m.querySelector('.sg-face')){ var f = document.querySelector('#detailView .sg-face'); if (f){ m.appendChild(f); m.classList.remove('zd-loading'); } } } }
+    applyFilter(layer);   // keep the active search/view filter applied across re-renders
   }
 
   /* ---- load a folder's data (fake + real merge) ---- */
@@ -351,8 +408,27 @@
     } catch (e) {}
     return true;
   }
+  // Wire the controls that live OUTSIDE the overlay (top search + sidebar nav +
+  // rail collapse). Attached once at document level so they survive layer rebuilds.
+  function wireChrome(){
+    // top search → live-filter the Zoho list
+    document.addEventListener('input', function(e){
+      var t = e.target;
+      if (t && t.closest && t.closest('.zoho-topsearch')){ searchQuery = t.value || ''; applyFilter(); }
+    });
+    document.addEventListener('click', function(e){
+      var t = e.target; if (!t || !t.closest) return;
+      if (t.closest('.zoho-rail-collapse')){ toggleSidebar(); return; }   // collapse chevron → toggle sidebar
+      var nav = t.closest('.zoho-nav-item');                              // STREAMS / GIAO DIỆN filters
+      if (nav){
+        var mode = navMode((nav.querySelector('.zoho-nav-label') || nav).textContent);
+        if (mode){ e.preventDefault(); filterMode = mode; setNavActive(nav); applyFilter(); }
+      }
+    });
+  }
   function boot(){
     if (!demoEnabled()) { try{ console.info('[zoho-demo] off — real SOGo'); }catch(e){} return; }
+    wireChrome();
     loadFolder(currentFolder()).then(function(){
       var pending=false, lastReal=-1;
       var obs = new MutationObserver(function(){ if(pending) return; pending=true; setTimeout(function(){
