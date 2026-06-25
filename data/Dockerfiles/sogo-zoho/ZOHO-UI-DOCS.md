@@ -79,8 +79,9 @@ File liên quan ngoài thư mục trên:
 - **Thanh search** kiểu Zoho ở giữa top bar (thay block ngày tháng to).
 - Nút **"Mail Mới"** đầu sidebar (gọi compose thật của SOGo) + caret ▾ kiểu split-button.
 - Ẩn FAB xanh lá gốc (vẫn giữ trong DOM để forward compose).
-- **Top bar nền SÁNG** (giống Zoho thật): nền trắng, viền đáy nhạt, chữ/icon tối, ô
-  search nền xám sáng + caret `▾` chọn phạm vi "Mail". Sidebar trái vẫn navy.
+- **Top bar nền TỐI** (navy `#1b2330`, khớp Zoho thật): chữ/icon sáng, **ô search là
+  pill TRẮNG** ở giữa + caret `▾` chọn phạm vi "Mail". (Trước đây từng làm nền sáng,
+  đã sửa lại tối theo ảnh Zoho.) Sidebar trái cùng navy.
 - **Dải tab kiểu trình duyệt** ở top bar trái: tab "Mail" (active) + "Khôi phục 1 tab ✕" (tĩnh).
 - **Cụm icon phải kiểu Zoho** (tĩnh): cloud, chuông, avatar có chấm online, lưới-app —
   thêm CẠNH các icon SOGo có chức năng (Lịch/Contacts/Mail/Preferences/Logout, restyle sáng).
