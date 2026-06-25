@@ -79,6 +79,16 @@ File liên quan ngoài thư mục trên:
 - **Thanh search** kiểu Zoho ở giữa top bar (thay block ngày tháng to).
 - Nút **"Mail Mới"** đầu sidebar (gọi compose thật của SOGo) + caret ▾ kiểu split-button.
 - Ẩn FAB xanh lá gốc (vẫn giữ trong DOM để forward compose).
+- **Top bar nền SÁNG** (giống Zoho thật): nền trắng, viền đáy nhạt, chữ/icon tối, ô
+  search nền xám sáng + caret `▾` chọn phạm vi "Mail". Sidebar trái vẫn navy.
+- **Dải tab kiểu trình duyệt** ở top bar trái: tab "Mail" (active) + "Khôi phục 1 tab ✕" (tĩnh).
+- **Cụm icon phải kiểu Zoho** (tĩnh): cloud, chuông, avatar có chấm online, lưới-app —
+  thêm CẠNH các icon SOGo có chức năng (Lịch/Contacts/Mail/Preferences/Logout, restyle sáng).
+- **Brand "Mail"** đầu rail trái + **nút thu gọn `<`** đáy rail; app đang chọn = **icon trong tile bo góc xanh** (thay viền trái).
+- **Bỏ block account header** (avatar+email+⚙ của SOGo) → "Mail Mới" lên trên cùng. Header
+  **THƯ MỤC** thêm icon `⚙`/`⊞` (tĩnh).
+- **Thanh Smart Chat đáy màn** (tĩnh): Chat / Kênh / Liên hệ + "Đây là nội dung Smart Chat...".
+- **Rail phải mở rộng** ~12 icon nhiều màu + chấm đỏ thông báo + chat bubble đáy.
 
 #### Sidebar kiểu Zoho (folder list + section tĩnh)
 - **Folder list chỉ còn chữ** (ẩn icon đầu dòng như Zoho), giữ menu more_vert; giữ
@@ -111,6 +121,11 @@ File liên quan ngoài thư mục trên:
     - Nút Zoho (Trả lời / Trả lời tất cả / Chuyển tiếp / cờ / in / mở cửa sổ / xoá)
       gọi thẳng handler SOGo qua `ng-click` ổn định (`viewer.reply(`, `viewer.forward(`,
       `viewer.deleteMessage(`...).
+    - **Bố cục khung đọc đã khớp Zoho:** toolbar trên = *Thông báo nhắc / Thêm tác vụ /
+      Liên kết vĩnh viễn / Báo lại* (tĩnh) + *in / chat / mở cửa sổ / xoá / đóng*; nhóm
+      **Trả lời/Trả lời tất cả/Chuyển tiếp + caret nằm cạnh người gửi** (vẫn nối handler
+      SOGo qua `data-act`); thêm **ô bình luận** "@nhắc đến..." ở đáy (tĩnh). List header
+      có caret `▾` sau tên thư mục.
   - Mail **fake** → khung đọc Zoho fake (có bar dịch, ô reply...).
 - **Xoá:** hover row hiện icon thùng rác; nút "Xóa" trên toolbar; nút **X** đóng pane.
 - **Nút soạn thư:** FAB tròn xanh góc dưới-phải (+ "Mail Mới"), đều gọi compose thật.
@@ -199,8 +214,12 @@ click email đổi khung đọc, toggle on/off giữ nguyên SOGo thật.
 - ✅ **Màu chrome navy Zoho** (`#1b2330`), icon left rail nhiều màu, đậm/nhạt chữ — verify live.
 - ✅ **Sidebar text-only + "THƯ MỤC"** và section tĩnh **STREAMS / TAG / GIAO DIỆN** —
   đã code & push (UI tĩnh, **chưa gắn chức năng** cho các mục này theo yêu cầu).
-- ⏳ Các mục STREAMS/TAG/GIAO DIỆN và số "Chưa đọc (5)" hiện **để cứng/không hành động** —
-  sẽ wire sau khi cần.
+- 🆕 **Đợt tăng độ giống Zoho:** top bar nền sáng + brand + tab strip + cụm icon phải; bỏ
+  account header (Mail Mới lên trên cùng); Smart Chat bar đáy; rail phải mở rộng; khung đọc
+  mail thật khớp layout Zoho (toolbar Thông báo nhắc/Thêm tác vụ/…; nút trả lời cạnh người
+  gửi; ô bình luận đáy). **Chờ build trên live + verify Playwright.**
+- ⏳ Các mục STREAMS/TAG/GIAO DIỆN, tab strip, Smart Chat bar, cụm icon trang trí và số
+  "Chưa đọc (5)" hiện **để cứng/không hành động** — sẽ wire sau khi cần.
 
 ---
 
@@ -208,6 +227,7 @@ click email đổi khung đọc, toggle on/off giữ nguyên SOGo thật.
 
 | Commit | Nội dung |
 |---|---|
+| *(mới)* | Tăng độ giống Zoho: top bar sáng + brand + tab strip + icon phải; bỏ account header; Smart Chat bar; rail phải mở rộng; khung đọc mail thật khớp layout Zoho |
 | `6a83fd7` | Thêm section sidebar **STREAMS / TAG / GIAO DIỆN** (UI tĩnh) |
 | `450cd81` | Fix chữ **"error"**: `cleanText()` lọc ligature icon/`.ng-hide`/ngày khi scrape |
 | `55ed74a` | Icon left rail **nhiều màu** + đậm/nhạt chữ thư mục |

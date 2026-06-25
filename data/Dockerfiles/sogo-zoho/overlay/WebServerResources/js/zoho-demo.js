@@ -109,7 +109,7 @@
       return '<div class="zd-grp">'+esc(g.label)+'</div>' + g.emails.map(rowHTML).join('');
     }).join('');
     return '<div class="zd-list">'+
-      '<div class="zd-list-head"><h1>'+esc(d.title)+'</h1>'+(d.unread?'<span class="zd-unread"> • <a>'+esc(d.unread)+'</a></span>':'')+'</div>'+
+      '<div class="zd-list-head"><h1>'+esc(d.title)+'</h1><span class="zd-head-caret">'+ic('caret')+'</span>'+(d.unread?'<span class="zd-unread"> • <a>'+esc(d.unread)+'</a></span>':'')+'</div>'+
       '<div class="zd-list-tools">'+
         '<label class="zd-chk"><input type="checkbox"/>'+ic('caret')+'</label>'+
         '<button class="zd-tool">'+ic('move')+' Chuyển đến</button>'+
@@ -179,23 +179,37 @@
     var b = findSogoBtn(ng); if (b) { try { b.click(); } catch(e){} }
   }
   function realReadHTML(email){
+    // Zoho layout: top toolbar carries Zoho-feature buttons (static) + window icons;
+    // the reply/reply-all/forward actions live next to the sender (wired to SOGo via
+    // data-act → triggerRealAction). Bottom comment box is decorative.
     var tb = '<div class="zd-rp-tb"><div class="zd-rp-tbl">'+
-      '<button class="zd-tbb" data-act="reply">'+ic('reply')+' Trả lời</button>'+
-      '<button class="zd-tbb" data-act="replyAll">'+ic('replyAll')+' Trả lời tất cả</button>'+
-      '<button class="zd-tbb" data-act="forward">'+ic('forward')+' Chuyển tiếp</button></div>'+
+      '<button class="zd-tbb">'+ic('bell')+' Thông báo nhắc</button>'+
+      '<button class="zd-tbb">'+ic('check')+' Thêm tác vụ</button>'+
+      '<button class="zd-tbb">'+ic('link')+' Liên kết vĩnh viễn</button>'+
+      '<button class="zd-tbb">'+ic('clock')+' Báo lại</button></div>'+
       '<div class="zd-rp-tbr">'+
-        '<span class="zd-rp-ic" data-act="flag" title="Gắn cờ">'+ic('star')+'</span>'+
         '<span class="zd-rp-ic" data-act="print" title="In">'+ic('print')+'</span>'+
+        '<span class="zd-rp-ic" title="Trò chuyện">'+ic('chat')+'</span>'+
         '<span class="zd-rp-ic" data-act="popup" title="Mở cửa sổ mới">'+ic('ext')+'</span>'+
         '<span class="zd-rp-ic zd-tool-del" data-act="delete" title="Xóa">'+ic('trash')+'</span>'+
         '<span class="zd-rp-close" title="Đóng">'+ic('close')+'</span></div></div>';
+    var acts = '<span class="zd-acts">'+
+      '<span class="zd-rp-ic" data-act="reply" title="Trả lời">'+ic('reply')+'</span>'+
+      '<span class="zd-rp-ic" data-act="replyAll" title="Trả lời tất cả">'+ic('replyAll')+'</span>'+
+      '<span class="zd-rp-ic" data-act="forward" title="Chuyển tiếp">'+ic('forward')+'</span>'+
+      '<span class="zd-sep">|</span>'+
+      '<span class="zd-rp-ic" title="Thêm">'+ic('caret')+'</span></span>';
     return tb + '<div class="zd-rp-scroll">'+
       '<h2 class="zd-rp-subj">'+esc(email.subject)+'</h2>'+
       '<div class="zd-msg"><div class="zd-mh">'+
         '<span class="zd-av" style="background:'+color(email.realIndex||0)+'">'+esc(initial(email.sender))+'</span>'+
-        '<div class="zd-mm"><div class="zd-l1"><span class="zd-from">'+esc(email.sender)+'</span></div>'+
-        '<div class="zd-l2">'+esc(email.time)+'</div></div></div>'+
-      '<div class="zd-real-body zd-loading"></div></div>';
+        '<div class="zd-mm">'+
+          '<div class="zd-l1"><span class="zd-from">'+esc(email.sender)+'</span>'+
+            '<span class="zd-rp-ic zd-from-search" title="Tìm theo người gửi">'+ic('search')+'</span></div>'+
+          '<div class="zd-l2"><span class="zd-rp-ic" data-act="flag" title="Gắn cờ">'+ic('star')+'</span> '+esc(email.time)+'</div>'+
+        '</div>'+acts+'</div>'+
+      '<div class="zd-real-body zd-loading"></div></div>'+
+      '<div class="zd-reply"><input type="text" placeholder="@nhắc đến một người dùng hoặc nhóm để chia sẻ email này"/>'+ic('smile')+'</div>';
   }
   function restoreRealFace(){
     // move any embedded real view back to SOGo's #detailView so SOGo stays consistent.

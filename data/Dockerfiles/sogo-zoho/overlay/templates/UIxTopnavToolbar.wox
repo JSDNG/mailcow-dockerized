@@ -18,15 +18,25 @@
                label:aria-label="Toggle Menu">
       <md-icon>menu</md-icon>
     </md-button>
+    <!-- Zoho-style browser-like tab strip (static, decorative) -->
+    <div class="zoho-tabs hide show-gt-md">
+      <span class="zoho-tab zoho-tab-active"><md-icon>email</md-icon><span>Mail</span></span>
+      <span class="zoho-tab"><md-icon>restore_page</md-icon><span>Khôi phục 1 tab</span><md-icon class="zoho-tab-x">close</md-icon></span>
+    </div>
   </div>
   <!-- Zoho-style centered search pill (replaces the SOGo date block) -->
   <div class="zoho-topsearch hide show-gt-md">
-    <span class="zoho-ts-scope">Mail</span>
+    <span class="zoho-ts-scope">Mail<md-icon class="zoho-ts-caret">arrow_drop_down</md-icon></span>
     <span class="zoho-ts-div"><!-- divider --></span>
     <md-icon>search</md-icon>
     <input type="text" placeholder="Tìm kiếm ( / )" aria-label="Search" />
   </div>
   <div class="md-toolbar-tools sg-toolbar-group-last" layout="row" layout-align="end center">
+    <!-- Zoho decorative cluster: cloud + bell (static) -->
+    <span class="zoho-top-deco hide show-gt-md">
+      <md-icon class="zoho-top-ic" label:aria-label="Tải lên">cloud_upload</md-icon>
+      <md-icon class="zoho-top-ic" label:aria-label="Thông báo">notifications_none</md-icon>
+    </span>
     <md-button class="md-icon-button"
                ng-show="::activeUser.path.calendar.length"
                ng-disabled="::baseURL.endsWith('/Calendar/')"
@@ -86,6 +96,11 @@
       <md-icon>settings_power</md-icon>
       <md-tooltip><var:string label:value="Disconnect"/></md-tooltip>
     </md-button>
+    <!-- Zoho decorative cluster: avatar (online) + apps grid (static) -->
+    <span class="zoho-top-deco hide show-gt-md">
+      <span class="zoho-top-avatar" label:aria-label="Tài khoản"><md-icon>person</md-icon><i class="zoho-top-dot"><!-- online --></i></span>
+      <md-icon class="zoho-top-ic" label:aria-label="Ứng dụng">apps</md-icon>
+    </span>
   </div>
 
 </container>

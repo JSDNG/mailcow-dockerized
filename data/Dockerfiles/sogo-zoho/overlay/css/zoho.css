@@ -17,11 +17,10 @@ html body .md-sidenav-left .sg-account-section {
   background-color: #1b2330 !important;
   color: #c7cdd9 !important;
 }
+/* Zoho has no account header — hide SOGo's sidenav toolbar (avatar + email + gear)
+ * so the "Mail Mới" button becomes the first element at the top of the sidebar. */
 html body .md-sidenav-left md-toolbar,
-html body .md-sidenav-left .md-toolbar {
-  background-color: #141b26 !important;
-  color: #fff !important;
-}
+html body .md-sidenav-left .md-toolbar { display: none !important; }
 html body .md-sidenav-left .sg-item-name,
 html body .md-sidenav-left md-list-item { color: #c7cdd9 !important; }
 html body .md-sidenav-left md-icon { color: #9aa3b2 !important; }
@@ -34,10 +33,10 @@ html body md-list-item.sg-mailbox-list-item.sg-selected {
 }
 html body .sg-mailbox-list-item.sg-selected md-icon { color: #5b9bf3 !important; }
 
-/* ---- Top toolbar (teal) -> dark navy ---- */
-html body md-toolbar.toolbar-main { background-color: #1b2330 !important; color: #fff !important; position: relative !important; }
+/* ---- Top toolbar -> Zoho LIGHT chrome (white bar, dark text/icons) ---- */
+html body md-toolbar.toolbar-main { background-color: #ffffff !important; color: #444b57 !important; position: relative !important; border-bottom: 1px solid #e4e7ec !important; box-shadow: none !important; }
 html body md-toolbar.toolbar-main md-icon,
-html body md-toolbar.toolbar-main .md-button { color: #c7cdd9 !important; }
+html body md-toolbar.toolbar-main .md-button { color: #5a626f !important; }
 
 /* ---- Message list: date-group subheaders + selected tile ---- */
 html body [id="messagesList"] .sg-md-subheader,
@@ -66,6 +65,13 @@ html body .md-sidenav-left .sg-mailbox-list-item .sg-item-name { padding-left: 8
 html body .md-sidenav-left .sg-account-section md-list-item:not(.sg-mailbox-list-item) .sg-no-wrap { font-size: 0 !important; }
 html body .md-sidenav-left .sg-account-section md-list-item:not(.sg-mailbox-list-item) .sg-no-wrap::before {
   content: 'THƯ MỤC'; font-size: 11px; font-weight: 700; letter-spacing: .6px; color: #6b7785;
+}
+
+/* "THƯ MỤC" header decorative actions (gear + add), shown to the right of the row. */
+html body .md-sidenav-left .zoho-folders-act { display: inline-flex !important; align-items: center; gap: 10px; margin-right: 6px; }
+html body .md-sidenav-left .zoho-folders-act md-icon {
+  display: inline-flex !important; font-size: 16px !important; width: 16px !important; height: 16px !important;
+  color: #6b7785 !important; cursor: default;
 }
 
 /* Text weight/contrast: selected folder bright & semibold, others light-regular. */
@@ -119,11 +125,25 @@ html body .zoho-compose::after {
 /* ---- Right tools rail: colourful app icons (like Zoho) ---- */
 html body .zoho-right-rail .zoho-rail-item md-icon { opacity: .95; }
 html body .zoho-right-rail .zoho-rail-item:nth-of-type(1) md-icon { color: #6b7280 !important; }
-html body .zoho-right-rail .zoho-rail-item:nth-of-type(2) md-icon { color: #e0a458 !important; }
-html body .zoho-right-rail .zoho-rail-item:nth-of-type(3) md-icon { color: #4a90e2 !important; }
-html body .zoho-right-rail .zoho-rail-item:nth-of-type(4) md-icon { color: #e07b39 !important; }
-html body .zoho-right-rail .zoho-rail-item:nth-of-type(5) md-icon { color: #36c172 !important; }
-html body .zoho-right-rail .zoho-rail-item:nth-of-type(6) md-icon { color: #9b59b6 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(2) md-icon { color: #4a90e2 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(3) md-icon { color: #e0a458 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(4) md-icon { color: #7b4fc0 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(5) md-icon { color: #e07b39 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(6) md-icon { color: #36c172 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(7) md-icon { color: #1a9e63 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(8) md-icon { color: #d2664a !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(9) md-icon { color: #4a90e2 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(10) md-icon { color: #9b59b6 !important; }
+html body .zoho-right-rail .zoho-rail-item:nth-of-type(11) md-icon { color: #e0a32e !important; }
+/* notification dot on some items */
+html body .zoho-right-rail .zoho-rail-dot { position: relative; }
+html body .zoho-right-rail .zoho-rail-dot::after {
+  content: ''; position: absolute; top: 4px; right: 4px; width: 7px; height: 7px;
+  border-radius: 50%; background: #e0443e; border: 1.5px solid #f3f4f6;
+}
+/* chat bubble pinned to the bottom of the rail */
+html body .zoho-right-rail .zoho-rail-chat { margin-top: auto; margin-bottom: 8px; }
+html body .zoho-right-rail .zoho-rail-chat md-icon { color: #d23a5b !important; }
 
 /* ===========================================================================
  * Structure (elements added in the templates)
@@ -159,8 +179,27 @@ html body .zoho-app-item em {
   white-space: normal; overflow-wrap: anywhere; word-break: break-word;
 }
 html body .zoho-app-item md-icon { color: inherit !important; font-size: 22px; width: 22px; height: 22px; }
-html body .zoho-app-active { color: #fff; border-left-color: #2c6fde; background: rgba(255,255,255,.08); }
-html body .zoho-app-active md-icon { color: #5b9bf3 !important; }
+/* Zoho active app = icon sits inside a rounded blue tile (no left border).
+ * Selector keeps .zoho-app-item so it outranks the per-icon :nth-of-type colours
+ * above (equal specificity → later wins) and the white icon shows on the blue tile. */
+html body .zoho-app-active { color: #fff; border-left-color: transparent; background: transparent; }
+html body .zoho-left-rail .zoho-app-item.zoho-app-active md-icon { color: #fff !important; background: #2c6fde; border-radius: 10px; padding: 6px; box-sizing: content-box; }
+
+/* Brand "Mail" at the top of the left rail */
+html body .zoho-brand {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 10px 3px 12px; color: #fff; border-bottom: 1px solid rgba(255,255,255,.06); margin-bottom: 4px;
+}
+html body .zoho-brand md-icon { color: #2c6fde !important; font-size: 24px; width: 24px; height: 24px; }
+html body .zoho-brand em { font-style: normal; font-size: 11px; font-weight: 700; color: #e6e9f0; }
+
+/* Bottom collapse chevron (pushed to the bottom of the rail) */
+html body .zoho-rail-collapse {
+  margin-top: auto; display: flex; align-items: center; justify-content: center;
+  padding: 10px 3px; color: #6a7888; cursor: default;
+}
+html body .zoho-rail-collapse:hover { color: #c7cdd9; }
+html body .zoho-rail-collapse md-icon { color: inherit !important; font-size: 20px; width: 20px; height: 20px; }
 
 /* Right tools rail */
 /* Right tools rail — also a real flex column (last via order:100). */
@@ -177,17 +216,41 @@ html body .zoho-rail-item {
 html body .zoho-rail-item:hover { background: #e7e9ed; }
 html body .zoho-rail-item md-icon { color: inherit !important; font-size: 18px; width: 18px; height: 18px; }
 
-/* Top search pill (replaces the date block) */
+/* Top search pill (replaces the date block) — light chrome */
 html body .zoho-topsearch {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
   display: flex; align-items: center; gap: 8px; width: 420px; max-width: 38vw; height: 34px;
-  background: rgba(255,255,255,.13); border-radius: 6px; padding: 0 12px; color: #c7cdd9;
+  background: #eef0f3; border: 1px solid #e2e5ea; border-radius: 6px; padding: 0 12px; color: #6b7280;
 }
-html body .zoho-ts-scope { font-size: 13px; white-space: nowrap; }
-html body .zoho-ts-div { width: 1px; height: 18px; background: rgba(255,255,255,.2); }
-html body .zoho-topsearch md-icon { color: #c7cdd9 !important; font-size: 16px; width: 16px; height: 16px; }
-html body .zoho-topsearch input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 13px; }
-html body .zoho-topsearch input::placeholder { color: #8b94a4; }
+html body .zoho-ts-scope { font-size: 13px; white-space: nowrap; display: inline-flex; align-items: center; color: #4b5563; }
+html body .zoho-ts-caret { font-size: 18px !important; width: 18px !important; height: 18px !important; color: #8b94a4 !important; margin-left: -2px; }
+html body .zoho-ts-div { width: 1px; height: 18px; background: #d2d6dd; }
+html body .zoho-topsearch md-icon { color: #8b94a4 !important; font-size: 16px; width: 16px; height: 16px; }
+html body .zoho-topsearch input { flex: 1; background: transparent; border: none; outline: none; color: #2b2f36; font-size: 13px; }
+html body .zoho-topsearch input::placeholder { color: #9aa1ad; }
+
+/* ---- Top-left browser-like tab strip (static) ---- */
+html body .zoho-tabs { display: flex; align-items: flex-end; gap: 2px; height: 100%; margin-left: 8px; }
+html body .zoho-tab {
+  display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 14px;
+  font-size: 13px; color: #6b7280; background: #eceef1; border: 1px solid #e2e5ea; border-bottom: none;
+  border-radius: 8px 8px 0 0; white-space: nowrap; cursor: default; max-width: 160px;
+}
+html body .zoho-tab span { overflow: hidden; text-overflow: ellipsis; }
+html body .zoho-tab md-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; color: #8b94a4 !important; }
+html body .zoho-tab-active { background: #ffffff; color: #2c6fde; font-weight: 600; }
+html body .zoho-tab-active md-icon { color: #2c6fde !important; }
+html body .zoho-tab .zoho-tab-x { color: #9aa1ad !important; margin-left: 2px; }
+
+/* ---- Top-right decorative cluster (cloud / bell / avatar / apps) ---- */
+html body .zoho-top-deco { display: inline-flex; align-items: center; gap: 4px; }
+html body .zoho-top-ic { color: #5a626f !important; font-size: 20px !important; width: 20px !important; height: 20px !important; cursor: default; margin: 0 4px; }
+html body .zoho-top-avatar {
+  position: relative; width: 28px; height: 28px; border-radius: 50%; background: #d8dbe1;
+  display: inline-flex; align-items: center; justify-content: center; margin: 0 4px;
+}
+html body .zoho-top-avatar md-icon { color: #6b7280 !important; font-size: 18px !important; width: 18px !important; height: 18px !important; }
+html body .zoho-top-dot { position: absolute; right: -1px; bottom: -1px; width: 9px; height: 9px; border-radius: 50%; background: #36c172; border: 2px solid #fff; }
 
 /* Hide the green compose FAB (replaced by "Mail Mới"); keep it in the DOM so
  * the onclick can still trigger SOGo's real compose action. */
@@ -234,7 +297,7 @@ html body .zoho-demo-layer .zd-read,
 html body .zoho-demo-layer .zd-compose-fab { pointer-events: auto; }
 /* compose FAB (Zoho-blue, bottom-right) */
 html body .zoho-demo-layer .zd-compose-fab {
-  position: absolute; right: 22px; bottom: 22px; width: 52px; height: 52px;
+  position: absolute; right: 22px; bottom: 42px; width: 52px; height: 52px;
   border-radius: 50%; border: none; background: #2c6fde; color: #fff; cursor: pointer;
   box-shadow: 0 3px 10px rgba(44,111,222,.4); z-index: 3;
   display: flex; align-items: center; justify-content: center;
@@ -345,3 +408,28 @@ html body .zoho-demo-layer .zd-real-body md-card-content {
 html body .zoho-demo-layer .zd-real-body md-card-content { padding: 0 !important; }
 html body .zoho-demo-layer .zd-real-body .sg-face,
 html body .zoho-demo-layer .zd-real-body .sg-reversible { height: auto !important; min-height: 0 !important; }
+
+/* reading pane: caret next to folder/subject title + small inline search by sender */
+.zoho-demo-layer .zd-head-caret { display: inline-flex; align-items: center; color: #6b7280; }
+.zoho-demo-layer .zd-head-caret .zd-ic { width: 16px; height: 16px; }
+.zoho-demo-layer .zd-from-search { padding: 2px !important; }
+.zoho-demo-layer .zd-from-search .zd-ic { width: 13px; height: 13px; }
+/* list header caret */
+.zoho-demo-layer .zd-list-head .zd-head-caret { margin-left: 2px; }
+
+/* ===========================================================================
+ * Zoho Smart Chat bar (static, pinned to the bottom of the window). Sits above
+ * the demo overlay (z 59) but below Material dialogs/menus (60+ → backdrop 79).
+ * =========================================================================== */
+html body .zoho-smartchat {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 30px; z-index: 60;
+  display: flex; align-items: stretch; font-size: 12px;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+html body .zoho-smartchat .zoho-sc-tabs { display: flex; align-items: center; gap: 16px; padding: 0 16px; background: #1b2330; color: #aeb6c4; }
+html body .zoho-smartchat .zoho-sc-item { display: inline-flex; align-items: center; gap: 5px; cursor: default; }
+html body .zoho-smartchat .zoho-sc-item md-icon { font-size: 14px !important; width: 14px !important; height: 14px !important; color: inherit !important; }
+html body .zoho-smartchat .zoho-sc-active { color: #fff; }
+html body .zoho-smartchat .zoho-sc-hint { flex: 1; display: flex; align-items: center; padding: 0 16px; background: #fff; border-top: 1px solid #e4e7ec; color: #9aa1ad; }
+/* keep the sidebar's last nav items clear of the 30px Smart Chat bar */
+html body .md-sidenav-left > md-content { padding-bottom: 34px !important; }

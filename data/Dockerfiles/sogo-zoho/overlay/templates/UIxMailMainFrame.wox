@@ -29,23 +29,33 @@
 
     <!-- Zoho left app-switcher rail -->
     <nav class="zoho-left-rail">
+      <!-- brand at top-left (div, not <a>, so app-item :nth-of-type colours stay intact) -->
+      <div class="zoho-brand" title="Mail"><md-icon>email</md-icon><em>Mail</em></div>
       <a class="zoho-app-item zoho-app-active" title="Mail"><md-icon>email</md-icon><em>Mail</em></a>
       <a class="zoho-app-item" ng-href="{{::activeUser.path.calendar}}" title="Lịch"><md-icon>event</md-icon><em>Lịch</em></a>
-      <a class="zoho-app-item" title="Việc cần làm"><md-icon>check_box</md-icon><em>Việc cần làm</em></a>
+      <a class="zoho-app-item" title="Danh Sách Việc Cần Làm"><md-icon>check_box</md-icon><em>Danh Sách Việc Cần Làm</em></a>
       <a class="zoho-app-item" title="Ghi chú"><md-icon>edit</md-icon><em>Ghi chú</em></a>
       <a class="zoho-app-item" ng-href="{{::activeUser.path.contacts}}" title="Số liên lạc"><md-icon>contacts</md-icon><em>Số liên lạc</em></a>
       <a class="zoho-app-item" title="Dấu trang"><md-icon>bookmark</md-icon><em>Dấu trang</em></a>
-      <a class="zoho-app-item" title="Web Tab"><md-icon>language</md-icon><em>Web Tab</em></a>
+      <a class="zoho-app-item" title="Các Web Tab"><md-icon>language</md-icon><em>Các Web Tab</em></a>
+      <!-- bottom collapse chevron (static) -->
+      <div class="zoho-rail-collapse" title="Thu gọn"><md-icon>chevron_left</md-icon></div>
     </nav>
 
-    <!-- Zoho right tools rail -->
+    <!-- Zoho right tools rail (static, decorative — extended icon set) -->
     <nav class="zoho-right-rail">
       <a class="zoho-rail-item" title="Cài đặt"><md-icon>settings</md-icon></a>
+      <a class="zoho-rail-item" title="Bảng tin"><md-icon>dashboard</md-icon></a>
       <a class="zoho-rail-item" title="Đính kèm"><md-icon>attach_file</md-icon></a>
       <a class="zoho-rail-item" title="Lịch"><md-icon>event</md-icon></a>
       <a class="zoho-rail-item" title="Nhắc"><md-icon>schedule</md-icon></a>
       <a class="zoho-rail-item" title="Ghi chú"><md-icon>edit</md-icon></a>
+      <a class="zoho-rail-item" title="Việc cần làm"><md-icon>check_box</md-icon></a>
+      <a class="zoho-rail-item" title="Số liên lạc"><md-icon>contacts</md-icon></a>
       <a class="zoho-rail-item" title="Liên kết"><md-icon>link</md-icon></a>
+      <a class="zoho-rail-item zoho-rail-dot" title="Tiện ích"><md-icon>extension</md-icon></a>
+      <a class="zoho-rail-item zoho-rail-dot" title="Tự động hóa"><md-icon>flash_on</md-icon></a>
+      <a class="zoho-rail-item zoho-rail-chat" title="Trò chuyện"><md-icon>chat_bubble</md-icon></a>
     </nav>
 
     <!-- Sidenav -->
@@ -76,6 +86,8 @@
               <div class="sg-no-wrap"
                    aria-label="{{ ::'Toggle visibility' | loc }}"
                    ng-bind="::account.name"><!-- account name --></div>
+              <!-- Zoho "THƯ MỤC" header actions (static, decorative) -->
+              <span class="zoho-folders-act md-secondary"><md-icon>settings</md-icon><md-icon>add</md-icon></span>
 	      <md-menu class="md-secondary">
 		<md-icon label:aria-label="Options"
 			 ng-click="$mdMenu.open($event)"
@@ -171,6 +183,16 @@
         </div>
       </md-content>
     </section>
+
+    <!-- Zoho Smart Chat bar pinned to the bottom (static, decorative) -->
+    <div class="zoho-smartchat">
+      <span class="zoho-sc-tabs">
+        <span class="zoho-sc-item zoho-sc-active"><md-icon>chat_bubble</md-icon>Chat</span>
+        <span class="zoho-sc-item"><md-icon>forum</md-icon>Kênh</span>
+        <span class="zoho-sc-item"><md-icon>person</md-icon>Liên hệ</span>
+      </span>
+      <span class="zoho-sc-hint">Đây là nội dung Smart Chat của bạn (Ctrl+Space)</span>
+    </div>
   </script>
 
   <script type="text/ng-template" id="UIxMailFolderTemplate">
