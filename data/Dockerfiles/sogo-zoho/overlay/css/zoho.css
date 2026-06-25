@@ -221,6 +221,8 @@ html body .zoho-brand {
   padding: 10px 3px 12px; color: #fff; border-bottom: 1px solid rgba(255,255,255,.06); margin-bottom: 4px;
 }
 html body .zoho-brand md-icon { color: #2c6fde !important; font-size: 24px; width: 24px; height: 24px; }
+/* Custom Zoho-style mail logo (SVG sibling of this stylesheet under WebServerResources). */
+html body .zoho-brand .zoho-brand-logo { display: block; width: 26px; height: 26px; background: url("../img/zoho-mail-logo.svg") center / contain no-repeat; }
 html body .zoho-brand em { font-style: normal; font-size: 11px; font-weight: 700; color: #e6e9f0; }
 
 /* Bottom collapse chevron (pushed to the bottom of the rail) */
