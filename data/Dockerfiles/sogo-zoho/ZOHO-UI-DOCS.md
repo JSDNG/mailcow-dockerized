@@ -221,10 +221,12 @@ click email đổi khung đọc, toggle on/off giữ nguyên SOGo thật.
 - ✅ **Wire chức năng cơ bản:** ô **tìm kiếm** top bar lọc list theo người gửi/tiêu đề
   (không dấu cũng khớp); **GIAO DIỆN/STREAMS** lọc *Chưa đọc / Tất cả / Đã gắn cờ*
   (đọc trạng thái mail thật qua Angular `currentMessage.isflagged/isread/flags`); nút
-  **thu gọn `<`** gập sidebar (gọi `toggleLeft()`). Mail thật vẫn mở/Trả lời/Chuyển
+  **thu gọn `<`** gập sidebar (gọi `toggleLeft()`); **avatar top bar** mở **popup tài
+  khoản** (tên/email/trạng thái + Tên đăng nhập/IMAP/SMTP đọc từ `window.mailAccounts`,
+  nút Cài đặt `/user` + Đăng xuất `mc_logout()`). Mail thật vẫn mở/Trả lời/Chuyển
   tiếp/Xóa qua handler SOGo. → đọc thêm `#### Chức năng đã wire` dưới đây.
 - ⏳ Vẫn **để tĩnh** (không backend hoặc rủi ro, đã bỏ qua theo yêu cầu): tab strip,
-  cụm icon phải (cloud/bell/avatar/apps), Smart Chat bar, toolbar khung đọc (Thông báo
+  cụm icon phải (cloud/bell/apps), Smart Chat bar, toolbar khung đọc (Thông báo
   nhắc/Thêm tác vụ/Liên kết vĩnh viễn/Báo lại), ô bình luận đáy, STREAMS "Tạo một nhóm",
   TAG ⊞, THƯ MỤC ⚙/⊞.
 
@@ -232,7 +234,8 @@ click email đổi khung đọc, toggle on/off giữ nguyên SOGo thật.
 - `applyFilter()` + `filterMode`/`searchQuery`: lọc client-side trên list Zoho (real+fake),
   ẩn cả header nhóm ngày khi rỗng. `norm()` bỏ dấu tiếng Việt để search dễ khớp.
 - `realFlags(el)`: đọc `unread`/`flagged` thật từ scope Angular của `md-list-item`.
-- `wireChrome()`: gắn listener cấp document cho ô search, nav STREAMS/GIAO DIỆN, nút thu gọn —
+- `openAcctPopup()` + `acctData()`: popup tài khoản từ avatar top bar (đóng khi click ngoài/Escape).
+- `wireChrome()`: gắn listener cấp document cho ô search, nav STREAMS/GIAO DIỆN, nút thu gọn, avatar —
   tồn tại độc lập với overlay (overlay rebuild không mất binding); `place()` gọi lại
   `applyFilter()` để giữ bộ lọc qua mỗi lần re-render.
 

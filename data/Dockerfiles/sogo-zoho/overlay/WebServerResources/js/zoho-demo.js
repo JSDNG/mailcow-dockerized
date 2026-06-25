@@ -288,6 +288,64 @@
     try { var b = document.querySelector('.toolbar-main button[ng-click*="toggleLeft"]'); if (b) b.click(); } catch(e){}
   }
 
+  /* ---- account popup (top-bar avatar): current mailbox + a few simple facts ---- */
+  function acctData(){
+    var d = { email:'', name:'', user:'', imap:'', smtp:'' };
+    try { var m = (location.pathname||'').match(/\/SOGo\/so\/([^\/]+)/i); if (m) d.email = decodeURIComponent(m[1]); } catch(e){}
+    try {
+      var a = window.mailAccounts && mailAccounts[0];
+      if (a){
+        var id0 = a.identities && a.identities[0];
+        d.user  = a.userName || d.email;
+        d.name  = (id0 && id0.fullName) || a.name || d.email;
+        d.email = (id0 && id0.email) || a.name || d.email;
+        if (a.serverName) d.imap = a.serverName + (a.port ? (':'+a.port) : '');
+        if (a.smtpServerName) d.smtp = a.smtpServerName + (a.smtpPort ? (':'+a.smtpPort) : '');
+      }
+    } catch(e){}
+    if (!d.name) d.name = (d.email.split('@')[0] || d.email);
+    return d;
+  }
+  function acctInitial(d){ var s = String(d.name||d.email||'?').replace(/[^A-Za-z0-9À-ỹ]/g,''); return (s.slice(0,2)||'?').toUpperCase(); }
+  function closeAcctPopup(){
+    var p = document.querySelector('.zoho-acct-pop'); if (p && p.parentNode) p.parentNode.removeChild(p);
+    document.removeEventListener('click', acctOutside, true);
+    document.removeEventListener('keydown', acctEsc, true);
+  }
+  function acctOutside(e){
+    if (e.target.closest && (e.target.closest('.zoho-acct-pop') || e.target.closest('.zoho-top-avatar'))) return;
+    closeAcctPopup();
+  }
+  function acctEsc(e){ if (e.key === 'Escape' || e.keyCode === 27) closeAcctPopup(); }
+  function openAcctPopup(avatarEl){
+    if (document.querySelector('.zoho-acct-pop')) { closeAcctPopup(); return; }   // toggle off
+    var d = acctData();
+    function row(k,v){ return v ? '<div class="zoho-acct-row"><span>'+esc(k)+'</span><b>'+esc(v)+'</b></div>' : ''; }
+    var pop = document.createElement('div');
+    pop.className = 'zoho-acct-pop';
+    pop.innerHTML =
+      '<div class="zoho-acct-head">'+
+        '<span class="zoho-acct-av">'+esc(acctInitial(d))+'</span>'+
+        '<div class="zoho-acct-id">'+
+          '<div class="zoho-acct-name">'+esc(d.name)+'</div>'+
+          '<div class="zoho-acct-email">'+esc(d.email)+'</div>'+
+          '<div class="zoho-acct-status"><i></i> Đang hoạt động</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="zoho-acct-rows">'+ row('Tên đăng nhập', d.user) + row('Máy chủ IMAP', d.imap) + row('SMTP', d.smtp) +'</div>'+
+      '<div class="zoho-acct-acts">'+
+        '<a class="zoho-acct-btn" href="/user">Cài đặt tài khoản</a>'+
+        '<button class="zoho-acct-logout" type="button">Đăng xuất</button>'+
+      '</div>';
+    document.body.appendChild(pop);
+    var r = avatarEl.getBoundingClientRect();
+    pop.style.top = (r.bottom + 8) + 'px';
+    pop.style.right = Math.max(8, (window.innerWidth - r.right)) + 'px';
+    var lo = pop.querySelector('.zoho-acct-logout');
+    if (lo) lo.addEventListener('click', function(){ try { if (window.mc_logout) mc_logout(); } catch(e){} closeAcctPopup(); });
+    setTimeout(function(){ document.addEventListener('click', acctOutside, true); document.addEventListener('keydown', acctEsc, true); }, 0);
+  }
+
   function indexData(d){
     byId = {};
     (d.realEmails||[]).forEach(function(e){ byId[e.id]=e; });
@@ -418,6 +476,8 @@
     });
     document.addEventListener('click', function(e){
       var t = e.target; if (!t || !t.closest) return;
+      var av = t.closest('.zoho-top-avatar');
+      if (av){ e.preventDefault(); e.stopPropagation(); openAcctPopup(av); return; }   // avatar → account popup
       if (t.closest('.zoho-rail-collapse')){ toggleSidebar(); return; }   // collapse chevron → toggle sidebar
       var nav = t.closest('.zoho-nav-item');                              // STREAMS / GIAO DIỆN filters
       if (nav){
