@@ -494,6 +494,8 @@
       var av = t.closest('.zoho-top-avatar');
       if (av){ e.preventDefault(); e.stopPropagation(); openAcctPopup(av); return; }   // avatar → account popup
       if (t.closest('.zoho-rail-collapse')){ toggleSidebar(); return; }   // collapse chevron → toggle sidebar
+      var head = t.closest('.zoho-nav-head');                             // section header → collapse/expand its children
+      if (head && !t.closest('.zoho-nav-act')){ var grp = head.closest('.zoho-nav'); if (grp) grp.classList.toggle('zoho-nav-collapsed'); return; }
       var nav = t.closest('.zoho-nav-item');                              // STREAMS / GIAO DIỆN filters
       if (nav){
         var mode = navMode((nav.querySelector('.zoho-nav-label') || nav).textContent);

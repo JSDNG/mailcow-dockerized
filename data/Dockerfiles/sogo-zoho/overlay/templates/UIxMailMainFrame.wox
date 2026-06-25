@@ -70,7 +70,7 @@
                   md-colors="::{ backgroundColor: 'default-background-300' }">
         <!-- Zoho STREAMS (static UI, behaviour TBD) -->
         <div class="zoho-nav">
-          <div class="zoho-nav-head"><span>STREAMS</span>
+          <div class="zoho-nav-head"><md-icon class="zoho-nav-caret">expand_more</md-icon><span>STREAMS</span>
             <span class="zoho-nav-act"><md-icon>tune</md-icon><md-icon>add</md-icon></span>
           </div>
           <a class="zoho-nav-item"><span class="zoho-nav-label">Trang chủ</span></a>
@@ -163,12 +163,12 @@
         </div>
         <!-- Zoho TAG + GIAO DIỆN (static UI, behaviour TBD) -->
         <div class="zoho-nav">
-          <div class="zoho-nav-head"><span>TAG</span>
+          <div class="zoho-nav-head"><md-icon class="zoho-nav-caret">expand_more</md-icon><span>TAG</span>
             <span class="zoho-nav-act"><md-icon>add</md-icon></span>
           </div>
         </div>
         <div class="zoho-nav">
-          <div class="zoho-nav-head"><span>GIAO DIỆN</span></div>
+          <div class="zoho-nav-head"><md-icon class="zoho-nav-caret">expand_more</md-icon><span>GIAO DIỆN</span></div>
           <a class="zoho-nav-item"><span class="zoho-nav-label">Chưa đọc</span><span class="zoho-nav-count">5</span></a>
           <a class="zoho-nav-item"><span class="zoho-nav-label">Tất cả tin nhắn</span></a>
           <a class="zoho-nav-item"><span class="zoho-nav-label">Đã gắn cờ</span></a>
