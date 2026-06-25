@@ -30,7 +30,7 @@
     <!-- Zoho left app-switcher rail -->
     <nav class="zoho-left-rail">
       <!-- brand at top-left (div, not <a>, so app-item :nth-of-type colours stay intact) -->
-      <div class="zoho-brand" title="Mail"><i class="zoho-brand-logo"><!-- logo --></i><em>Mail</em></div>
+      <div class="zoho-brand" title="Mail"><md-icon>email</md-icon><em>Mail</em></div>
       <a class="zoho-app-item zoho-app-active" title="Mail"><md-icon>email</md-icon><em>Mail</em></a>
       <a class="zoho-app-item" ng-href="{{::activeUser.path.calendar}}" title="Lịch"><md-icon>event</md-icon><em>Lịch</em></a>
       <a class="zoho-app-item" title="Danh Sách Việc Cần Làm"><md-icon>check_box</md-icon><em>Danh Sách Việc Cần Làm</em></a>

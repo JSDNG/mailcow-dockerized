@@ -24,9 +24,6 @@ COPY overlay/css/zoho.css /usr/local/lib/GNUstep/SOGo/WebServerResources/css/zoh
 COPY overlay/WebServerResources/demo/ /usr/local/lib/GNUstep/SOGo/WebServerResources/demo/
 COPY overlay/WebServerResources/js/zoho-demo.js /usr/local/lib/GNUstep/SOGo/WebServerResources/js/zoho-demo.js
 
-# Brand logo (custom Zoho-style mail icon) used by .zoho-brand in the left rail.
-COPY overlay/WebServerResources/img/ /usr/local/lib/GNUstep/SOGo/WebServerResources/img/
-
 # Edited templates, overlaid onto the originals wherever they live in the image.
 COPY overlay/templates/ /zoho-templates/
 RUN set -eu; \
