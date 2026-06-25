@@ -148,6 +148,89 @@
           }
         }
       ]
+    },
+    {
+      "label": "Tháng 12, 2025",
+      "emails": [
+        {
+          "id": 9, "sender": "ketoan@dragons.asia", "subject": "Báo cáo tài chính Quý 4/2025", "time": "TH 4 THG 12", "attach": true,
+          "detail": { "subject": "Báo cáo tài chính Quý 4/2025", "messages": [
+            { "from": "Phòng Kế toán", "email": "ketoan@dragons.asia", "date": "TH 4, 24 Thg 12 2025, 16:30", "status": "HỘP THƯ ĐẾN", "body": [
+              "Kính gửi Ban Giám đốc,",
+              "Đính kèm là báo cáo tài chính Quý 4/2025 để anh/chị xem xét và phê duyệt.",
+              "Trân trọng, Phòng Kế toán" ] } ] }
+        },
+        {
+          "id": 10, "sender": "noreply@github.com", "subject": "[GitHub] Security alert for your repository", "time": "TH 3 THG 12",
+          "detail": { "subject": "[GitHub] Security alert for your repository", "messages": [
+            { "from": "GitHub", "email": "noreply@github.com", "date": "TH 3, 16 Thg 12 2025, 09:12", "status": "HỘP THƯ ĐẾN", "body": [
+              "We found a potential security vulnerability in one of your dependencies.",
+              "Review the alert and update the affected package when possible." ] } ] }
+        },
+        {
+          "id": 11, "sender": "support@aws.amazon.com", "subject": "Your AWS December invoice is available", "time": "TH 2 THG 12",
+          "detail": { "subject": "Your AWS December invoice is available", "messages": [
+            { "from": "Amazon Web Services", "email": "support@aws.amazon.com", "date": "TH 2, 08 Thg 12 2025, 02:00", "status": "HỘP THƯ ĐẾN", "body": [
+              "Your AWS invoice for December 2025 is now available.",
+              "Total amount due: $128.40. Please sign in to view the details." ] } ] }
+        },
+        {
+          "id": 12, "sender": "hr@dragons.asia", "subject": "Lịch nghỉ Tết Dương lịch 2026", "time": "TH 6 THG 12",
+          "detail": { "subject": "Lịch nghỉ Tết Dương lịch 2026", "messages": [
+            { "from": "Phòng Nhân sự", "email": "hr@dragons.asia", "date": "TH 6, 26 Thg 12 2025, 11:00", "status": "HỘP THƯ ĐẾN", "body": [
+              "Kính gửi toàn thể nhân viên,",
+              "Công ty nghỉ Tết Dương lịch từ 01/01/2026 đến hết 01/01/2026, đi làm lại ngày 02/01/2026.",
+              "Chúc mọi người năm mới vui vẻ!" ] } ] }
+        },
+        {
+          "id": 13, "sender": "newsletter@vnexpress.net", "subject": "Bản tin công nghệ tuần", "time": "TH 5 THG 12",
+          "detail": { "subject": "Bản tin công nghệ tuần", "messages": [
+            { "from": "VnExpress", "email": "newsletter@vnexpress.net", "date": "TH 5, 18 Thg 12 2025, 07:30", "status": "HỘP THƯ ĐẾN", "body": [
+              "Những tin công nghệ nổi bật tuần này:",
+              "AI tạo sinh, chip thế hệ mới và xu hướng bảo mật 2026.",
+              "Đọc bản tin đầy đủ trên VnExpress." ] } ] }
+        }
+      ]
+    },
+    {
+      "label": "Tháng 11, 2025",
+      "emails": [
+        {
+          "id": 14, "sender": "billing@zoom.us", "subject": "Hóa đơn dịch vụ Zoom tháng 11", "time": "TH 4 THG 11",
+          "detail": { "subject": "Hóa đơn dịch vụ Zoom tháng 11", "messages": [
+            { "from": "Zoom", "email": "billing@zoom.us", "date": "TH 4, 26 Thg 11 2025, 13:45", "status": "HỘP THƯ ĐẾN", "body": [
+              "Cảm ơn bạn đã sử dụng Zoom.",
+              "Hóa đơn tháng 11/2025 đã được lập. Vui lòng đăng nhập để xem chi tiết." ] } ] }
+        },
+        {
+          "id": 15, "sender": "no-reply@linkedin.com", "subject": "Bạn có 5 lời mời kết nối mới", "time": "TH 3 THG 11",
+          "detail": { "subject": "Bạn có 5 lời mời kết nối mới", "messages": [
+            { "from": "LinkedIn", "email": "no-reply@linkedin.com", "date": "TH 3, 18 Thg 11 2025, 20:10", "status": "HỘP THƯ ĐẾN", "body": [
+              "Có 5 người muốn kết nối với bạn trên LinkedIn.",
+              "Đăng nhập để xem và phản hồi các lời mời." ] } ] }
+        },
+        {
+          "id": 16, "sender": "ketoan@dragons.asia", "subject": "Nhắc nộp hồ sơ thuế tháng 10", "time": "TH 2 THG 11",
+          "detail": { "subject": "Nhắc nộp hồ sơ thuế tháng 10", "messages": [
+            { "from": "Phòng Kế toán", "email": "ketoan@dragons.asia", "date": "TH 2, 10 Thg 11 2025, 09:00", "status": "HỘP THƯ ĐẾN", "body": [
+              "Nhắc anh/chị nộp hồ sơ khai thuế GTGT tháng 10 trước ngày 20/11.",
+              "Vui lòng phản hồi nếu cần hỗ trợ." ] } ] }
+        },
+        {
+          "id": 17, "sender": "info@vietcombank.com.vn", "subject": "Thông báo biến động số dư tài khoản", "time": "TH 6 THG 11",
+          "detail": { "subject": "Thông báo biến động số dư tài khoản", "messages": [
+            { "from": "Vietcombank", "email": "info@vietcombank.com.vn", "date": "TH 6, 07 Thg 11 2025, 15:22", "status": "HỘP THƯ ĐẾN", "body": [
+              "Tài khoản của Quý khách vừa có giao dịch ghi có.",
+              "Vui lòng kiểm tra chi tiết trên ứng dụng VCB Digibank." ] } ] }
+        },
+        {
+          "id": 18, "sender": "team@notion.so", "subject": "What's new in Notion — November", "time": "TH 5 THG 11",
+          "detail": { "subject": "What's new in Notion — November", "messages": [
+            { "from": "Notion", "email": "team@notion.so", "date": "TH 5, 27 Thg 11 2025, 06:00", "status": "HỘP THƯ ĐẾN", "body": [
+              "Here's what shipped in Notion this month:",
+              "New database layouts, faster search, and improved sharing controls." ] } ] }
+        }
+      ]
     }
   ]
 }
