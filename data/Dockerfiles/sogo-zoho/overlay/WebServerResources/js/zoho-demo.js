@@ -19,7 +19,9 @@
   var FOLDER_VN = { 'inbox':'Hộp thư đến', 'drafts':'Bản nháp', 'sent':'Đã gửi', 'trash':'Thùng rác', 'junk':'Thư rác', 'templates':'Mẫu', 'archive':'Lưu trữ' };
   function relabelFolders(){
     try {
-      var els = document.querySelectorAll('.md-sidenav-left .sg-mailbox-list-item .sg-item-name');
+      // The folder name is the ng-bind span ($ctrl.mailbox.$displayName) inside
+      // .sg-item-name — NOT the whole <p>, which also holds the icon ligature + count.
+      var els = document.querySelectorAll('.md-sidenav-left .sg-mailbox-list-item .sg-item-name span[ng-bind*="displayName"]');
       Array.prototype.forEach.call(els, function(el){
         var cur = (el.textContent || '').trim();
         var vn = FOLDER_VN[cur.toLowerCase()];
