@@ -60,6 +60,8 @@ Truy cập: `https://<host>:<port>/zm/`
 - **Login**: nếu iframe rơi vào trang đăng nhập (`/user` hoặc SOGo loginForm) → **break-out**
   `top.location.replace('/user')` để đăng nhập full-page. Sau khi đăng nhập, mở lại `/zm/`.
   (Khi đã có session thì bỏ qua bước này — vào thẳng hộp thư.)
+- **Logout**: nút "Đăng xuất" trong popup avatar (ở `zoho-demo.js`) POST `logout=1` rồi
+  đưa **cả tab** (`top.location='/'`) về domain root `https://<host>/` — không chỉ iframe.
 
 ## Tích hợp đăng nhập (redirect sau login)
 Sau khi đăng nhập từ `https://<host>/` (login mailcow), mailbox-user (có `sogo_access`)

@@ -357,7 +357,16 @@
     pop.style.top = (r.bottom + 8) + 'px';
     pop.style.right = Math.max(8, (window.innerWidth - r.right)) + 'px';
     var lo = pop.querySelector('.zoho-acct-logout');
-    if (lo) lo.addEventListener('click', function(){ try { if (window.mc_logout) mc_logout(); } catch(e){} closeAcctPopup(); });
+    if (lo) lo.addEventListener('click', function(){
+      // Log out (POST logout=1) then send the WHOLE tab to the domain root — not just
+      // the iframe — so the user lands on https://<host>/ (mailcow login). Using
+      // top.location covers both the /zm wrapper (top = shell) and direct SOGo (top = self).
+      function go(){ try { top.location.href = '/'; } catch(e){ location.href = '/'; } }
+      try {
+        fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'logout=1' }).then(go, go);
+      } catch(e){ go(); }
+      closeAcctPopup();
+    });
     setTimeout(function(){ document.addEventListener('click', acctOutside, true); document.addEventListener('keydown', acctEsc, true); }, 0);
   }
 
