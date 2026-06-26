@@ -71,7 +71,7 @@ try {
 
   // ---- IMAP (nội bộ, TLS self-signed) ----
   $ref = '{dovecot-mailcow:993/imap/ssl/novalidate-cert}';
-  $mbox = @imap_open($ref . 'INBOX', $email, $pass, OP_READWRITE);
+  $mbox = @imap_open($ref . 'INBOX', $email, $pass, 0);   // 0 = read-write (mặc định; không có hằng OP_READWRITE)
   if (!$mbox) out(false, ['msg' => 'Đăng nhập IMAP thất bại: ' . imap_last_error()]);
 
   $hdr  = @imap_fetchheader($mbox, $uid, FT_UID);
