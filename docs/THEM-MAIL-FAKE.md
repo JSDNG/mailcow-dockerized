@@ -19,6 +19,11 @@ giao diện Zoho vẫn còn.
 
 ---
 
+> ✅ **KHUYẾN NGHỊ:** sửa file Maildir tại chỗ (Cách A bên dưới) **thường KHÔNG cập nhật** vì
+> Dovecot giữ index + SOGo cache ngày riêng. Cách **ĐÁNG TIN NHẤT** là **tái nạp qua IMAP**
+> (`docs/snippets/reinject-mail.sh`): gửi mail kèm file qua UI → chạy script → script tạo
+> **message mới (UID mới)** với ngày cũ và xoá bản gốc → SOGo hiển thị đúng ngay. Xem **Cách C**.
+
 ## Cách A — Gửi qua UI rồi chỉnh ngày  (khuyên dùng khi cần ĐÍNH KÈM)
 Ý tưởng: để **webmail lo phần khó** (dựng MIME, đính kèm, HTML, tiếng Việt có dấu), ta **chỉ
 chỉnh ngày** bằng vài lệnh.
@@ -75,6 +80,36 @@ lẫn internaldate) sẽ nhanh hơn. Xem script mẫu trong `docs/snippets/add-f
 So sánh:
 - **Cách A:** ít lệnh, tốt cho **vài mail có đính kèm** (UI lo MIME).
 - **Cách B:** một phát ra **nhiều mail**, ngày đồng nhất, không thao tác UI từng cái.
+
+---
+
+## Cách C — Tái nạp qua IMAP  (ĐÁNG TIN NHẤT, giữ đính kèm)
+Khi sửa file tại chỗ (Cách A) **không cập nhật** ngày (Dovecot index + SOGo cache giữ ngày cũ),
+dùng cách này: **đọc lại thư qua IMAP → ghi lại header `Date:` → APPEND một bản mới với
+internaldate cũ → xoá bản gốc**. Vì là message **UID mới** nên SOGo hiển thị đúng ngày, giữ
+nguyên nội dung + đính kèm.
+
+```bash
+cd /opt/app-cty/mailcow-dockerized
+# Mở file, điền MẬT KHẨU + chỉnh SUBJECT/NEWDATE:
+nano docs/snippets/reinject-mail.sh
+bash docs/snippets/reinject-mail.sh
+```
+Quy trình: gửi 1 mail (kèm file) cho chính mình qua UI → chạy script (khớp theo `SUBJECT`) →
+hard-refresh trình duyệt.
+
+> ⚠️ **Tạo mới + xoá cũ là CỐ Ý** — UID sẽ đổi (vd 3 → 4); nội dung/đính kèm giữ nguyên, chỉ
+> khác ngày. Đây là lý do cách này ăn chắc (UID mới → SOGo không vướng cache).
+
+### Lưu ý MÚI GIỜ (quan trọng)
+SOGo hiển thị theo **múi giờ của tài khoản**, không phải theo offset trong `Date:`.
+Vd `Date = 13 Nov 10:15 +0700` = `12 Nov 23:15 -0400` → nếu tài khoản ở `-0400` sẽ hiện **12-Nov**.
+Để hiện **đúng ngày** mong muốn:
+```bash
+NEWDATE="2025-11-13 10:15:00 -0400"     # đặt đúng múi giờ tài khoản
+# hoặc giữ +0700 nhưng dùng giờ trưa/chiều để không lùi ngày:
+NEWDATE="2025-11-13 12:00:00 +0700"
+```
 
 ---
 
