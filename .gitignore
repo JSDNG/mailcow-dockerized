@@ -69,7 +69,7 @@
 # data/web/nextcloud*/
 # data/web/rc*/
 # docker-compose.override.yml
-# mailcow.conf
+mailcow.conf
 # mailcow.conf_backup
 # rebuild-images.sh
 # refresh_images.sh
