@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Đổi NGÀY của thư MỚI NHẤT trong INBOX sang một ngày cũ —
-# CHỈ thực hiện nếu thư đó có ngày = HÔM NAY (tức vừa gửi qua webmail).
-# An toàn: thư đã cũ (đã xử lý trước) sẽ được BỎ QUA, không bị đổi lại.
+# Đổi NGÀY của ĐÚNG 1 thư MỚI NHẤT trong INBOX sang một ngày cũ.
+# Chỉ tác động lên duy nhất thư mới nhất (ls -t | head -1); không đụng thư khác.
 #
 # Dùng:  sửa 3 biến bên dưới rồi chạy trong thư mục mailcow:
 #        bash docs/snippets/redate-newest-mail.sh
@@ -21,7 +20,7 @@ docker compose exec -T dovecot-mailcow sh -s "$NEWDATE" "$MTIME" "$MB" "$LP" <<'
 set -eu
 NEWDATE="$1"; MTIME="$2"; MB="$3"; LP="$4"
 
-# lấy file thư mới nhất trong INBOX (cur = đã đọc, new = mới)
+# CHỈ lấy 1 thư mới nhất trong INBOX (cur = đã đọc, new = mới)
 F=$(ls -t /var/vmail/*/"$LP"/cur/* /var/vmail/*/"$LP"/new/* 2>/dev/null | head -1 || true)
 if [ -z "${F:-}" ]; then
   echo "✗ Khong tim thay thu trong INBOX cua $MB (kiem tra duong dan /var/vmail/.../$LP/)."
@@ -29,17 +28,8 @@ if [ -z "${F:-}" ]; then
 fi
 echo "File moi nhat : $F"
 
-FILEDAY=$(date -r "$F" +%F)   # ngay (YYYY-MM-DD) theo mtime cua file
-TODAY=$(date +%F)
-echo "Ngay thu      : $FILEDAY"
-echo "Hom nay       : $TODAY"
-
-if [ "$FILEDAY" = "$TODAY" ]; then
-  sed -i "s/^Date:.*/Date: $NEWDATE/" "$F"     # doi ngay HIEN THI
-  touch -d "$MTIME" "$F"                        # doi ngay NHAN (sort)
-  doveadm force-resync -u "$MB" INBOX           # reindex de SOGo nhan ngay
-  echo "=> DA DOI: Date -> $NEWDATE | internaldate -> $MTIME"
-else
-  echo "=> BO QUA: thu moi nhat KHONG phai ngay hom nay (co the da xu ly truoc do)."
-fi
+sed -i "s/^Date:.*/Date: $NEWDATE/" "$F"   # doi ngay HIEN THI
+touch -d "$MTIME" "$F"                      # doi ngay NHAN (sort)
+doveadm force-resync -u "$MB" INBOX         # reindex de SOGo nhan ngay
+echo "=> DA DOI 1 thu: Date -> $NEWDATE | internaldate -> $MTIME"
 SH
