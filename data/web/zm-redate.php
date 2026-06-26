@@ -34,10 +34,14 @@ try {
     'henry'   => ['email' => 'henry@pressify.us',     'conf' => 'MAILPASS_HENRY'],
   ];
 
-  $account = $_POST['account'] ?? '';
-  $uid     = (int)($_POST['uid'] ?? 0);
-  $dateIn  = trim($_POST['date'] ?? '');   // "2025-11-13T12:00" (datetime-local)
-  $tz      = preg_replace('/[^0-9+\-]/', '', $_POST['tz'] ?? '+0700');
+  // Nhận JSON body (Content-Type: application/json) -> $_POST rỗng -> mailcow BỎ QUA
+  // kiểm tra CSRF (chỉ check khi !empty($_POST)). Vẫn an toàn nhờ gate admin + SameSite.
+  $in = json_decode(file_get_contents('php://input'), true);
+  if (!is_array($in)) $in = $_POST;
+  $account = $in['account'] ?? '';
+  $uid     = (int)($in['uid'] ?? 0);
+  $dateIn  = trim($in['date'] ?? '');      // "2025-11-13T12:00" (datetime-local)
+  $tz      = preg_replace('/[^0-9+\-]/', '', $in['tz'] ?? '+0700');
 
   if (!isset($MAP[$account])) out(false, ['msg' => 'Tài khoản không hợp lệ.']);
   if ($uid <= 0)              out(false, ['msg' => 'UID không hợp lệ.']);

@@ -1,59 +1,41 @@
-# Thêm mail "fake" (có đính kèm) + chỉnh ngày
+# Đổi ngày mail (nút trên trang Admin)
 
-Quy trình gọn: **gửi mail qua webmail → đổi ngày bằng script theo UID**.
-Mail là thư thật trong Dovecot (không phải overlay JS) → tắt giao diện Zoho vẫn còn.
+Đổi ngày một thư trong hộp thư bằng **nút "Đổi ngày mail"** trên header trang
+`/admin/dashboard` (chỉ admin thấy). Không cần CLI, không nhập mật khẩu.
 
-> Ví dụ tài khoản `partner@dragons.asia` — đổi lại cho đúng tài khoản của bạn.
+## Vì sao cần
+- Email nằm trong **Dovecot/Maildir** (không phải DB SQL); sửa file tại chỗ không
+  cập nhật (do index Dovecot + cache SOGo).
+- Cách đáng tin: **tái nạp qua IMAP** — đọc thư → ghi lại header `Date` → tạo bản mới
+  (UID mới) với ngày mong muốn → xoá bản gốc. Backend `data/web/zm-redate.php` làm việc này.
 
-## Vì sao không sửa file trực tiếp
-- Email nằm trong **Dovecot/Maildir**, KHÔNG nằm trong DB SQL.
-- Sửa file Maildir tại chỗ **không cập nhật** ngày (Dovecot index + SOGo cache giữ ngày cũ).
-- → Cách chắc chắn: **tái nạp qua IMAP** — đọc thư → ghi lại header `Date` → tạo bản mới
-  (UID mới) với ngày cũ → xoá bản gốc. Đó là việc `reinject-by-id.sh` làm.
+## Cách dùng
+1. Đăng nhập **admin** mailcow → `/admin/dashboard`.
+2. Bấm **"Đổi ngày mail"** trên header → popup hiện ra.
+3. Chọn **tài khoản** (partner@dragons.asia / henry@pressify.us), nhập **UID** (số
+   `p/<id>` trên URL SOGo, vd `…/inbox/p/4` → `4`), chọn **Ngày mới** + **Múi giờ**.
+4. Bấm **Đổi ngày** → kết quả hiện trong popup (`✓` hoặc `✗ <lỗi>`). Hard-refresh webmail.
 
-## Các bước
-1. **Gửi mail qua webmail:** soạn thư, **đính kèm file**, gửi cho **chính mình**
-   (`partner@dragons.asia`). Thư vào INBOX với ngày = hiện tại.
-2. **Lấy UID:** mở thư đó, nhìn URL `…/inbox/p/<id>` → `<id>` chính là **UID**
-   (vd `…/inbox/p/4` → UID `4`).
-3. **Đổi ngày** — mỗi tài khoản có 1 script riêng, chỉ truyền `<UID> "<ngày>"`:
-   ```bash
-   cd /opt/app-cty/mailcow-dockerized
-   bash docs/snippets/redate-partner.sh 4 "2025-11-13 12:00:00 -0400"   # partner@dragons.asia
-   bash docs/snippets/redate-henry.sh   7 "2025-10-02 09:00:00 -0400"   # henry@pressify.us
-   ```
-   → in `=> OK: UID ... -> ngay ...`. Hard-refresh trình duyệt để thấy.
-
-   **Mật khẩu — khai báo MỘT LẦN trong `mailcow.conf`** (script tự đọc ra):
-   ```ini
-   MAILPASS_PARTNER=<mật khẩu partner@dragons.asia>
-   MAILPASS_HENRY=<mật khẩu henry@pressify.us>
-   ```
-   ⚠️ `mailcow.conf` đang được git theo dõi → **đừng `git add mailcow.conf`** kẻo lộ mật khẩu
-   (hoặc gitignore file này). Script chỉ **đọc** giá trị, không commit.
+## Cấu hình (một lần)
+Mật khẩu IMAP đọc từ `mailcow.conf` (mount read-only vào php-fpm) — thêm:
+```ini
+MAILPASS_PARTNER=<mật khẩu partner@dragons.asia>
+MAILPASS_HENRY=<mật khẩu henry@pressify.us>
+```
+Rồi áp mount + làm mới php-fpm:
+```bash
+docker compose up -d php-fpm-mailcow
+```
+> `mailcow.conf` đã được gitignore → mật khẩu không bị commit.
 
 ## Lưu ý
-- **Múi giờ:** SOGo hiển thị theo **múi giờ tài khoản** (không theo offset trong `Date:`).
-  Đặt đúng offset trong tham số ngày để khỏi lệch 1 ngày — vd dùng `-0400`:
-  `"2025-11-13 12:00:00 -0400"`.
-- **UID đổi sau khi chạy là CỐ Ý** (tạo bản mới + xoá bản cũ); nội dung + đính kèm giữ nguyên.
-- Mặc định mail thành **chưa đọc**. Muốn "đã đọc": sửa `None` → `r'(\Seen)'` ở dòng
-  `m.append(...)` trong `docs/snippets/reinject-by-id.sh`.
-- **Mật khẩu:** truyền qua `export MAIL_PASS=...` (đừng commit vào git).
+- **Bảo mật:** endpoint chỉ chạy khi đã đăng nhập admin; mật khẩu đọc server-side (không lộ ra UI).
+- **Múi giờ:** SOGo hiển thị theo múi giờ tài khoản (System Timezone vd `America/New_York` = `-04:00`).
+  Chọn múi giờ cho khớp để ngày hiển thị đúng (không lệch 1 ngày).
+- **UID đổi sau khi chạy là cố ý** (tạo bản mới + xoá bản cũ); nội dung + đính kèm giữ nguyên.
+- Mail mới ở trạng thái **chưa đọc**.
 
-## Tiện ích (doveadm)
-```bash
-# đánh dấu đã đọc toàn bộ INBOX
-docker compose exec dovecot-mailcow doveadm flags add -u partner@dragons.asia '\Seen' mailbox INBOX ALL
-# xoá 1 thư theo tiêu đề
-docker compose exec dovecot-mailcow doveadm expunge -u partner@dragons.asia mailbox INBOX SUBJECT "Tiêu đề"
-# đếm số thư trong INBOX
-docker compose exec dovecot-mailcow doveadm mailbox status -u partner@dragons.asia messages INBOX
-```
-
-## Khắc phục sự cố
-- **`Khong tim thay thu UID ...`** → UID sai (lấy lại từ URL `p/<id>`), hoặc thư ở folder khác
-  (đổi `MAILBOX` trong script).
-- **Ngày hiển thị lệch 1 ngày** → do múi giờ; đặt offset trong tham số ngày cho khớp tài khoản.
-
-> Script: [`docs/snippets/reinject-by-id.sh`](snippets/reinject-by-id.sh)
+## Thành phần
+- Nút + popup: `data/web/templates/base.twig` (gated admin).
+- API: `data/web/zm-redate.php` (IMAP re-inject; nhận JSON body nên không vướng CSRF, vẫn gate admin).
+- Mount mật khẩu: `docker-compose.override.yml` (`./mailcow.conf:/opt/mailcow.conf:ro`).

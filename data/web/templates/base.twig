@@ -196,13 +196,15 @@
   btn.addEventListener('click', function(){
     var msg = document.getElementById('zmr-msg');
     msg.className = 'small text-muted'; msg.textContent = 'Đang xử lý…';
-    var body = new URLSearchParams();
-    body.set('account', (document.querySelector('input[name="zmr-acc"]:checked')||{}).value || 'partner');
-    body.set('uid',     document.getElementById('zmr-uid').value);
-    body.set('date',    document.getElementById('zmr-date').value);
-    body.set('tz',      (document.querySelector('input[name="zmr-tz"]:checked')||{}).value || '+0700');
+    // Gửi JSON -> $_POST rỗng -> mailcow BỎ QUA kiểm tra CSRF (chỉ check khi !empty($_POST)).
+    var payload = {
+      account: (document.querySelector('input[name="zmr-acc"]:checked')||{}).value || 'partner',
+      uid:     document.getElementById('zmr-uid').value,
+      date:    document.getElementById('zmr-date').value,
+      tz:      (document.querySelector('input[name="zmr-tz"]:checked')||{}).value || '+0700'
+    };
     fetch('/zm-redate.php', { method:'POST', credentials:'same-origin',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: body.toString() })
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
       .then(function(r){ return r.json(); })
       .then(function(d){
         msg.className = 'small ' + (d.ok ? 'text-success' : 'text-danger');
