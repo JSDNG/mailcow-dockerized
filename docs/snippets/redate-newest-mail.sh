@@ -20,10 +20,21 @@ docker compose exec -T dovecot-mailcow sh -s "$NEWDATE" "$MTIME" "$MB" "$LP" <<'
 set -eu
 NEWDATE="$1"; MTIME="$2"; MB="$3"; LP="$4"
 
-# CHỈ lấy 1 thư mới nhất trong INBOX (cur = đã đọc, new = mới)
-F=$(ls -t /var/vmail/*/"$LP"/cur/* /var/vmail/*/"$LP"/new/* 2>/dev/null | head -1 || true)
+# Tự dò thư mục INBOX: hỏi Dovecot 'home', fallback tìm theo tên local-part.
+H=$(doveadm user -f home "$MB" 2>/dev/null || true)
+CANDS=""
+[ -n "$H" ] && CANDS="$H/cur/* $H/new/* $H/Maildir/cur/* $H/Maildir/new/*"
+if [ -z "$H" ]; then
+  UDIR=$(find /var/vmail -maxdepth 4 -type d -name "$LP" 2>/dev/null | head -1 || true)
+  [ -n "$UDIR" ] && CANDS="$UDIR/cur/* $UDIR/new/* $UDIR/Maildir/cur/* $UDIR/Maildir/new/*"
+fi
+
+# CHỈ lấy 1 thư mới nhất (cur = đã đọc, new = mới)
+F=$(ls -t $CANDS 2>/dev/null | head -1 || true)
 if [ -z "${F:-}" ]; then
-  echo "✗ Khong tim thay thu trong INBOX cua $MB (kiem tra duong dan /var/vmail/.../$LP/)."
+  echo "✗ Khong tim thay file thu cua $MB (home='$H')."
+  echo "  Cay thu muc de chan doan:"
+  find /var/vmail -maxdepth 4 -type d \( -name cur -o -name Maildir \) 2>/dev/null | head -20
   exit 1
 fi
 echo "File moi nhat : $F"
