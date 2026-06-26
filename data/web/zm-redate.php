@@ -34,10 +34,13 @@ try {
     'henry'   => ['email' => 'henry@pressify.us',     'conf' => 'MAILPASS_HENRY'],
   ];
 
-  // Nhận JSON body (Content-Type: application/json) -> $_POST rỗng -> mailcow BỎ QUA
-  // kiểm tra CSRF (chỉ check khi !empty($_POST)). Vẫn an toàn nhờ gate admin + SameSite.
-  $in = json_decode(file_get_contents('php://input'), true);
-  if (!is_array($in)) $in = $_POST;
+  // Đọc THẲNG raw body (php://input): mailcow session_check chỉ xoá superglobal $_POST
+  // khi CSRF sai, KHÔNG đụng tới php://input. Nhờ vậy lấy lại được dữ liệu dù frontend
+  // gửi JSON hay form-urlencoded, không phụ thuộc CSRF token. Vẫn gate admin.
+  $rawBody = file_get_contents('php://input');
+  $in = json_decode($rawBody, true);
+  if (!is_array($in)) { $in = []; parse_str($rawBody, $in); }   // fallback: urlencoded
+  if (empty($in)) $in = $_POST;                                 // last resort
   $account = $in['account'] ?? '';
   $uid     = (int)($in['uid'] ?? 0);
   $dateIn  = trim($in['date'] ?? '');      // "2025-11-13T12:00" (datetime-local)
