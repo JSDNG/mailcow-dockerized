@@ -11,3 +11,9 @@ services:
       context: ./data/Dockerfiles/sogo-zoho
       args:
         SOGO_IMAGE: ghcr.io/mailcow/sogo:5.12.8-1
+
+  # Mount mailcow.conf (read-only) vào php-fpm để công cụ "Đổi ngày mail"
+  # (data/web/zm-redate.php) đọc được MAILPASS_PARTNER / MAILPASS_HENRY.
+  php-fpm-mailcow:
+    volumes:
+      - ./mailcow.conf:/opt/mailcow.conf:ro

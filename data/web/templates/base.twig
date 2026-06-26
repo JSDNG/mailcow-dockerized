@@ -80,6 +80,9 @@
             <li><a href="#" class="dropdown-item" data-bs-toggle="modal" data-container="sogo-mailcow" data-bs-target="#RestartContainer">{{ lang.header.restart_sogo }}</a></li>
           </ul>
         </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#zmRedateModal"><i class="bi bi-calendar-event me-1"></i> Đổi ngày mail</a>
+        </li>
         {% endif %}
         {% if mailcow_cc_role == 'domainadmin' %}
         <li class="nav-item dropdown">
@@ -141,6 +144,73 @@
     </div><!--/.nav-collapse -->
   </div><!--/.container-fluid -->
 </nav>
+{% if mailcow_cc_role == 'admin' %}
+<div class="modal fade" id="zmRedateModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-calendar-event me-2"></i>Đổi ngày mail</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Tài khoản</label>
+          <select id="zmr-acc" class="form-select">
+            <option value="partner">partner@dragons.asia</option>
+            <option value="henry">henry@pressify.us</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">UID (số <code>p/&lt;id&gt;</code> trên URL SOGo)</label>
+          <input type="number" min="1" id="zmr-uid" class="form-control" placeholder="vd 4">
+        </div>
+        <div class="row">
+          <div class="col-8 mb-3">
+            <label class="form-label">Ngày mới</label>
+            <input type="datetime-local" id="zmr-date" class="form-control">
+          </div>
+          <div class="col-4 mb-3">
+            <label class="form-label">Múi giờ</label>
+            <select id="zmr-tz" class="form-select">
+              <option value="+0700">+07:00</option>
+              <option value="-0400">-04:00</option>
+              <option value="+0000">UTC</option>
+            </select>
+          </div>
+        </div>
+        <div id="zmr-msg" class="small"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary" id="zmr-submit">Đổi ngày</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var btn = document.getElementById('zmr-submit'); if (!btn) return;
+  btn.addEventListener('click', function(){
+    var msg = document.getElementById('zmr-msg');
+    msg.className = 'small text-muted'; msg.textContent = 'Đang xử lý…';
+    var body = new URLSearchParams();
+    body.set('account', document.getElementById('zmr-acc').value);
+    body.set('uid',     document.getElementById('zmr-uid').value);
+    body.set('date',    document.getElementById('zmr-date').value);
+    body.set('tz',      document.getElementById('zmr-tz').value);
+    fetch('/zm-redate.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: body.toString() })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        msg.className = 'small ' + (d.ok ? 'text-success' : 'text-danger');
+        msg.textContent = d.ok ? ('✓ Đã đổi: ' + d.email + ' · UID ' + d.uid + ' → ' + d.date)
+                               : ('✗ ' + (d.msg || 'Lỗi'));
+      })
+      .catch(function(e){ msg.className='small text-danger'; msg.textContent = '✗ ' + e; });
+  });
+})();
+</script>
+{% endif %}
 {% endblock navbar %}
 
 <form action="/" method="post" id="logout"><input type="hidden" name="logout"></form>
