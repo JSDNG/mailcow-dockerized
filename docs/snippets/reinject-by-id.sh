@@ -14,8 +14,14 @@
 set -euo pipefail
 
 MB="partner@dragons.asia"
-PASS="${MAIL_PASS:-ĐIỀN_MẬT_KHẨU_IMAP}"   # hoặc: export MAIL_PASS=... rồi chạy
 MAILBOX="INBOX"
+
+# Mật khẩu: ưu tiên biến môi trường MAIL_PASS, sau đó file .mailpass cạnh script
+# (đặt 1 lần, KHÔNG commit), cuối cùng mới tới placeholder.
+SELF_DIR="$(cd "$(dirname "$0")" && pwd)"
+PASS="${MAIL_PASS:-}"
+if [ -z "$PASS" ] && [ -f "$SELF_DIR/.mailpass" ]; then PASS="$(cat "$SELF_DIR/.mailpass")"; fi
+PASS="${PASS:-ĐIỀN_MẬT_KHẨU_IMAP}"
 
 UID_IN="${1:?Thiếu UID. Vd: bash reinject-by-id.sh 4 \"2025-11-13 12:00:00 -0400\"}"
 NEWDATE="${2:?Thiếu ngày. Định dạng: 'YYYY-MM-DD HH:MM:SS +ZZZZ'}"
