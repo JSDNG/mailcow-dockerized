@@ -154,31 +154,34 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Tài khoản</label>
-          <select id="zmr-acc" class="form-select">
-            <option value="partner">partner@dragons.asia</option>
-            <option value="henry">henry@pressify.us</option>
-          </select>
+          <label class="form-label d-block">Tài khoản</label>
+          <div class="btn-group" role="group" aria-label="Tài khoản">
+            <input type="radio" class="btn-check" name="zmr-acc" id="zmr-acc-partner" value="partner" autocomplete="off" checked>
+            <label class="btn btn-outline-primary btn-sm" for="zmr-acc-partner">partner@dragons.asia</label>
+            <input type="radio" class="btn-check" name="zmr-acc" id="zmr-acc-henry" value="henry" autocomplete="off">
+            <label class="btn btn-outline-primary btn-sm" for="zmr-acc-henry">henry@pressify.us</label>
+          </div>
         </div>
         <div class="mb-3">
-          <label class="form-label">UID (số <code>p/&lt;id&gt;</code> trên URL SOGo)</label>
+          <label class="form-label" for="zmr-uid">UID (số <code>p/&lt;id&gt;</code> trên URL SOGo)</label>
           <input type="number" min="1" id="zmr-uid" class="form-control" placeholder="vd 4">
         </div>
-        <div class="row">
-          <div class="col-8 mb-3">
-            <label class="form-label">Ngày mới</label>
-            <input type="datetime-local" id="zmr-date" class="form-control">
-          </div>
-          <div class="col-4 mb-3">
-            <label class="form-label">Múi giờ</label>
-            <select id="zmr-tz" class="form-select">
-              <option value="+0700">+07:00</option>
-              <option value="-0400">-04:00</option>
-              <option value="+0000">UTC</option>
-            </select>
+        <div class="mb-3">
+          <label class="form-label" for="zmr-date">Ngày mới</label>
+          <input type="datetime-local" id="zmr-date" class="form-control">
+        </div>
+        <div class="mb-2">
+          <label class="form-label d-block">Múi giờ</label>
+          <div class="btn-group" role="group" aria-label="Múi giờ">
+            <input type="radio" class="btn-check" name="zmr-tz" id="zmr-tz-7" value="+0700" autocomplete="off" checked>
+            <label class="btn btn-outline-secondary btn-sm" for="zmr-tz-7">+07:00</label>
+            <input type="radio" class="btn-check" name="zmr-tz" id="zmr-tz-4" value="-0400" autocomplete="off">
+            <label class="btn btn-outline-secondary btn-sm" for="zmr-tz-4">-04:00</label>
+            <input type="radio" class="btn-check" name="zmr-tz" id="zmr-tz-0" value="+0000" autocomplete="off">
+            <label class="btn btn-outline-secondary btn-sm" for="zmr-tz-0">UTC</label>
           </div>
         </div>
-        <div id="zmr-msg" class="small"></div>
+        <div id="zmr-msg" class="small mt-2"></div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
@@ -194,10 +197,10 @@
     var msg = document.getElementById('zmr-msg');
     msg.className = 'small text-muted'; msg.textContent = 'Đang xử lý…';
     var body = new URLSearchParams();
-    body.set('account', document.getElementById('zmr-acc').value);
+    body.set('account', (document.querySelector('input[name="zmr-acc"]:checked')||{}).value || 'partner');
     body.set('uid',     document.getElementById('zmr-uid').value);
     body.set('date',    document.getElementById('zmr-date').value);
-    body.set('tz',      document.getElementById('zmr-tz').value);
+    body.set('tz',      (document.querySelector('input[name="zmr-tz"]:checked')||{}).value || '+0700');
     fetch('/zm-redate.php', { method:'POST', credentials:'same-origin',
         headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: body.toString() })
       .then(function(r){ return r.json(); })
