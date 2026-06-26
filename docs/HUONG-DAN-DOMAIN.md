@@ -38,13 +38,16 @@ docker compose up -d
 
 ## 3. Thêm vhost vào nginx tổng (KHÔNG sửa config chung, chỉ thêm 1 file site)
 File mẫu: [`docs/nginx/mail.dragons.asia.conf`](nginx/mail.dragons.asia.conf)
+> ⚠️ **Đặt tên có đuôi `.conf`** — nginx tổng thường `include sites-enabled/*.conf`, file
+> không có `.conf` sẽ bị **bỏ qua âm thầm** (vd các site khác là `datdep.conf`). Nếu đang
+> là **root** thì bỏ `sudo` (server có thể không có `sudo`).
 ```bash
 cd <thư-mục-mailcow>
 git pull origin feature/clean-url
 
-sudo cp docs/nginx/mail.dragons.asia.conf /etc/nginx/sites-available/mail.dragons.asia
-sudo ln -s /etc/nginx/sites-available/mail.dragons.asia /etc/nginx/sites-enabled/mail.dragons.asia
-sudo nginx -t && sudo systemctl reload nginx
+cp docs/nginx/mail.dragons.asia.conf /etc/nginx/sites-available/mail.dragons.asia.conf
+ln -s /etc/nginx/sites-available/mail.dragons.asia.conf /etc/nginx/sites-enabled/mail.dragons.asia.conf
+nginx -t && nginx -s reload          # hoặc: systemctl reload nginx
 ```
 Nội dung chính (HTTP-only, proxy về mailcow):
 ```nginx
@@ -93,10 +96,29 @@ nginx tổng + Cloudflare **chỉ xử lý web (HTTP/HTTPS)**. Các giao thức 
   một **record mail riêng mây xám** (vd `mx.dragons.asia` trỏ thẳng IP) cho MX/SMTP/IMAP,
   còn `mail.dragons.asia` (cam) chỉ để vào webmail.
 
+## Khắc phục sự cố (đã gặp thực tế)
+- **`sudo: command not found`** (đang là root) → bỏ `sudo`, chạy lệnh trực tiếp:
+  `nginx -t && nginx -s reload`.
+- **`nginx -t` OK nhưng vào domain vẫn không ra mailcow** → thường do **chưa reload**
+  (lệnh reload bị lỗi `sudo`) hoặc **file thiếu `.conf`** nên không được include. Kiểm tra:
+  ```bash
+  grep -rn "include" /etc/nginx/nginx.conf      # xem pattern: *.conf hay *
+  ```
+  Nếu là `sites-enabled/*.conf` → đổi tên file thành `...asia.conf`, rồi `nginx -s reload`.
+- **Test vhost tại chỗ** (không phụ thuộc DNS/Cloudflare):
+  ```bash
+  curl -kI -H "Host: mail.dragons.asia" http://127.0.0.1/
+  ```
+  Ra `301/302/200` từ mailcow = OK; ra `404`/trang mặc định = vhost chưa nạp;
+  `Connection refused` = mailcow chưa nghe ở `127.0.0.1:8444`.
+- **DNS:** `dig +short mail.dragons.asia` phải ra IP server.
+- **Lỗi 521/522 (Cloudflare):** SSL mode đang **Full** mà origin chỉ có HTTP:80 → chuyển
+  về **Flexible**, hoặc cho nginx tổng listen 443 có cert.
+
 ## Rollback
 ```bash
-sudo rm /etc/nginx/sites-enabled/mail.dragons.asia
-sudo nginx -t && sudo systemctl reload nginx
+rm /etc/nginx/sites-enabled/mail.dragons.asia.conf
+nginx -t && nginx -s reload
 ```
 
 ## Lưu ý vận hành
