@@ -1,2 +1,3 @@
-# mật khẩu IMAP đặt 1 lần cho reinject-by-id.sh — KHÔNG commit
+# mật khẩu IMAP đặt 1 lần — KHÔNG commit
 .mailpass
+.mailpass-*

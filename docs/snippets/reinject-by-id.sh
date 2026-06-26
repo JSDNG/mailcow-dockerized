@@ -13,7 +13,7 @@
 # =============================================================================
 set -euo pipefail
 
-MB="partner@dragons.asia"
+MB="${MAILBOX_USER:-partner@dragons.asia}"   # ghi đè bằng env MAILBOX_USER (các wrapper dùng)
 MAILBOX="INBOX"
 
 # Mật khẩu: ưu tiên biến môi trường MAIL_PASS, sau đó file .mailpass cạnh script
