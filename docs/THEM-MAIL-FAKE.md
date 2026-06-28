@@ -12,9 +12,14 @@
 ## Cách dùng
 1. Đăng nhập **admin** mailcow → `/admin/dashboard`.
 2. Bấm **"Đổi ngày mail"** trên header → popup hiện ra.
-3. Chọn **tài khoản** (partner@dragons.asia / henry@pressify.us), nhập **UID** (số
-   `p/<id>` trên URL SOGo, vd `…/inbox/p/4` → `4`), chọn **Ngày mới** + **Múi giờ**.
+3. Chọn **tài khoản** (partner@dragons.asia / henry@pressify.us), **thư mục**
+   (Hộp thư đến = `INBOX` / Đã gửi = `Sent`), nhập **UID** (số `p/<id>` trên URL SOGo,
+   vd `…/inbox/p/4` → `4`), chọn **Ngày mới** + **Múi giờ**.
 4. Bấm **Đổi ngày** → kết quả hiện trong popup (`✓` hoặc `✗ <lỗi>`). Hard-refresh webmail.
+
+> **Đồng bộ thư gửi ↔ thư nhận:** 1 email tồn tại 2 bản riêng — bản **nhận** ở `INBOX`
+> của người nhận và bản **gửi** ở `Sent` của người gửi (UID khác nhau). Muốn cả hai cùng
+> ngày thì chạy **2 lần**: 1 lần chọn người nhận + Hộp thư đến, 1 lần chọn người gửi + Đã gửi.
 
 ## Cấu hình (một lần)
 Mật khẩu IMAP đọc từ `mailcow.conf` (mount read-only vào php-fpm) — thêm:

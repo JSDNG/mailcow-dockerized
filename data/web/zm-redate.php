@@ -42,13 +42,18 @@ try {
   if (!is_array($in)) { $in = []; parse_str($rawBody, $in); }   // fallback: urlencoded
   if (empty($in)) $in = $_POST;                                 // last resort
   $account = $in['account'] ?? '';
+  $folder  = $in['folder'] ?? 'INBOX';
   $uid     = (int)($in['uid'] ?? 0);
   $dateIn  = trim($in['date'] ?? '');      // "2025-11-13T12:00" (datetime-local)
   $tz      = preg_replace('/[^0-9+\-]/', '', $in['tz'] ?? '+0700');
 
-  if (!isset($MAP[$account])) out(false, ['msg' => 'Tài khoản không hợp lệ.']);
-  if ($uid <= 0)              out(false, ['msg' => 'UID không hợp lệ.']);
-  if ($dateIn === '')         out(false, ['msg' => 'Chưa nhập ngày.']);
+  // Thư mục cho phép (tránh injection vào IMAP mailbox path)
+  $FOLDERS = ['INBOX' => 'INBOX', 'Sent' => 'Sent'];
+  if (!isset($MAP[$account]))   out(false, ['msg' => 'Tài khoản không hợp lệ.']);
+  if (!isset($FOLDERS[$folder])) out(false, ['msg' => 'Thư mục không hợp lệ.']);
+  if ($uid <= 0)                out(false, ['msg' => 'UID không hợp lệ.']);
+  if ($dateIn === '')           out(false, ['msg' => 'Chưa nhập ngày.']);
+  $folder = $FOLDERS[$folder];
 
   // ---- mật khẩu từ mailcow.conf (mount read-only) ----
   $confPath = '/opt/mailcow.conf';
@@ -71,7 +76,7 @@ try {
 
   // ---- IMAP (nội bộ, TLS self-signed) ----
   $ref = '{dovecot-mailcow:993/imap/ssl/novalidate-cert}';
-  $mbox = @imap_open($ref . 'INBOX', $email, $pass, 0);   // 0 = read-write (mặc định; không có hằng OP_READWRITE)
+  $mbox = @imap_open($ref . $folder, $email, $pass, 0);   // 0 = read-write (mặc định; không có hằng OP_READWRITE)
   if (!$mbox) out(false, ['msg' => 'Đăng nhập IMAP thất bại: ' . imap_last_error()]);
 
   $hdr  = @imap_fetchheader($mbox, $uid, FT_UID);
@@ -86,13 +91,13 @@ try {
   $raw = $newHdr . (is_string($body) ? $body : '');
 
   // APPEND bản mới (UID mới, chưa đọc) + xoá bản gốc
-  $ok = @imap_append($mbox, $ref . 'INBOX', $raw, null, $internal);
+  $ok = @imap_append($mbox, $ref . $folder, $raw, null, $internal);
   if (!$ok) { imap_close($mbox); out(false, ['msg' => 'APPEND thất bại: ' . imap_last_error()]); }
   @imap_delete($mbox, $uid, FT_UID);
   @imap_expunge($mbox);
   imap_close($mbox);
 
-  out(true, ['email' => $email, 'uid' => $uid, 'date' => $dateHeader]);
+  out(true, ['email' => $email, 'folder' => $folder, 'uid' => $uid, 'date' => $dateHeader]);
 } catch (\Throwable $e) {
   out(false, ['msg' => 'Lỗi: ' . $e->getMessage()]);
 }
