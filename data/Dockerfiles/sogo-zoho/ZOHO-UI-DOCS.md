@@ -246,6 +246,7 @@ click email đổi khung đọc, toggle on/off giữ nguyên SOGo thật.
 
 | Commit | Nội dung |
 |---|---|
+| *(mới)* | Khung đọc hiện **NGÀY + GIỜ:PHÚT**: fetch SOGo `.../folder<F>/<uid>/view` (đọc UID từ hash `#!/Mail/0/<F>/<uid>`) → `date` đầy đủ theo múi giờ user → format `DD-Mon-YY HH:MM` (`enhanceDateTime`/`formatWhen` trong `zoho-demo.js`) |
 | *(mới)* | Tăng độ giống Zoho: top bar sáng + brand + tab strip + icon phải; bỏ account header; Smart Chat bar; rail phải mở rộng; khung đọc mail thật khớp layout Zoho |
 | `6a83fd7` | Thêm section sidebar **STREAMS / TAG / GIAO DIỆN** (UI tĩnh) |
 | `450cd81` | Fix chữ **"error"**: `cleanText()` lọc ligature icon/`.ng-hide`/ngày khi scrape |

@@ -245,7 +245,7 @@
         '<div class="zd-mm">'+
           '<div class="zd-l1"><span class="zd-from">'+esc(email.sender)+'</span>'+
             '<span class="zd-rp-ic zd-from-search" title="Tìm theo người gửi">'+ic('search')+'</span></div>'+
-          '<div class="zd-l2"><span class="zd-rp-ic" data-act="flag" title="Gắn cờ">'+ic('star')+'</span> '+esc(email.time)+'</div>'+
+          '<div class="zd-l2"><span class="zd-rp-ic" data-act="flag" title="Gắn cờ">'+ic('star')+'</span> <span class="zd-when">'+esc(email.time)+'</span></div>'+
         '</div>'+acts+'</div>'+
       '<div class="zd-real-body zd-loading"></div></div>'+
       '<div class="zd-reply"><input type="text" placeholder="@nhắc đến một người dùng hoặc nhóm để chia sẻ email này"/>'+ic('smile')+'</div>';
@@ -425,6 +425,36 @@
     var read = layer.querySelector('.zd-read');
     if (read){ read.style.display=''; read.innerHTML = readHTML(email, DATA.replyPlaceholder); }
   }
+  // ---- Việc 2: hiển thị NGÀY + GIỜ:PHÚT trong khung đọc ----
+  // SOGo gửi ngày list ở dạng tương đối (vd "10-Feb-26", không có giờ). Endpoint
+  // .../folder<F>/<uid>/view trả date đầy đủ theo múi giờ user ("Tuesday, February
+  // 10, 2026 21:25 EST"). Đọc UID từ hash SOGo (#!/Mail/0/<F>/<uid>) rồi fetch.
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var MONFULL = {january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
+  function formatWhen(s){
+    // "Tuesday, February 10, 2026 21:25 EST" -> "10-Feb-26 21:25" (không đổi múi giờ)
+    var m = String(s).match(/([A-Za-z]+)\s+(\d{1,2}),\s+(\d{4}).*?(\d{1,2}):(\d{2})/);
+    if(!m) return '';
+    var mi = MONFULL[m[1].toLowerCase()]; if(mi===undefined) return '';
+    var day = ('0'+m[2]).slice(-2), yy = m[3].slice(-2);
+    return day+'-'+MON[mi]+'-'+yy+' '+('0'+m[4]).slice(-2)+':'+m[5];
+  }
+  function enhanceDateTime(layer){
+    var tries = 0;
+    (function tick(){
+      var h = location.hash || '';
+      var m = h.match(/Mail\/\d+\/([^\/]+)\/(\d+)(?:[\/?#]|$)/);
+      if(!m){ if(tries++ < 10){ setTimeout(tick, 250); } return; }
+      var folder = m[1], uid = m[2];
+      var base = location.pathname.replace(/Mail\/view.*$/, '');
+      fetch(base+'Mail/0/folder'+folder+'/'+uid+'/view', {credentials:'same-origin'})
+        .then(function(r){ return r.json(); })
+        .then(function(j){
+          var when = (j && j.date) ? formatWhen(j.date) : '';
+          if(when){ var el = layer.querySelector('.zd-when'); if(el) el.textContent = when; }
+        }).catch(function(){});
+    })();
+  }
   function showRealPane(layer, email){
     // Render Zoho chrome, ask SOGo to open the message, then relocate SOGo's live
     // message view into our pane so the real body/attachments work inside the Zoho UI.
@@ -433,6 +463,7 @@
     if (read){ read.style.display=''; read.innerHTML = realReadHTML(email); }
     openRealRow(email.realIndex);
     mountRealBody(layer, 0);
+    enhanceDateTime(layer);   // cập nhật ngày + giờ:phút từ SOGo /view (async)
   }
   function selectEmail(layer, id){
     var email = byId[id]; if (!email) return;
