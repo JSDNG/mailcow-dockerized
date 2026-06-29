@@ -142,7 +142,7 @@
   function listHTML(d){
     var groups='';
     if (d.realEmails && d.realEmails.length){
-      groups += '<div class="zd-grp">Hộp thư</div>' + d.realEmails.map(rowHTML).join('');
+      groups += d.realEmails.map(rowHTML).join('');   // danh sách phẳng mail thật (mới→cũ)
     }
     groups += (d.groups||[]).map(function(g){
       return '<div class="zd-grp">'+esc(g.label)+'</div>' + g.emails.map(rowHTML).join('');
@@ -546,6 +546,8 @@
     return getJSON(folder + '.json').catch(function(){ return { title: folder, sort:'Order Received', groups:[] }; })
       .then(function(d){
         d.realEmails = scrapeReal();
+        d.groups = [];   // chỉ hiển thị MAIL THẬT (bỏ mail demo/fake) — danh sách theo
+                         // đúng thứ tự SOGo: thời gian giảm dần (mới trên, cũ dưới)
         DATA = d; loadedFolder = folder; indexData(d);
         // Keep the open email across in-folder list refreshes (e.g. new mail arriving);
         // only drop the selection when switching folders. Drop ids no longer present.
