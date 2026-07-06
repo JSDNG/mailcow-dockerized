@@ -188,9 +188,9 @@ docker compose up -d sogo-mailcow nginx-mailcow
   (`angular.element(...).scope()`) và biến đổi sang đúng shape — renderer giữ nguyên.
 - **Khi SOGo nâng version:** đổi tag `SOGO_IMAGE` trong `docker-compose.override.yml`,
   lấy lại 3 template từ `Alinto/sogo` đúng tag, áp lại các sửa đổi, build lại.
-- **Sau khi sửa `zoho-demo.js`:** nhớ tăng `?v=N` trong `SOGoUIAdditionalJSFiles`
-  (`data/conf/sogo/sogo.conf`) — nếu không, Cloudflare có thể tiếp tục phục vụ
-  bản cache cũ dù đã deploy đúng lên origin. Xem chi tiết ở mục 10.
+- **Cache Cloudflare sau khi sửa `zoho-demo.js`:** KHÔNG tự thêm query string
+  vào entry trong `sogo.conf` (đã thử, làm sập nạp file — xem mục 10). Dockerfile
+  đã có `RUN touch` để tự lo việc này mỗi lần build; không cần làm gì thêm.
 
 ---
 
@@ -289,25 +289,33 @@ origin (build image + rsync vào volume `sogo_web`) không có nghĩa là live t
 ngay** — Cloudflare có thể vẫn trả bản cache cũ (`cf-cache-status: HIT`) cho tới
 khi hết hạn hoặc được purge tay, dù server đã chạy đúng bản mới từ lâu.
 
-**Cách tránh vĩnh viễn:** `data/conf/sogo/sogo.conf` tham chiếu file kèm query
-string version:
-```
-SOGoUIAdditionalJSFiles = (
-  js/theme.js,
-  js/custom-sogo.js,
-  "js/zoho-demo.js?v=3"
-);
-```
-Mỗi lần sửa `zoho-demo.js`, **tăng số `v=`** rồi restart `sogo-mailcow` (file này
-là mount, không cần build lại) → URL đổi → Cloudflare coi là tài nguyên mới, tự
-lấy bản mới từ origin, không cần vào dashboard purge tay.
+**⚠️ ĐÃ THỬ SAI — đừng lặp lại:** sửa `sogo.conf` thành
+`"js/zoho-demo.js?v=3"` để tự chế query-string version. **Việc này làm SẬP hẳn
+UI** (mất nút soạn thư, popup tài khoản, đổi tên tiếng Việt...) mà **không có
+lỗi console nào** — vì SOGo coi mỗi entry trong `SOGoUIAdditionalJSFiles` là
+**đường dẫn file thật để tự `stat()`** (lấy mtime, xem ngay dưới), không phải
+URL. Cho nó một entry có `?v=3` dính liền vào tên file → nó tìm file tên
+`zoho-demo.js?v=3` trên đĩa → không thấy → **âm thầm bỏ qua, không render thẻ
+`<script>` luôn**. Đã revert lại `js/zoho-demo.js` (không quote, không query
+string) trong commit theo sau `8a0708c`.
 
-Nghi ngờ live vẫn dính cache cũ thì kiểm tra thẳng response header:
+**Cách đúng:** SOGo **đã tự cache-bust sẵn** — nó tự thêm `?lm=<mtime file>`
+cho MỌI entry trong `SOGoUIAdditionalJSFiles` khi render `<script src=...>` (xem
+`theme.js`/`custom-sogo.js` — luôn có `?lm=...` dù `sogo.conf` không hề khai
+báo gì thêm). Vấn đề thật chỉ là: **BuildKit giữ nguyên mtime gốc** của file khi
+`COPY` (không set về "giờ build"), nên nếu mtime không đổi, `?lm=` cũng không
+đổi, Cloudflare vẫn coi là cùng 1 URL. Dockerfile đã thêm
+`RUN touch .../zoho-demo.js` ngay sau bước `COPY` — ép mtime mới **mỗi lần
+build**, để `?lm=` tự đổi theo, không cần đụng gì tới `sogo.conf`.
+
+Nghi ngờ live vẫn dính cache cũ thì kiểm tra đúng URL mà SOGo thực sự render
+(có `.woa` + `?lm=`, lấy từ tab Network hoặc):
 ```bash
-curl -sD - -o /dev/null "https://mail.dragons.asia/SOGo/WebServerResources/js/zoho-demo.js?v=<N>"
+curl -s "https://mail.dragons.asia/SOGo/so/<email>/Mail/view" | grep -o 'zoho-demo.js?lm=[0-9]*'
+curl -sD - -o /dev/null "https://mail.dragons.asia/SOGo.woa/WebServerResources/js/zoho-demo.js?lm=<số vừa lấy>"
 ```
-`cf-cache-status: HIT` + `age` lớn → vẫn cache cũ (kiểm tra lại `v=` đã tăng
-chưa); `MISS` hoặc không có header đó → đã lấy đúng bản mới.
+`cf-cache-status: HIT` + `age` lớn → vẫn cache cũ (kiểm tra `lm=` đã đổi so
+với trước khi build chưa); `MISS` → đã lấy đúng bản mới.
 
 ---
 
@@ -315,7 +323,8 @@ chưa); `MISS` hoặc không có header đó → đã lấy đúng bản mới.
 
 | Commit | Nội dung |
 |---|---|
-| `8a0708c` | Cache-bust `zoho-demo.js` (`?v=N` trong `sogo.conf`) — tránh Cloudflare phục vụ bản cache cũ sau deploy |
+| *(mới)* | Revert `8a0708c` (làm sập nạp `zoho-demo.js`, xem mục 10) + fix đúng chỗ: `RUN touch` trong `Dockerfile` để `?lm=` tự đổi mtime mỗi build |
+| `8a0708c` | ~~Cache-bust `zoho-demo.js` (`?v=N` trong `sogo.conf`)~~ — **SAI, đã revert:** làm SOGo không tìm thấy file, mất hẳn thẻ `<script>` (xem mục 10) |
 | `a432f10` | Sửa lỗi trùng lặp mail khi gộp đa lượt quét (dedupe theo dấu vân tay nội dung, không phụ thuộc Angular scope) + fix đua tranh khi đổi thư mục (`loadToken`, `waitForRows`) |
 | `9bc91ce` | Quét toàn bộ folder qua virtual-repeat (`scrapeAllReal`) thay vì chỉ viewport — fix "hiển thị thiếu mail" |
 | *(mới)* | Khung đọc hiện **NGÀY + GIỜ:PHÚT**: fetch SOGo `.../folder<F>/<uid>/view` (đọc UID từ hash `#!/Mail/0/<F>/<uid>`) → `date` đầy đủ theo múi giờ user → format `DD-Mon-YY HH:MM` (`enhanceDateTime`/`formatWhen` trong `zoho-demo.js`) |

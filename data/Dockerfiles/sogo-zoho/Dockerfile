@@ -23,6 +23,13 @@ COPY overlay/css/zoho.css /usr/local/lib/GNUstep/SOGo/WebServerResources/css/zoh
 # (SOGoUIAdditionalJSFiles). Served as static resources by nginx.
 COPY overlay/WebServerResources/demo/ /usr/local/lib/GNUstep/SOGo/WebServerResources/demo/
 COPY overlay/WebServerResources/js/zoho-demo.js /usr/local/lib/GNUstep/SOGo/WebServerResources/js/zoho-demo.js
+# SOGo appends its own ?lm=<mtime> cache-buster to each SOGoUIAdditionalJSFiles
+# entry (see sogo.conf) — DO NOT hand-roll a ?v=N query string on the sogo.conf
+# entry instead, SOGo treats that entry as a real filesystem path to stat(), and
+# a literal "?v=N" suffix makes the file "not found", so it silently drops the
+# <script> tag. BuildKit preserves COPY'd files' original mtimes, so without this
+# touch, Cloudflare could keep caching a "changed" file under its old ?lm= URL.
+RUN touch /usr/local/lib/GNUstep/SOGo/WebServerResources/js/zoho-demo.js
 
 # Edited templates, overlaid onto the originals wherever they live in the image.
 COPY overlay/templates/ /zoho-templates/
