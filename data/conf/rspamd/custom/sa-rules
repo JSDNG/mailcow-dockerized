@@ -8133,6 +8133,10 @@ body HS_BODY_2705		/Netease\/Alimail\/webmail Inc/
 describe HS_BODY_2705		Heinlein Support Spamschutz Body-2705 Spam
 score HS_BODY_2705		10
 
+body HS_BODY_2708		/-[0-9]{6}\.framer\.app/
+describe HS_BODY_2708		Heinlein Support Spamschutz Body-2708 Spam
+score HS_BODY_2708		5
+
 #
 # Heinlein Support -- SpamAssassin Regelsätze
 # Use it as it is.
@@ -14667,4 +14671,8 @@ score HS_HEADER_2912		10
 header HS_HEADER_2915		Subject:=~/B2B_Database_Across_Poland/
 describe HS_HEADER_2915		Heinlein Support Spamschutz Header-2915 Spam
 score HS_HEADER_2915		5
+
+header HS_HEADER_2918		Subject:=~/hat Ihre Facebok-Seite gemeldet\./
+describe HS_HEADER_2918		Heinlein Support Spamschutz Header-2918 Spam
+score HS_HEADER_2918		10
 
