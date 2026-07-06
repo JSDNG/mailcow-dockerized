@@ -383,14 +383,33 @@
       if (face){ var home = document.querySelector('#detailView .sg-reversible') || document.querySelector('#detailView'); if (home) home.appendChild(face); }
     } catch(e){}
   }
+  // SOGo replaces #detailView's content ASYNCHRONOUSLY after we click a row —
+  // clicking through several emails quickly can catch the PREVIOUS message's
+  // .sg-face still sitting there, not yet swapped for the one we just asked to
+  // open. Grabbing it unconditionally shows stale content that only self-corrects
+  // later (via place()'s self-heal below), which looked like the reading pane
+  // "jumping" between messages. Verify the mounted subject actually matches the
+  // email we think we're opening before accepting it.
+  function faceMatchesEmail(face, email){
+    if (!face || !email) return false;
+    var h = face.querySelector('.sg-md-headline');
+    if (!h) return true;   // unknown template shape — don't block forever on a guess
+    var faceSubj = h.textContent.replace(/\s+/g,' ').trim();
+    var wantSubj = String(email.subject||'').trim();
+    var n = Math.min(faceSubj.length, wantSubj.length, 24);
+    return n > 0 && faceSubj.slice(0, n) === wantSubj.slice(0, n);
+  }
   function mountRealBody(layer, tries){
     if (selectedId == null) return;                 // navigated away
     var email = byId[selectedId];
     if (!email || !email.real) return;              // switched to a fake email
     var mount = layer.querySelector('.zd-real-body'); if (!mount) return;
     var face = document.querySelector('#detailView .sg-face');
-    if (face && face.parentNode !== mount){ mount.appendChild(face); mount.classList.remove('zd-loading'); return; }
-    if (face && face.parentNode === mount){ mount.classList.remove('zd-loading'); return; }
+    if (face && faceMatchesEmail(face, email)){
+      if (face.parentNode !== mount) mount.appendChild(face);
+      mount.classList.remove('zd-loading');
+      return;
+    }
     if ((tries||0) < 50) setTimeout(function(){ mountRealBody(layer, (tries||0)+1); }, 100); // up to ~5s
   }
 
@@ -663,7 +682,7 @@
     // re-embed it into our Zoho pane.
     if (selectedId != null){ var em = byId[selectedId];
       if (em && em.real){ var m = layer.querySelector('.zd-real-body');
-        if (m && !m.querySelector('.sg-face')){ var f = document.querySelector('#detailView .sg-face'); if (f){ m.appendChild(f); m.classList.remove('zd-loading'); } } } }
+        if (m && !m.querySelector('.sg-face')){ var f = document.querySelector('#detailView .sg-face'); if (f && faceMatchesEmail(f, em)){ m.appendChild(f); m.classList.remove('zd-loading'); } } } }
     applyFilter(layer);   // keep the active search/view filter applied across re-renders
   }
 
