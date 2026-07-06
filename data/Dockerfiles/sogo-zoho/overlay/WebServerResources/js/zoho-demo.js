@@ -125,10 +125,13 @@
     Array.prototype.forEach.call(junk, function(n){ if (n.parentNode) n.parentNode.removeChild(n); });
     return (c.textContent || '').trim().replace(/\s+/g, ' ');
   }
-  // Read unread/flagged straight from SOGo's Angular model (reliable) so the Zoho
-  // filters (Chưa đọc / Đã gắn cờ) act on real state, not guessed CSS classes.
+  // Read unread/flagged. Prefer SOGo's Angular model when reachable, but this
+  // build runs with Angular debug info disabled in production (angular.element(el)
+  // .scope() reliably returns undefined here), so default to the plain CSS classes
+  // Angular already rendered onto the row itself — 'unread' / 'sg-star-bg' — which
+  // work with or without scope access.
   function realFlags(el){
-    var unread = false, flagged = el.classList.contains('sg-star-bg');
+    var unread = el.classList.contains('unread'), flagged = el.classList.contains('sg-star-bg');
     try {
       var sc = window.angular && angular.element(el).scope();
       var msg = sc && sc.currentMessage;
@@ -140,7 +143,7 @@
     } catch(e){}
     return { unread: unread, flagged: flagged };
   }
-  function scrapeReal(topHint){
+  function scrapeReal(){
     return realRows().map(function(el, i){
       function tx(sel){ return cleanText(el.querySelector(sel)); }
       var subj = tx('.sg-tile-subject') || tx('.sg-subject') || tx('.sg-md-body');
@@ -149,59 +152,82 @@
       if (!subj && !from) { var t=cleanText(el); subj = t.slice(0,70); }
       var fl = realFlags(el);
       var uid = realUid(el);
-      // Without a uid (e.g. SOGo markup changed and the scope lookup fails), fall
-      // back to a position+pass key — worse (can duplicate a row across overlapping
-      // passes) but never collapses two DIFFERENT messages into one like a bare
-      // positional id would under multi-pass scraping.
-      var id = uid != null ? ('u'+uid) : ('r'+(topHint||0)+'-'+i);
+      // realUid() needs a reachable Angular scope, which this production build
+      // doesn't expose (see realFlags() above) — so uid is normally null here.
+      // Fall back to a content fingerprint (sender+subject+time): stable across
+      // scroll passes since the same real message always renders the same text,
+      // unlike a positional index which shifts as virtual-repeat recycles rows.
+      var id = uid != null ? ('u'+uid) : ('k'+from+'|'+subj+'|'+date);
       return { id:id, uid:uid, real:true, realIndex:i, unread:fl.unread, flagged:fl.flagged,
         sender:(from||'(người gửi)').slice(0,80), subject:(subj||'(không tiêu đề)').slice(0,90), time:(date||'').slice(0,20) };
     });
   }
   // Drive SOGo's native virtual-repeat scroller from top to bottom, scraping at each
-  // stop and merging by uid, so the Zoho list shows every real message in the
+  // stop and merging by id, so the Zoho list shows every real message in the
   // folder — not just the viewport-sized slice realRows() sees at rest. Falls back
   // to a single scrapeReal() pass if no virtual-repeat container is found (e.g. the
   // folder is short enough that everything is already rendered, or SOGo's markup
   // changed and the selector no longer matches).
-  function scrapeAllReal(){
-    var scroller = virtualScroller();
-    if (!scroller) return Promise.resolve(scrapeReal());
-    var sizer = scroller.querySelector('.md-virtual-repeat-sizer');
-    var total = sizer ? (parseFloat(sizer.style.height) || 0) : scroller.scrollHeight;
-    var pageH = scroller.clientHeight || 1;
-    var step = Math.max(pageH - 20, 40);   // small overlap so no row falls between two stops
-    var startTop = scroller.scrollTop;
-    var merged = {}, order = [];
-    var MAX_PASSES = 80;   // guard against a runaway loop on a pathologically tall folder
-    scraping = true;
-    return new Promise(function(resolve){
-      var pass = 0, top = 0;
-      function mergeCurrent(){
-        scrapeReal(top).forEach(function(m){
-          if (!merged[m.id]) order.push(m.id);
-          m.scrollHint = top;
-          merged[m.id] = m;
-        });
-      }
-      function step_(){
-        scroller.scrollTop = top;
-        setTimeout(function(){
-          mergeCurrent();
-          pass++;
-          var atEnd = top >= (total - pageH) || pass >= MAX_PASSES;
-          if (atEnd){
-            if (pass >= MAX_PASSES) { try{ console.warn('[zoho-demo] scrapeAllReal: hit MAX_PASSES — list may be incomplete'); }catch(e){} }
-            scroller.scrollTop = startTop;
-            setTimeout(function(){ scraping = false; resolve(order.map(function(id){ return merged[id]; })); }, 30);
-            return;
-          }
-          top += step;
-          step_();
-        }, 90);   // let Angular's virtual-repeat re-render after the scroll
-      }
-      step_();
+  // `token` lets the caller (loadFolder) abandon a scrape that belongs to a folder
+  // the user has already navigated away from, instead of it fighting the newer
+  // scrape over the shared scroller and clobbering scraping/scrollTop mid-flight.
+  function scrapeAllReal(token){
+    return waitForRows(0).then(function(){
+      var scroller = virtualScroller();
+      if (!scroller) return scrapeReal();
+      if (token !== loadToken) return [];   // navigated away before we even started
+      var sizer = scroller.querySelector('.md-virtual-repeat-sizer');
+      var total = sizer ? (parseFloat(sizer.style.height) || 0) : scroller.scrollHeight;
+      var pageH = scroller.clientHeight || 1;
+      var step = Math.max(pageH - 20, 40);   // small overlap so no row falls between two stops
+      var startTop = scroller.scrollTop;
+      var merged = {}, order = [];
+      var MAX_PASSES = 80;   // guard against a runaway loop on a pathologically tall folder
+      scraping = true;
+      return new Promise(function(resolve){
+        var pass = 0, top = 0;
+        function mergeCurrent(){
+          scrapeReal().forEach(function(m){
+            if (!merged[m.id]) order.push(m.id);
+            m.scrollHint = top;
+            merged[m.id] = m;
+          });
+        }
+        function finish(){
+          scroller.scrollTop = startTop;
+          setTimeout(function(){
+            if (token === loadToken) scraping = false;   // don't clear a newer scrape's flag
+            resolve(order.map(function(id){ return merged[id]; }));
+          }, 30);
+        }
+        function step_(){
+          if (token !== loadToken) { finish(); return; }   // folder changed mid-scrape — bail
+          scroller.scrollTop = top;
+          setTimeout(function(){
+            if (token !== loadToken) { finish(); return; }
+            mergeCurrent();
+            pass++;
+            var atEnd = top >= (total - pageH) || pass >= MAX_PASSES;
+            if (atEnd){
+              if (pass >= MAX_PASSES) { try{ console.warn('[zoho-demo] scrapeAllReal: hit MAX_PASSES — list may be incomplete'); }catch(e){} }
+              finish();
+              return;
+            }
+            top += step;
+            step_();
+          }, 90);   // let Angular's virtual-repeat re-render after the scroll
+        }
+        step_();
+      });
     });
+  }
+  // Right after a folder switch (hash change, no full page reload) SOGo briefly
+  // tears down the old virtual-repeat and hasn't mounted the new one yet — querying
+  // for rows in that instant sees an empty list. Give it a moment to settle instead
+  // of scraping (and caching) a false "0 messages" snapshot.
+  function waitForRows(tries){
+    if (realRows().length > 0 || virtualScroller() || tries >= 10) return Promise.resolve();
+    return new Promise(function(resolve){ setTimeout(function(){ resolve(waitForRows(tries+1)); }, 150); });
   }
 
   /* ---- list rendering ---- */
@@ -351,7 +377,7 @@
   }
 
   /* ---- state ---- */
-  var DATA = null, selectedId = null, byId = {}, loadedFolder = null, scraping = false;
+  var DATA = null, selectedId = null, byId = {}, loadedFolder = null, scraping = false, loadToken = 0;
   var filterMode = 'all', searchQuery = '';   // Zoho view filters + top search
 
   /* ---- search + view filters (client-side, on the Zoho list we render) ---- */
@@ -625,9 +651,11 @@
 
   /* ---- load a folder's data (fake + real merge) ---- */
   function loadFolder(folder, keepSelection){
+    var token = ++loadToken;   // invalidate any scrapeAllReal() still running for a prior folder
     return getJSON(folder + '.json').catch(function(){ return { title: folder, sort:'Order Received', groups:[] }; })
       .then(function(d){
-        return scrapeAllReal().then(function(realEmails){
+        return scrapeAllReal(token).then(function(realEmails){
+          if (token !== loadToken) return;   // superseded by a newer folder switch — drop this result
           d.realEmails = realEmails;
           d.groups = [];   // chỉ hiển thị MAIL THẬT (bỏ mail demo/fake) — danh sách theo
                            // đúng thứ tự SOGo: thời gian giảm dần (mới trên, cũ dưới)
