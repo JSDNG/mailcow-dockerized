@@ -1,0 +1,344 @@
+<?xml version="1.0" standalone="yes"?>
+<!DOCTYPE var:component>
+<var:component
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:var="http://www.skyrix.com/od/binding"
+    xmlns:const="http://www.skyrix.com/od/constant"
+    xmlns:rsrc="OGo:url"
+    xmlns:label="OGo:label"
+    className="UIxPageFrame"
+    title="moduleName"
+    const:jsFiles="vendor/ckeditor/build/ckeditor.js, Common/sgCkeditor.component.js, Common.js, Preferences.services.js, Contacts.services.js, Scheduler.services.js, Mailer.js, Mailer.services.js, vendor/angular-file-upload.min.js, vendor/FileSaver.min.js, vendor/punycode.js, vendor/mark.min.js">
+  <script type="text/javascript">
+    var mailAccounts = <var:string value="mailAccounts" const:escapeHTML="NO" />;
+    var userNames = <var:string value="userNames" const:escapeHTML="NO" />;
+    var unseenCountFolders = <var:string value="unseenCountFolders" const:escapeHTML="NO" />;
+  </script>
+
+  <main class="view"
+        layout="row" layout-fill="layout-fill"
+        ui-view="mailboxes"
+        ng-controller="navController"><!-- mailboxes list --></main>
+
+  <sg-draggable-helper>
+    <md-icon>email</md-icon>
+    <sg-draggable-helper-counter class="md-default-theme md-warn md-hue-1 md-bg"><!-- count --></sg-draggable-helper-counter>
+  </sg-draggable-helper>
+
+  <script type="text/ng-template" id="UIxMailMainFrame">
+
+    <!-- Zoho left app-switcher rail -->
+    <nav class="zoho-left-rail">
+      <!-- brand at top-left (div, not <a>, so app-item :nth-of-type colours stay intact) -->
+      <div class="zoho-brand" title="Mail"><md-icon>email</md-icon><em>Mail</em></div>
+      <a class="zoho-app-item zoho-app-active" title="Mail"><md-icon>email</md-icon><em>Mail</em></a>
+      <a class="zoho-app-item" ng-href="{{::activeUser.path.calendar}}" title="Lịch"><md-icon>event</md-icon><em>Lịch</em></a>
+      <a class="zoho-app-item" title="Danh Sách Việc Cần Làm"><md-icon>check_box</md-icon><em>Danh Sách Việc Cần Làm</em></a>
+      <a class="zoho-app-item" title="Ghi chú"><md-icon>edit</md-icon><em>Ghi chú</em></a>
+      <a class="zoho-app-item" ng-href="{{::activeUser.path.contacts}}" title="Số liên lạc"><md-icon>contacts</md-icon><em>Số liên lạc</em></a>
+      <a class="zoho-app-item" title="Dấu trang"><md-icon>bookmark</md-icon><em>Dấu trang</em></a>
+      <a class="zoho-app-item" title="Các Web Tab"><md-icon>language</md-icon><em>Các Web Tab</em></a>
+      <!-- bottom collapse chevron (static) -->
+      <div class="zoho-rail-collapse" title="Thu gọn"><md-icon>chevron_left</md-icon></div>
+    </nav>
+
+    <!-- Zoho right tools rail (static, decorative — extended icon set) -->
+    <nav class="zoho-right-rail">
+      <a class="zoho-rail-item" title="Cài đặt"><md-icon>settings</md-icon></a>
+      <a class="zoho-rail-item" title="Bảng tin"><md-icon>dashboard</md-icon></a>
+      <a class="zoho-rail-item" title="Đính kèm"><md-icon>attach_file</md-icon></a>
+      <a class="zoho-rail-item" title="Lịch"><md-icon>event</md-icon></a>
+      <a class="zoho-rail-item" title="Nhắc"><md-icon>schedule</md-icon></a>
+      <a class="zoho-rail-item" title="Ghi chú"><md-icon>edit</md-icon></a>
+      <a class="zoho-rail-item" title="Việc cần làm"><md-icon>check_box</md-icon></a>
+      <a class="zoho-rail-item" title="Số liên lạc"><md-icon>contacts</md-icon></a>
+      <a class="zoho-rail-item" title="Liên kết"><md-icon>link</md-icon></a>
+      <a class="zoho-rail-item zoho-rail-dot" title="Tiện ích"><md-icon>extension</md-icon></a>
+      <a class="zoho-rail-item zoho-rail-dot" title="Tự động hóa"><md-icon>flash_on</md-icon></a>
+      <a class="zoho-rail-item zoho-rail-chat" title="Trò chuyện"><md-icon>chat_bubble</md-icon></a>
+    </nav>
+
+    <!-- Sidenav -->
+    <md-sidenav class="md-sidenav-left md-whiteframe-z1" layout="column" layout-fill="layout-fill"
+                md-component-id="left" md-is-locked-open="isGtMedium"
+                ng-class="{ 'sg-close': leftIsClose }">
+      <var:component className="UIxSidenavToolbarTemplate" />
+      <!-- Zoho "Mail Mới" compose button (clicks SOGo's real compose action) -->
+      <button type="button" class="zoho-compose"
+              onclick="var b=document.querySelector('md-button.md-fab.md-accent.sg-fab-bottom-center')||document.querySelector('md-fab-speed-dial md-fab-actions md-button.md-fab'); if(b){b.click();}">Mail Mới</button>
+      <md-content class="md-flex" layout="column" md-scroll-y="md-scroll-y"
+                  md-colors="::{ backgroundColor: 'default-background-300' }">
+        <!-- Zoho STREAMS (static UI, behaviour TBD) -->
+        <div class="zoho-nav">
+          <div class="zoho-nav-head"><md-icon class="zoho-nav-caret">expand_more</md-icon><span>STREAMS</span>
+            <span class="zoho-nav-act"><md-icon>tune</md-icon><md-icon>add</md-icon></span>
+          </div>
+          <a class="zoho-nav-item"><span class="zoho-nav-label">Trang chủ</span></a>
+          <a class="zoho-nav-item"><span class="zoho-nav-label">Tất cả chưa đọc</span></a>
+          <a class="zoho-nav-item zoho-nav-blue"><span class="zoho-nav-label">Tạo một nhóm</span></a>
+        </div>
+        <section class="sg-account-section"
+                 layout="column"
+                 ng-repeat="account in ::app.accounts track by account.id"
+                 ng-class="{ 'md-flex': account.$expanded }">
+          <md-list class="md-dense">
+            <md-list-item ng-click="app.toggleAccountState(account)">
+              <div class="sg-no-wrap"
+                   aria-label="{{ ::'Toggle visibility' | loc }}"
+                   ng-bind="::account.name"><!-- account name --></div>
+              <!-- Zoho "THƯ MỤC" header actions (static, decorative) -->
+              <span class="zoho-folders-act md-secondary"><md-icon>settings</md-icon><md-icon>add</md-icon></span>
+	      <md-menu class="md-secondary">
+		<md-icon label:aria-label="Options"
+			 ng-click="$mdMenu.open($event)"
+			 md-menu-origin="md-menu-origin">more_vert</md-icon>
+		<md-menu-content width="3">
+                  <md-menu-item ng-show="::account.id == 0">
+		    <md-button
+			label:aria-label="Delegation..."
+			ng-click="app.delegate(account)">
+		      <var:string label:value="Delegation..."/>
+		    </md-button>
+                  </md-menu-item>
+		  <md-menu-item ng-show="::app.showSubscribedOnly == 1">
+		    <md-button
+			label:aria-label="Subscribe..."
+			ng-click="app.subscribe(account)">
+		      <var:string label:value="Subscribe..."/>
+		    </md-button>
+		  </md-menu-item>
+		  <md-menu-item>
+		    <md-button
+			label:aria-label="New Folder..."
+			ng-click="app.newFolder(account)">
+		      <var:string label:value="New Folder..."/>
+		    </md-button>
+		  </md-menu-item>
+      <var:if condition="isCleanMailboxEnabled">
+        <md-menu-item>
+          <md-button type="button" ng-click="app.showCleanMailboxPanel(null, account)">
+            <var:string label:value="Clean mailbox"/>...
+          </md-button>
+        </md-menu-item>
+      </var:if>
+		  <md-menu-item ng-show="::account.id == 0">
+		    <md-button
+			label:aria-label="Search"
+			ng-click="app.showAdvancedSearch()">
+		      <var:string label:value="Search"/>
+		    </md-button>
+		  </md-menu-item>
+		</md-menu-content>
+	      </md-menu>
+	    </md-list-item>
+          </md-list>
+          <div class="sg-quota ng-hide" ng-show="::account.$quota">
+            <md-progress-linear md-mode="determinate"
+                                ng-class="{ 'md-warn': account.$quota.percent > 70 }"
+                                value="{{account.$quota.percent}}"><!-- quota --></md-progress-linear>
+            <div class="sg-md-caption md-default-theme md-fg md-primary"
+                 ng-show="account.$expanded"
+                 ng-class="{ 'md-warn': account.$quota.percent > 70 }">{{account.$quota.description}}</div>
+          </div>
+          <md-virtual-repeat-container class="md-flex">
+            <md-list class="md-dense">
+              <md-list-item
+                  class="sg-mailbox-list-item md-clickable md-default-theme md-background md-hue-1"
+                  ng-class="{'md-bg sg-selected': folder.id == app.service.selectedFolder.id}"
+                  md-virtual-repeat="folder in account" md-item-size="40" md-on-demand="md-on-demand"
+                  sg-mailbox="folder"
+                  sg-droppable="app.isDroppableFolder(dragFolder, folder)"
+                  sg-drop="app.dragSelectedMessages(dragFolder, folder, dragMode)">
+                <!-- sgMailboxListItem directive -->
+              </md-list-item>
+            </md-list>
+          </md-virtual-repeat-container>
+          <md-divider><!-- divider --></md-divider>
+        </section>
+        <!-- Zoho folders this SOGo account doesn't have — static buttons (no backend) -->
+        <div class="zoho-extra-folders">
+          <a class="zoho-xfolder"><span>Đã nhắc lại</span></a>
+          <a class="zoho-xfolder"><span>Newsletter</span></a>
+          <a class="zoho-xfolder"><span>Notification</span></a>
+        </div>
+        <!-- Zoho TAG + GIAO DIỆN (static UI, behaviour TBD) -->
+        <div class="zoho-nav">
+          <div class="zoho-nav-head"><md-icon class="zoho-nav-caret">expand_more</md-icon><span>TAG</span>
+            <span class="zoho-nav-act"><md-icon>add</md-icon></span>
+          </div>
+        </div>
+        <div class="zoho-nav">
+          <div class="zoho-nav-head"><md-icon class="zoho-nav-caret">expand_more</md-icon><span>GIAO DIỆN</span></div>
+          <a class="zoho-nav-item"><span class="zoho-nav-label">Chưa đọc</span><span class="zoho-nav-count">5</span></a>
+          <a class="zoho-nav-item"><span class="zoho-nav-label">Tất cả tin nhắn</span></a>
+          <a class="zoho-nav-item"><span class="zoho-nav-label">Đã gắn cờ</span></a>
+        </div>
+      </md-content>
+    </md-sidenav>
+
+    <section layout="column" layout-fill="layout-fill" ui-view="mailbox">
+      <md-toolbar layout="row" layout-align="space-between center" class="toolbar-main">
+        <var:component className="UIxTopnavToolbar"/>
+      </md-toolbar>
+      <md-content class="md-flex"
+                  md-colors="::{backgroundColor: 'default-background-200'}"
+                  layout="column" layout-align="center center">
+        <div class="sg-md-title"
+             md-colors="::{color: 'default-background-500'}">
+          <var:string label:value="No mailbox selected"/>
+        </div>
+      </md-content>
+    </section>
+
+    <!-- Zoho Smart Chat bar pinned to the bottom (static, decorative) -->
+    <div class="zoho-smartchat">
+      <span class="zoho-sc-tabs">
+        <span class="zoho-sc-item zoho-sc-active"><md-icon>chat_bubble</md-icon>Chat</span>
+        <span class="zoho-sc-item"><md-icon>forum</md-icon>Kênh</span>
+        <span class="zoho-sc-item"><md-icon>person</md-icon>Liên hệ</span>
+      </span>
+      <span class="zoho-sc-hint">Đây là nội dung Smart Chat của bạn (Ctrl+Space)</span>
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="UIxMailFolderTemplate">
+  
+    <md-toolbar layout="row" layout-align="space-between center" class="toolbar-main">
+      <var:component className="UIxTopnavToolbar"/>
+    </md-toolbar>
+
+    <div layout="row" class="md-flex sg-block-print">
+      <var:component className="UIxMailFolderTemplate" />
+    </div>
+  </script>
+
+  <!-- template of contextual menu for a mailbox -->
+  <script type="text/ng-template" id="UIxMailFolderMenu">
+    <div md-whiteframe="3">
+      <md-menu-content width="3">
+        <md-menu-item>
+          <md-button type="button" md-menu-align-target="md-menu-align-target"
+                     ng-click="$menuCtrl.markFolderRead()">
+            <var:string label:value="Mark Folder Read"/>
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-hide="::$menuCtrl.folder.$isNoInferiors">
+          <md-button type="button" ng-click="$menuCtrl.newFolder()">
+            <var:string label:value="New Subfolder..."/>
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-show="::$menuCtrl.folder.$isEditable">
+          <md-button type="button" ng-click="$menuCtrl.editFolder($event)">
+            <var:string label:value="Rename"/>
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-show="::$menuCtrl.folder.$isEditable">
+          <md-menu md-position-mode="cascade target">
+            <md-button label:aria-label="Move To" ng-click="$mdMenu.open($event)">
+              <var:string label:value="Move To"/>
+            </md-button>
+            <md-menu-content class="md-dense" width="3">
+              <div ng-repeat="folder in
+                              $menuCtrl.folder.$account.$flattenMailboxes({ all: true })
+                              track by folder.path">
+                <md-menu-item>
+                  <md-button class="sg-no-wrap"
+                             aria-label="{{folder.$displayName}}"
+                             ng-disabled="$menuCtrl.isParentOf(folder.path)"
+                             ng-click="$menuCtrl.moveFolder(folder.path)">
+                    <span ng-class="::('sg-child-level-' + folder.level)"
+                          ng-bind="folder.$displayName"><!-- mailbox name --></span>
+                  </md-button>
+                </md-menu-item>
+              </div>
+            </md-menu-content>
+          </md-menu>
+        </md-menu-item>
+        <md-menu-item>
+          <md-button type="button" ng-click="$menuCtrl.compactFolder()">
+            <var:string label:value="Compact"/>
+          </md-button>
+        </md-menu-item>
+        <var:if condition="isCleanMailboxEnabled">
+          <md-menu-item ng-show="::($menuCtrl.folder.type != 'trash')">
+            <md-button type="button" ng-click="$menuCtrl.cleanMailbox()">
+              <var:string label:value="Clean folder"/>...
+            </md-button>
+          </md-menu-item>
+        </var:if>
+        <md-menu-item ng-show="::$menuCtrl.folder.$isEditable">
+          <md-button type="button" ng-click="$menuCtrl.confirmDelete()">
+            <var:string label:value="Delete"/>
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-show="::($menuCtrl.folder.type == 'trash')">
+          <md-button type="button" ng-click="$menuCtrl.emptyTrashFolder()">
+            <var:string label:value="Empty Trash"/>
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-show="::($menuCtrl.folder.type == 'junk')">
+          <md-button type="button" ng-click="$menuCtrl.emptyJunkFolder()">
+            <var:string label:value="Empty Junk Folder"/>
+          </md-button>
+        </md-menu-item>
+        <var:if condition="isMailExportEnabled">
+          <md-menu-item>
+            <md-button type="button" ng-click="$menuCtrl.folder.exportFolder()">
+              <var:string label:value="Export"/>
+            </md-button>
+          </md-menu-item>
+        </var:if>
+        <md-menu-item>
+          <md-button type="button" ng-click="$menuCtrl.showAdvancedSearch()">
+            <var:string label:value="Search"/>
+          </md-button>
+        </md-menu-item>
+        <md-divider ng-show="::$menuCtrl.folder.$canFolderAs()"><!-- divider --></md-divider>
+        <md-menu-item ng-show="::$menuCtrl.folder.$canFolderAs()">
+          <md-button type="button" ng-click="$menuCtrl.setFolderAs('Drafts')">
+            <var:string label:value="Set as Drafts"/>
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-show="::$menuCtrl.folder.$canFolderAs()">
+          <md-button type="button" ng-click="$menuCtrl.setFolderAs('Sent')">
+            <var:string label:value="Set as Sent"/>
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-show="::$menuCtrl.folder.$canFolderAs()">
+          <md-button type="button" ng-click="$menuCtrl.setFolderAs('Trash')">
+            <var:string label:value="Set as Trash"/>
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-show="::$menuCtrl.folder.$canFolderAs()">
+          <md-button type="button" ng-click="$menuCtrl.setFolderAs('Junk')">
+            <var:string label:value="Set as Junk"/>
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-show="::$menuCtrl.folder.$canFolderAs()">
+          <md-button type="button" ng-click="$menuCtrl.setFolderAs('Templates')">
+            <var:string label:value="Set as Templates"/>
+          </md-button>
+        </md-menu-item>
+        <var:if condition="isMailSharingEnabled">
+          <md-divider ng-show="::($menuCtrl.folder.type != 'additional')"><!-- divider --></md-divider>
+          <md-menu-item ng-show="::($menuCtrl.folder.type != 'additional')">
+            <md-button type="button" ng-click="$menuCtrl.share()">
+              <var:string label:value="Sharing..."/>
+            </md-button>
+          </md-menu-item>
+        </var:if>
+      </md-menu-content>
+    </div>
+  </script>
+
+  <!-- template of modal for mailbox sharing options -->
+  <script type="text/ng-template" id="UIxUserRightsEditor">
+    <var:component className="UIxMailUserRightsEditor" />
+  </script>
+
+  <!-- template of mail viewer -->
+  <script type="text/ng-template" id="UIxMailViewTemplate">
+    <var:component className="UIxMailViewTemplate" />
+  </script>
+
+</var:component>

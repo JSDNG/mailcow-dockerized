@@ -1,0 +1,64 @@
+{
+  "title": "Lưu trữ",
+  "unread": "",
+  "sort": "Order Received",
+  "replyPlaceholder": "@nhắc đến một người dùng hoặc nhóm để chia sẻ nội dung nói chuyện này",
+  "groups": [
+    {
+      "label": "Tháng 4",
+      "emails": [
+        {
+          "id": 1,
+          "sender": "hr@dragons.asia",
+          "subject": "Quyết định tăng lương 2026",
+          "time": "TH 2 THG 4",
+          "detail": {
+            "subject": "Quyết định tăng lương 2026",
+            "messages": [
+              {
+                "from": "Phòng Nhân sự",
+                "email": "hr@dragons.asia",
+                "date": "TH 2, 14 Thg 4 2026, 09:00",
+                "status": "LƯU TRỮ",
+                "body": [
+                  "Kính gửi Anh/Chị,",
+                  "Đính kèm quyết định điều chỉnh lương năm 2026.",
+                  "Trân trọng, Phòng Nhân sự"
+                ],
+                "attach": true
+              }
+            ]
+          },
+          "attach": true
+        }
+      ]
+    },
+    {
+      "label": "Tháng 3",
+      "emails": [
+        {
+          "id": 2,
+          "sender": "ceo@dragons.asia",
+          "subject": "Định hướng chiến lược Q2",
+          "time": "TH 6 THG 3",
+          "detail": {
+            "subject": "Định hướng chiến lược Q2",
+            "messages": [
+              {
+                "from": "CEO",
+                "email": "ceo@dragons.asia",
+                "date": "TH 6, 27 Thg 3 2026, 18:20",
+                "status": "LƯU TRỮ",
+                "body": [
+                  "Gửi toàn thể công ty,",
+                  "Chia sẻ định hướng chiến lược Quý 2/2026.",
+                  "Cảm ơn nỗ lực của mọi người."
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

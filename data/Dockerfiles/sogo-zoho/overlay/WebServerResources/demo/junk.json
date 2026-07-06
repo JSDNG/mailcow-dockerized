@@ -1,0 +1,62 @@
+{
+  "title": "Spam",
+  "unread": "",
+  "sort": "Order Received",
+  "replyPlaceholder": "@nhắc đến một người dùng hoặc nhóm để chia sẻ nội dung nói chuyện này",
+  "groups": [
+    {
+      "label": "Hôm nay",
+      "emails": [
+        {
+          "id": 1,
+          "sender": "winner@lottery-intl.com",
+          "subject": "CONGRATULATIONS! You won $1,000,000",
+          "time": "06:30 SA",
+          "detail": {
+            "subject": "CONGRATULATIONS! You won $1,000,000",
+            "messages": [
+              {
+                "from": "Lottery Intl",
+                "email": "winner@lottery-intl.com",
+                "date": "Hôm nay, 06:30 SA",
+                "status": "SPAM",
+                "body": [
+                  "You have been selected as our lucky winner!",
+                  "Click the link to claim your prize now.",
+                  "(Cảnh báo: email lừa đảo)"
+                ]
+              }
+            ]
+          },
+          "unread": true
+        }
+      ]
+    },
+    {
+      "label": "7 ngày vừa qua",
+      "emails": [
+        {
+          "id": 2,
+          "sender": "support@paypa1-secure.com",
+          "subject": "Your account has been limited",
+          "time": "TH 4 THG 6",
+          "detail": {
+            "subject": "Your account has been limited",
+            "messages": [
+              {
+                "from": "PayPal Security",
+                "email": "support@paypa1-secure.com",
+                "date": "TH 4, 04 Thg 6 2026, 22:48",
+                "status": "SPAM",
+                "body": [
+                  "We detected unusual activity. Verify your account immediately.",
+                  "(Cảnh báo: giả mạo)"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
