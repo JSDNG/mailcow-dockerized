@@ -77,12 +77,43 @@
     var els = document.querySelectorAll('[id="messagesList"] md-list-item.sg-message-list-item, [id="messagesList"] md-list-item');
     return Array.prototype.filter.call(els, function(el){ return !el.closest('.zoho-demo-layer'); });
   }
-  function openRealRow(realIndex){
-    // SOGo's md-list-item click handler lives on an inner <button class="md-button">,
-    // not the md-list-item itself — calling .click() on the item is a no-op.
-    var el = realRows()[realIndex];
-    if (!el) return;
-    try { (el.querySelector('button') || el).click(); } catch(e){}
+  // SOGo's message list is an Angular Material md-virtual-repeat: only the rows that
+  // fit the viewport exist as DOM nodes at any moment (recycled on scroll), so
+  // realRows() alone only ever sees a viewport-sized slice, never the whole folder.
+  function virtualScroller(){
+    return document.querySelector('[id="messagesList"] .md-virtual-repeat-container');
+  }
+  // Read a row's stable SOGo message uid straight from the Angular scope (same
+  // source realFlags() uses) so a message can be identified across scroll passes,
+  // where its DOM position/index keeps changing as rows get recycled.
+  function realUid(el){
+    try {
+      var sc = window.angular && angular.element(el).scope();
+      var msg = sc && sc.currentMessage;
+      return msg && msg.uid != null ? msg.uid : null;
+    } catch(e){ return null; }
+  }
+  function clickRow(el){ try { (el.querySelector('button') || el).click(); } catch(e){} }
+  function findRenderedByUid(uid){
+    var match = null;
+    realRows().some(function(el){ if (String(realUid(el)) === String(uid)) { match = el; return true; } return false; });
+    return match;
+  }
+  // Open a scraped real email. Its DOM row may not currently be rendered (virtual
+  // scroll), so jump the native scroller back to wherever scrapeAllReal() first saw
+  // this uid (email.scrollHint) and retry once the recycle settles.
+  function openRealRow(email){
+    var el = findRenderedByUid(email.uid);
+    if (el) { clickRow(el); return; }
+    var scroller = virtualScroller();
+    if (!scroller || email.scrollHint == null) return;
+    scraping = true;
+    scroller.scrollTop = email.scrollHint;
+    setTimeout(function(){
+      scraping = false;
+      var el2 = findRenderedByUid(email.uid);
+      if (el2) clickRow(el2);
+    }, 150);
   }
   // Read an element's visible text WITHOUT icon ligatures, hidden nodes, or the
   // date column. SOGo rows carry hidden <md-icon>error</md-icon> status icons whose
@@ -109,7 +140,7 @@
     } catch(e){}
     return { unread: unread, flagged: flagged };
   }
-  function scrapeReal(){
+  function scrapeReal(topHint){
     return realRows().map(function(el, i){
       function tx(sel){ return cleanText(el.querySelector(sel)); }
       var subj = tx('.sg-tile-subject') || tx('.sg-subject') || tx('.sg-md-body');
@@ -117,8 +148,59 @@
       var from = tx('.sg-md-subhead') || tx('.sg-tile-from') || tx('.sg-from');
       if (!subj && !from) { var t=cleanText(el); subj = t.slice(0,70); }
       var fl = realFlags(el);
-      return { id:'r'+i, real:true, realIndex:i, unread:fl.unread, flagged:fl.flagged,
+      var uid = realUid(el);
+      // Without a uid (e.g. SOGo markup changed and the scope lookup fails), fall
+      // back to a position+pass key — worse (can duplicate a row across overlapping
+      // passes) but never collapses two DIFFERENT messages into one like a bare
+      // positional id would under multi-pass scraping.
+      var id = uid != null ? ('u'+uid) : ('r'+(topHint||0)+'-'+i);
+      return { id:id, uid:uid, real:true, realIndex:i, unread:fl.unread, flagged:fl.flagged,
         sender:(from||'(người gửi)').slice(0,80), subject:(subj||'(không tiêu đề)').slice(0,90), time:(date||'').slice(0,20) };
+    });
+  }
+  // Drive SOGo's native virtual-repeat scroller from top to bottom, scraping at each
+  // stop and merging by uid, so the Zoho list shows every real message in the
+  // folder — not just the viewport-sized slice realRows() sees at rest. Falls back
+  // to a single scrapeReal() pass if no virtual-repeat container is found (e.g. the
+  // folder is short enough that everything is already rendered, or SOGo's markup
+  // changed and the selector no longer matches).
+  function scrapeAllReal(){
+    var scroller = virtualScroller();
+    if (!scroller) return Promise.resolve(scrapeReal());
+    var sizer = scroller.querySelector('.md-virtual-repeat-sizer');
+    var total = sizer ? (parseFloat(sizer.style.height) || 0) : scroller.scrollHeight;
+    var pageH = scroller.clientHeight || 1;
+    var step = Math.max(pageH - 20, 40);   // small overlap so no row falls between two stops
+    var startTop = scroller.scrollTop;
+    var merged = {}, order = [];
+    var MAX_PASSES = 80;   // guard against a runaway loop on a pathologically tall folder
+    scraping = true;
+    return new Promise(function(resolve){
+      var pass = 0, top = 0;
+      function mergeCurrent(){
+        scrapeReal(top).forEach(function(m){
+          if (!merged[m.id]) order.push(m.id);
+          m.scrollHint = top;
+          merged[m.id] = m;
+        });
+      }
+      function step_(){
+        scroller.scrollTop = top;
+        setTimeout(function(){
+          mergeCurrent();
+          pass++;
+          var atEnd = top >= (total - pageH) || pass >= MAX_PASSES;
+          if (atEnd){
+            if (pass >= MAX_PASSES) { try{ console.warn('[zoho-demo] scrapeAllReal: hit MAX_PASSES — list may be incomplete'); }catch(e){} }
+            scroller.scrollTop = startTop;
+            setTimeout(function(){ scraping = false; resolve(order.map(function(id){ return merged[id]; })); }, 30);
+            return;
+          }
+          top += step;
+          step_();
+        }, 90);   // let Angular's virtual-repeat re-render after the scroll
+      }
+      step_();
     });
   }
 
@@ -269,7 +351,7 @@
   }
 
   /* ---- state ---- */
-  var DATA = null, selectedId = null, byId = {}, loadedFolder = null;
+  var DATA = null, selectedId = null, byId = {}, loadedFolder = null, scraping = false;
   var filterMode = 'all', searchQuery = '';   // Zoho view filters + top search
 
   /* ---- search + view filters (client-side, on the Zoho list we render) ---- */
@@ -461,7 +543,7 @@
     restoreRealFace();   // put any prior embedded view back so SOGo can reuse #detailView
     var read = layer.querySelector('.zd-read');
     if (read){ read.style.display=''; read.innerHTML = realReadHTML(email); }
-    openRealRow(email.realIndex);
+    openRealRow(email);
     mountRealBody(layer, 0);
     enhanceDateTime(layer);   // cập nhật ngày + giờ:phút từ SOGo /view (async)
   }
@@ -545,17 +627,19 @@
   function loadFolder(folder, keepSelection){
     return getJSON(folder + '.json').catch(function(){ return { title: folder, sort:'Order Received', groups:[] }; })
       .then(function(d){
-        d.realEmails = scrapeReal();
-        d.groups = [];   // chỉ hiển thị MAIL THẬT (bỏ mail demo/fake) — danh sách theo
-                         // đúng thứ tự SOGo: thời gian giảm dần (mới trên, cũ dưới)
-        DATA = d; loadedFolder = folder; indexData(d);
-        // Keep the open email across in-folder list refreshes (e.g. new mail arriving);
-        // only drop the selection when switching folders. Drop ids no longer present.
-        if (!keepSelection || (selectedId != null && !byId[selectedId])) selectedId = null;
-        restoreRealFace();   // return any embedded real view to SOGo before tearing down the layer
-        var sec = findSection(); var old = sec && sec.querySelector(':scope > .zoho-demo-layer');
-        if (old) old.parentNode.removeChild(old);
-        place();
+        return scrapeAllReal().then(function(realEmails){
+          d.realEmails = realEmails;
+          d.groups = [];   // chỉ hiển thị MAIL THẬT (bỏ mail demo/fake) — danh sách theo
+                           // đúng thứ tự SOGo: thời gian giảm dần (mới trên, cũ dưới)
+          DATA = d; loadedFolder = folder; indexData(d);
+          // Keep the open email across in-folder list refreshes (e.g. new mail arriving);
+          // only drop the selection when switching folders. Drop ids no longer present.
+          if (!keepSelection || (selectedId != null && !byId[selectedId])) selectedId = null;
+          restoreRealFace();   // return any embedded real view to SOGo before tearing down the layer
+          var sec = findSection(); var old = sec && sec.querySelector(':scope > .zoho-demo-layer');
+          if (old) old.parentNode.removeChild(old);
+          place();
+        });
       });
   }
 
@@ -597,6 +681,7 @@
       relabelFolders();
       var obs = new MutationObserver(function(){ if(pending) return; pending=true; setTimeout(function(){
         pending=false;
+        if (scraping) return;   // our own programmatic scroll (full-folder scrape / open-by-uid) is in flight — its DOM churn isn't "new mail"
         relabelFolders();   // keep SOGo folder names localised across virtual-repeat re-renders
         var f = currentFolder();
         if (f !== loadedFolder) { loadFolder(f); return; }
