@@ -98,16 +98,33 @@
     } catch(e){ return null; }
   }
   function clickRow(el){ try { (el.querySelector('button') || el).click(); } catch(e){} }
-  function findRenderedByUid(uid){
+  // Same identity scheme scrapeReal() uses for each row's `id` (uid when the
+  // Angular scope is reachable, else a sender+subject+time content fingerprint).
+  // MUST match exactly — used to find a SPECIFIC row to open, not just to dedupe.
+  // Matching on bare uid alone is wrong here: on this build uid is always null
+  // (scope unreachable), so String(null) === String(null) would match whichever
+  // row happens to be first in realRows() — i.e. clicking ANY email opened the
+  // topmost (newest) one instead.
+  function rowId(el){
+    var uid = realUid(el);
+    if (uid != null) return 'u'+uid;
+    function tx(sel){ return cleanText(el.querySelector(sel)); }
+    var subj = tx('.sg-tile-subject') || tx('.sg-subject') || tx('.sg-md-body');
+    var date = tx('.sg-tile-date') || tx('.sg-date');
+    var from = tx('.sg-md-subhead') || tx('.sg-tile-from') || tx('.sg-from');
+    if (!subj && !from) { subj = cleanText(el).slice(0,70); }
+    return 'k'+from+'|'+subj+'|'+date;
+  }
+  function findRenderedById(id){
     var match = null;
-    realRows().some(function(el){ if (String(realUid(el)) === String(uid)) { match = el; return true; } return false; });
+    realRows().some(function(el){ if (rowId(el) === id) { match = el; return true; } return false; });
     return match;
   }
   // Open a scraped real email. Its DOM row may not currently be rendered (virtual
   // scroll), so jump the native scroller back to wherever scrapeAllReal() first saw
-  // this uid (email.scrollHint) and retry once the recycle settles.
+  // this id (email.scrollHint) and retry once the recycle settles.
   function openRealRow(email){
-    var el = findRenderedByUid(email.uid);
+    var el = findRenderedById(email.id);
     if (el) { clickRow(el); return; }
     var scroller = virtualScroller();
     if (!scroller || email.scrollHint == null) return;
@@ -115,7 +132,7 @@
     scroller.scrollTop = email.scrollHint;
     setTimeout(function(){
       scraping = false;
-      var el2 = findRenderedByUid(email.uid);
+      var el2 = findRenderedById(email.id);
       if (el2) clickRow(el2);
     }, 150);
   }
@@ -155,14 +172,11 @@
       var from = tx('.sg-md-subhead') || tx('.sg-tile-from') || tx('.sg-from');
       if (!subj && !from) { var t=cleanText(el); subj = t.slice(0,70); }
       var fl = realFlags(el);
-      var uid = realUid(el);
-      // realUid() needs a reachable Angular scope, which this production build
-      // doesn't expose (see realFlags() above) — so uid is normally null here.
-      // Fall back to a content fingerprint (sender+subject+time): stable across
-      // scroll passes since the same real message always renders the same text,
-      // unlike a positional index which shifts as virtual-repeat recycles rows.
-      var id = uid != null ? ('u'+uid) : ('k'+from+'|'+subj+'|'+date);
-      return { id:id, uid:uid, real:true, realIndex:i, unread:fl.unread, flagged:fl.flagged,
+      // id uses the SAME scheme as rowId() (uid when reachable, else a content
+      // fingerprint) — openRealRow() must be able to re-derive this exact id
+      // later from a freshly-rendered row to find it again.
+      var id = rowId(el);
+      return { id:id, uid:realUid(el), real:true, realIndex:i, unread:fl.unread, flagged:fl.flagged,
         sender:(from||'(người gửi)').slice(0,80), subject:(subj||'(không tiêu đề)').slice(0,90), time:(date||'').slice(0,20) };
     });
   }
