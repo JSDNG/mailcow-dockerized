@@ -39,6 +39,12 @@ Hard-refresh trình duyệt.
 
 > Lần đầu build kéo base image ~1 phút; các lần sau vài giây (chỉ COPY lại overlay).
 
+> **Cloudflare cache:** site chạy sau Cloudflare, cache file `.js`/`.css` tới 4
+> tiếng. Deploy đúng lên server KHÔNG có nghĩa live thấy ngay — nếu sửa
+> `zoho-demo.js`, nhớ tăng `?v=N` trong `SOGoUIAdditionalJSFiles`
+> (`data/conf/sogo/sogo.conf`) để buộc lấy bản mới, xem chi tiết ở
+> `ZOHO-UI-DOCS.md` mục 10.
+
 ## Rollback (nếu có gì sai)
 
 Xóa `docker-compose.override.yml` rồi:

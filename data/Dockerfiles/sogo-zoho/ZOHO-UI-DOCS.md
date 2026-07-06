@@ -188,6 +188,9 @@ docker compose up -d sogo-mailcow nginx-mailcow
   (`angular.element(...).scope()`) và biến đổi sang đúng shape — renderer giữ nguyên.
 - **Khi SOGo nâng version:** đổi tag `SOGO_IMAGE` trong `docker-compose.override.yml`,
   lấy lại 3 template từ `Alinto/sogo` đúng tag, áp lại các sửa đổi, build lại.
+- **Sau khi sửa `zoho-demo.js`:** nhớ tăng `?v=N` trong `SOGoUIAdditionalJSFiles`
+  (`data/conf/sogo/sogo.conf`) — nếu không, Cloudflare có thể tiếp tục phục vụ
+  bản cache cũ dù đã deploy đúng lên origin. Xem chi tiết ở mục 10.
 
 ---
 
@@ -230,6 +233,8 @@ click email đổi khung đọc, toggle on/off giữ nguyên SOGo thật.
   cụm icon phải (cloud/bell/apps), Smart Chat bar, toolbar khung đọc (Thông báo
   nhắc/Thêm tác vụ/Liên kết vĩnh viễn/Báo lại), ô bình luận đáy, STREAMS "Tạo một nhóm",
   TAG ⊞, THƯ MỤC ⚙/⊞.
+- ✅ **Đếm đủ mail thật trong Inbox/Sent** (trước đó bị giới hạn ~13 dòng do
+  `md-virtual-repeat` của SOGo) — đã verify trên live. Xem nguyên nhân + fix ở mục 10.
 
 #### Chức năng đã wire (zoho-demo.js)
 - `applyFilter()` + `filterMode`/`searchQuery`: lọc client-side trên list Zoho (real+fake),
@@ -242,10 +247,77 @@ click email đổi khung đọc, toggle on/off giữ nguyên SOGo thật.
 
 ---
 
-## 10. Lịch sử commit chính (nhánh `feature/fix-ui`)
+## 10. Lỗi đếm thiếu mail & cache Cloudflare (đã fix)
+
+### Vấn đề
+List Zoho chỉ hiện ~13 mail dù hộp thư có nhiều hơn hẳn (VD Inbox có ~61 mail
+nhưng chỉ hiện 13–16 dòng, kể cả sau khi cuộn xuống cuối).
+
+### Nguyên nhân
+SOGo dùng **virtual scroll** của Angular Material (`md-virtual-repeat`) cho
+`#messagesList`: chỉ tạo đủ `md-list-item` để lấp khung nhìn (~13 dòng), rồi
+**tái sử dụng đúng số node đó** khi cuộn — không phải 1 dòng DOM ứng với 1 email.
+`scrapeReal()` (cũ) chỉ đọc DOM tại một thời điểm nên luôn thấy đúng viewport,
+không bao giờ thấy toàn bộ folder. Xác nhận bằng cách đo `.md-virtual-repeat-sizer`
+(chiều cao ảo cho thanh cuộn, đại diện toàn bộ dữ liệu) chia cho chiều cao 1 dòng
+→ ra đúng tổng số mail thật, gấp nhiều lần số dòng hiển thị.
+
+### Fix (`zoho-demo.js`)
+- `scrapeAllReal()`: tự lái thanh cuộn gốc của SOGo (`.md-virtual-repeat-container`)
+  từ trên xuống hết folder, quét + gộp kết quả từng đợt lại theo id.
+- **Định danh để gộp (id):** ưu tiên `uid` đọc qua `angular.element(el).scope()`
+  — nhưng **bản SOGo đang chạy live tắt debug info của Angular ở production nên
+  `scope()` luôn trả `undefined`**, khiến gộp theo uid không hoạt động (trùng lặp
+  dòng). Fallback bắt buộc: **dấu vân tay nội dung** (người gửi + tiêu đề + thời
+  gian) làm id — ổn định qua các lượt cuộn mà không cần scope.
+  `realFlags()` (chưa đọc/gắn cờ) cũng đổi theo cùng lý do: đọc thẳng class CSS
+  `unread` / `sg-star-bg` Angular đã render sẵn trên dòng, thay vì qua scope.
+- **Đua tranh khi đổi thư mục** (đổi hash, không reload trang): có khoảnh khắc
+  SOGo đang tháo list cũ / chưa dựng xong list mới → dễ scrape trúng lúc rỗng,
+  hiện nhầm "0 mail". Fix bằng `waitForRows()` (chờ list xuất hiện lại trước khi
+  quét) + `loadToken` (mã thế hệ — huỷ kết quả của lượt quét thuộc thư mục người
+  dùng đã rời đi, tránh 2 lượt quét dẫm chân nhau trên cùng thanh cuộn).
+- **Đánh đổi UX:** quét toàn bộ trước khi render khiến folder lớn (Inbox ~61 mail)
+  "đứng hình" khoảng 0.5–1s rồi mới hiện đủ, thay vì hiện tức thời (nhưng thiếu)
+  như trước. Có thể cải thiện sau bằng cách render tăng dần theo từng đợt quét
+  thay vì chờ xong hết mới render — **chưa làm**.
+
+### Cache Cloudflare — bẫy khi deploy
+`mail.dragons.asia` chạy sau **Cloudflare** (proxy cam), cache file tĩnh
+(`.js`/`.css`) theo `cache-control: max-age=14400` (4 tiếng). **Deploy đúng lên
+origin (build image + rsync vào volume `sogo_web`) không có nghĩa là live thấy
+ngay** — Cloudflare có thể vẫn trả bản cache cũ (`cf-cache-status: HIT`) cho tới
+khi hết hạn hoặc được purge tay, dù server đã chạy đúng bản mới từ lâu.
+
+**Cách tránh vĩnh viễn:** `data/conf/sogo/sogo.conf` tham chiếu file kèm query
+string version:
+```
+SOGoUIAdditionalJSFiles = (
+  js/theme.js,
+  js/custom-sogo.js,
+  "js/zoho-demo.js?v=3"
+);
+```
+Mỗi lần sửa `zoho-demo.js`, **tăng số `v=`** rồi restart `sogo-mailcow` (file này
+là mount, không cần build lại) → URL đổi → Cloudflare coi là tài nguyên mới, tự
+lấy bản mới từ origin, không cần vào dashboard purge tay.
+
+Nghi ngờ live vẫn dính cache cũ thì kiểm tra thẳng response header:
+```bash
+curl -sD - -o /dev/null "https://mail.dragons.asia/SOGo/WebServerResources/js/zoho-demo.js?v=<N>"
+```
+`cf-cache-status: HIT` + `age` lớn → vẫn cache cũ (kiểm tra lại `v=` đã tăng
+chưa); `MISS` hoặc không có header đó → đã lấy đúng bản mới.
+
+---
+
+## 11. Lịch sử commit chính (nhánh `feature/fix-ui`)
 
 | Commit | Nội dung |
 |---|---|
+| `8a0708c` | Cache-bust `zoho-demo.js` (`?v=N` trong `sogo.conf`) — tránh Cloudflare phục vụ bản cache cũ sau deploy |
+| `a432f10` | Sửa lỗi trùng lặp mail khi gộp đa lượt quét (dedupe theo dấu vân tay nội dung, không phụ thuộc Angular scope) + fix đua tranh khi đổi thư mục (`loadToken`, `waitForRows`) |
+| `9bc91ce` | Quét toàn bộ folder qua virtual-repeat (`scrapeAllReal`) thay vì chỉ viewport — fix "hiển thị thiếu mail" |
 | *(mới)* | Khung đọc hiện **NGÀY + GIỜ:PHÚT**: fetch SOGo `.../folder<F>/<uid>/view` (đọc UID từ hash `#!/Mail/0/<F>/<uid>`) → `date` đầy đủ theo múi giờ user → format `DD-Mon-YY HH:MM` (`enhanceDateTime`/`formatWhen` trong `zoho-demo.js`) |
 | *(mới)* | Tăng độ giống Zoho: top bar sáng + brand + tab strip + icon phải; bỏ account header; Smart Chat bar; rail phải mở rộng; khung đọc mail thật khớp layout Zoho |
 | `6a83fd7` | Thêm section sidebar **STREAMS / TAG / GIAO DIỆN** (UI tĩnh) |
