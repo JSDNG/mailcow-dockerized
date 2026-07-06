@@ -80,8 +80,12 @@
   // SOGo's message list is an Angular Material md-virtual-repeat: only the rows that
   // fit the viewport exist as DOM nodes at any moment (recycled on scroll), so
   // realRows() alone only ever sees a viewport-sized slice, never the whole folder.
+  // The ACTUAL scrollable element is .md-virtual-repeat-scroller (overflow:auto),
+  // nested INSIDE .md-virtual-repeat-container (which is just a positioning
+  // wrapper, overflow:hidden — setting scrollTop on it is a silent no-op, fires
+  // no scroll event, and never re-renders anything).
   function virtualScroller(){
-    return document.querySelector('[id="messagesList"] .md-virtual-repeat-container');
+    return document.querySelector('[id="messagesList"] .md-virtual-repeat-scroller');
   }
   // Read a row's stable SOGo message uid straight from the Angular scope (same
   // source realFlags() uses) so a message can be identified across scroll passes,
