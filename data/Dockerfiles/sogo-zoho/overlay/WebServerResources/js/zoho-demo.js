@@ -617,6 +617,39 @@
     layer.querySelectorAll('.zd-row').forEach(function(r){ r.classList.toggle('zd-active', r.getAttribute('data-id') === String(id)); });
   }
 
+  // Open the message SOGo's own hash already points at when we didn't get there
+  // via a click in our list — e.g. the /zm/ URL-wrapper (data/web/zm/) driving a
+  // deep link (`/zm/#mail/folder/inbox/p/<uid>`), a bookmarked link, or the
+  // browser's back/forward. Without this, `.zd-read` stays empty — a blank pane
+  // with no reply/Xóa icons — even though SOGo already rendered the real message
+  // underneath (hidden by our CSS): SOGo's hash navigation happens independently
+  // of our click handler, so the overlay never learns a message was opened.
+  // Reuses selectEmail()/showRealPane() so delete/reply wiring matches a normal
+  // click-driven open exactly.
+  function hashMsgUid(){
+    var m = (location.hash||'').match(/\/Mail\/\d+\/[^\/]+\/(\d+)(?:[\/?#]|$)/i);
+    return m ? m[1] : null;
+  }
+  function syncPaneFromHash(layer, tries){
+    if (selectedId != null) return;   // something is already open (click or a prior sync) — don't clobber it
+    var uid = hashMsgUid();
+    if (!uid) return;                 // hash is just a folder — nothing to open
+    var face = document.querySelector('#detailView .sg-face');
+    if (!face){
+      // SOGo hasn't finished rendering the message yet — retry for a few seconds.
+      if ((tries||0) < 30) setTimeout(function(){ syncPaneFromHash(layer, (tries||0)+1); }, 150);
+      return;
+    }
+    if (selectedId != null) return;   // a click won the race while we were waiting
+    var h = face.querySelector('.sg-md-headline');
+    var subject = h ? h.textContent.replace(/\s+/g,' ').trim() : '(không tiêu đề)';
+    var fromEl = face.querySelector('.sg-md-subhead');
+    var sender = fromEl ? cleanText(fromEl) : '';
+    var id = 'h'+uid;
+    byId[id] = { id:id, real:true, realIndex:0, subject:subject, sender:sender, time:'' };
+    selectEmail(layer, id);
+  }
+
   function removeFake(id){
     function strip(arr){ return arr.filter(function(e){ return e.id !== id; }); }
     DATA.realEmails = strip(DATA.realEmails||[]);
@@ -744,6 +777,8 @@
     loadFolder(currentFolder()).then(function(){
       var pending=false, lastReal=-1;
       relabelFolders();
+      var layer0 = document.querySelector('.zoho-demo-layer');
+      if (layer0) syncPaneFromHash(layer0);   // page loaded straight onto a deep link (e.g. /zm/#mail/folder/inbox/p/<uid>)
       var obs = new MutationObserver(function(){ if(pending) return; pending=true; setTimeout(function(){
         pending=false;
         if (scraping) return;   // our own programmatic scroll (full-folder scrape / open-by-uid) is in flight — its DOM churn isn't "new mail"
@@ -755,7 +790,12 @@
         place();
       }, 250); });
       obs.observe(document.body, {childList:true, subtree:true});
-      window.addEventListener('hashchange', function(){ var f=currentFolder(); if(f!==loadedFolder) loadFolder(f); });
+      window.addEventListener('hashchange', function(){
+        var f = currentFolder();
+        if (f !== loadedFolder) { loadFolder(f); return; }
+        var layer = document.querySelector('.zoho-demo-layer');
+        if (layer) syncPaneFromHash(layer);   // hash changed to point at a message (e.g. the /zm/ wrapper navigating, or back/forward)
+      });
       window.addEventListener('resize', place);
     });
   }
