@@ -14676,3 +14676,19 @@ header HS_HEADER_2918		Subject:=~/hat Ihre Facebok-Seite gemeldet\./
 describe HS_HEADER_2918		Heinlein Support Spamschutz Header-2918 Spam
 score HS_HEADER_2918		10
 
+header HS_HEADER_2919		From:=~/.*heinlein\-support Notification.*/i
+describe HS_HEADER_2919		Heinlein Support Spamschutz Header-2919 Phishing
+score HS_HEADER_2919		10
+
+header HS_HEADER_2922		Subject:=~/.*heinlein\-support Verification required.*/i
+describe HS_HEADER_2922		Heinlein Support Spamschutz Header-2922 Phishing
+score HS_HEADER_2922		10
+
+header HS_HEADER_2923		To:=~/.*\@0335boli.com.*/
+describe HS_HEADER_2923		Heinlein Support Spamschutz Header-2923 Spam
+score HS_HEADER_2923		10
+
+header HS_HEADER_2924		Subject:=~/HELLO DEAR \!?\!?/
+describe HS_HEADER_2924		Heinlein Support Spamschutz Header-2924 Spam
+score HS_HEADER_2924		5
+

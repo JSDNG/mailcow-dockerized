@@ -1,1 +1,1 @@
-server_name mail.dragon.com autodiscover.* autoconfig.* gmail.com pressify.us dragons.asia;
+server_name mail.dragons.asia autodiscover.* autoconfig.* gmail.com pressify.us dragons.asia mail.dragons.asia;
