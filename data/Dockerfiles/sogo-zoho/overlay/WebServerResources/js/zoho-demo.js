@@ -702,7 +702,16 @@
     var sec = findSection(); if (!sec) return;
     if (getComputedStyle(sec).position === 'static') sec.style.position = 'relative';
     var layer = sec.querySelector(':scope > .zoho-demo-layer');
-    if (!layer){ layer = buildLayer(); sec.appendChild(layer); if (selectedId) selectEmail(layer, selectedId); }
+    if (!layer){
+      layer = buildLayer(); sec.appendChild(layer);
+      if (selectedId && byId[selectedId]) selectEmail(layer, selectedId);
+      // indexData() (called by every loadFolder(), including background refreshes)
+      // wipes byId — a hash-driven open (syncPaneFromHash) has no scraped row to
+      // survive that wipe, so its selectedId would otherwise dangle forever with
+      // an empty pane and no retry. Drop it and let syncPaneFromHash rebuild it
+      // from the still-current hash.
+      else if (selectedId) { selectedId = null; syncPaneFromHash(layer); }
+    }
     var tb = sec.querySelector('.toolbar-main');
     layer.style.top = (tb ? tb.offsetHeight : 56) + 'px';
     // Match the fake list to SOGo's native message-list column width so the native
